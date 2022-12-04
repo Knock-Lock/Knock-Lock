@@ -50,19 +50,17 @@ fun LockNotiItem(
         modifier = modifier,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        Spacer(modifier = Modifier.height(4.dp))
         LockNotiTop(
-            modifier = Modifier.padding(horizontal = 10.dp),
+            modifier = Modifier.padding(horizontal = 10.dp).padding(top = 4.dp),
             icon = null,
             appTitle = notification.appTitle,
             time = notification.notiTime
         )
         LockNotiContent(
-            modifier = Modifier.padding(horizontal = 10.dp).wrapContentHeight(),
+            modifier = Modifier.padding(horizontal = 10.dp).padding(bottom = 4.dp).wrapContentHeight(),
             title = notification.title,
             content = notification.content
         )
-        Spacer(modifier = Modifier.height(4.dp))
     }
 }
 
