@@ -1,1 +1,16 @@
-<resources></resources>
+<resources>
+    <!-- Developer -->
+    <string name="daq">DaQ</string>
+    <string name="daq_comment">"안녕하세요. DaQ입니다. 피드백은 언제나 환영입니다.\n양질의 서비스를 위해서 지속적인 관심 부탁드리겠습니다.!@"</string>
+    <string name="jaeryo">Jaeryo</string>
+    <string name="jaeryo_comment">많은 관심과 사랑 부탁해요!</string>
+    <string name="hence">Hence</string>
+    <string name="hence_comment">안드로이드 재밌지만 너무 어려워요.\n커피로 저를 혼내주시면 감사합니다.</string>
+    <!-- Credit -->
+    <string name="github">Github</string>
+    <string name="evalutae">앱 평가하기</string>
+    <string name="inquiry">문의하기</string>
+    <string name="open_source_license">오픈소스 라이선스</string>
+    <string name="service">이용약관</string>
+    <string name="donate">후원하기</string>
+</resources>
