@@ -46,7 +46,7 @@ enum class KeyBoardImageButtonState(val imageSize: IntSize) {
 
 @Composable
 fun KeyboardTextButton(
-    textButton: KeyboardButtonType.TextButton,
+    text: KeyboardButtonType.Text,
     onClickTextButton: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -78,7 +78,7 @@ fun KeyboardTextButton(
                     buttonState = KeyBoardTextButtonState.PRESSED
                 },
             textAlign = TextAlign.Center,
-            text = textButton.text,
+            text = text.text,
             fontSize = animateFontSize.sp
         )
     }
@@ -87,7 +87,7 @@ fun KeyboardTextButton(
 
 @Composable
 fun KeyboardImageButton(
-    imageButton: KeyboardButtonType.ImageButton,
+    image: KeyboardButtonType.Image,
     onClickImageButton: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -118,7 +118,7 @@ fun KeyboardImageButton(
         contentAlignment = Alignment.Center
     ) {
         Image(
-            painter = painterResource(id = imageButton.drawableRes),
+            painter = painterResource(id = image.drawableRes),
             modifier = Modifier
                 .size(animateImageSize.width.dp, animateImageSize.height.dp),
             contentDescription = null
@@ -131,7 +131,7 @@ fun KeyboardImageButton(
  */
 @Composable
 fun KeyboardEmptyButton(
-    _emptyButton: KeyboardButtonType.EmptyButton,
+    _emptyButton: KeyboardButtonType.Empty,
     modifier: Modifier = Modifier
 ) {
     Spacer(modifier = modifier.size(buttonWidth, buttonHeight))
@@ -144,13 +144,25 @@ fun NumberKeyboard(
     val buttons = remember {
         mutableListOf<KeyboardButtonType>().apply {
             addAll(
-                (9 downTo 1).map { number ->
-                    KeyboardButtonType.TextButton(number.toString())
-                }
+                listOf(
+                    KeyboardButtonType.Text("7"), KeyboardButtonType.Text("8"), KeyboardButtonType.Text("9")
+                )
             )
-            add(KeyboardButtonType.EmptyButton)
-            add(KeyboardButtonType.TextButton("0"))
-            add(KeyboardButtonType.ImageButton(R.drawable.ic_backspace))
+            addAll(
+                listOf(
+                    KeyboardButtonType.Text("4"), KeyboardButtonType.Text("5"), KeyboardButtonType.Text("6")
+                )
+            )
+            addAll(
+                listOf(
+                    KeyboardButtonType.Text("1"), KeyboardButtonType.Text("2"), KeyboardButtonType.Text("3")
+                )
+            )
+            addAll(
+                listOf(
+                    KeyboardButtonType.Empty, KeyboardButtonType.Text("0"), KeyboardButtonType.Image(R.drawable.ic_backspace)
+                )
+            )
         }.toList()
     }
 
@@ -160,19 +172,19 @@ fun NumberKeyboard(
     ) {
         items(buttons) { type ->
             when (type) {
-                is KeyboardButtonType.TextButton -> {
+                is KeyboardButtonType.Text -> {
                     KeyboardTextButton(
-                        textButton = type,
+                        text = type,
                         onClickTextButton = { }
                     )
                 }
-                is KeyboardButtonType.ImageButton -> {
+                is KeyboardButtonType.Image -> {
                     KeyboardImageButton(
-                        imageButton = type,
+                        image = type,
                         onClickImageButton = { }
                     )
                 }
-                is KeyboardButtonType.EmptyButton -> {
+                is KeyboardButtonType.Empty -> {
                     KeyboardEmptyButton(_emptyButton = type)
                 }
             }
@@ -185,7 +197,7 @@ fun NumberKeyboard(
 fun KeyboardTextButtonPrev() {
     Surface {
         KeyboardTextButton(
-            KeyboardButtonType.TextButton("1"),
+            KeyboardButtonType.Text("1"),
             onClickTextButton = {}
         )
     }
@@ -196,7 +208,7 @@ fun KeyboardTextButtonPrev() {
 fun KeyboardImageButtonPrev() {
     Surface {
         KeyboardImageButton(
-            KeyboardButtonType.ImageButton(R.drawable.ic_backspace),
+            KeyboardButtonType.Image(R.drawable.ic_backspace),
             onClickImageButton = {}
         )
     }
@@ -211,9 +223,9 @@ fun KeyboardPrev() {
 }
 
 sealed interface KeyboardButtonType {
-    data class ImageButton(@DrawableRes val drawableRes: Int) : KeyboardButtonType
-    data class TextButton(val text: String) : KeyboardButtonType
-    object EmptyButton : KeyboardButtonType
+    data class Image(@DrawableRes val drawableRes: Int) : KeyboardButtonType
+    data class Text(val text: String) : KeyboardButtonType
+    object Empty : KeyboardButtonType
 }
 
 private val buttonWidth = 56.dp
