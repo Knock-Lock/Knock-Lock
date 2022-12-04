@@ -15,6 +15,7 @@ import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
 fun LockScreenRoute() {
+    LockScreen()
 }
 
 @Composable
