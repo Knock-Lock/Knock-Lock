@@ -44,7 +44,7 @@ data class Notification(
 @Composable
 fun LockNotiItem(
     modifier: Modifier = Modifier,
-    notification: Notification = Notification.Test
+    notification: Notification
 ) {
     Column(
         modifier = modifier,
@@ -129,7 +129,8 @@ fun PreviewLockNotiItem() {
                 color = color,
                 shape = RoundedCornerShape(4.dp)
             )
-                .clip(RoundedCornerShape(4.dp))
+                .clip(RoundedCornerShape(4.dp)),
+            notification = Notification.Test
         )
     }
 }
