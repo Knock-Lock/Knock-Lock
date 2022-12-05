@@ -1,5 +1,7 @@
 package com.knocklock.presentation.ui.setting.credit
 
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -9,7 +11,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -19,9 +20,9 @@ import androidx.compose.ui.unit.sp
 import com.knocklock.presentation.R
 
 data class Developer(
-    val name: String,
-    val profile: Painter,
-    val comment: String
+    @StringRes val nameRes: Int,
+    @DrawableRes val profileRes: Int,
+    @StringRes val commentRes: Int
 )
 
 @Composable
@@ -41,7 +42,7 @@ fun DeveloperItem(
             modifier = modifier
                 .size(110.dp)
                 .clip(RoundedCornerShape(16.dp)),
-            painter = developer.profile,
+            painter = painterResource(id = developer.profileRes),
             contentDescription = null,
 
             )
@@ -52,14 +53,14 @@ fun DeveloperItem(
             verticalArrangement = Arrangement.Top
         ) {
             Text(
-                text = developer.name,
+                text = stringResource(id = developer.nameRes),
                 fontSize = 22.sp,
                 color = Color.Black,
                 fontWeight = FontWeight.SemiBold
             )
             Spacer(modifier = modifier.padding(2.dp))
             Text(
-                text = developer.comment,
+                text = stringResource(id = developer.commentRes),
                 fontSize = 13.sp,
                 color = Color.DarkGray,
                 fontWeight = FontWeight.Medium
@@ -73,9 +74,9 @@ fun DeveloperItem(
 private fun PreviewDeveloper() {
     DeveloperItem(
         developer = Developer(
-            stringResource(id = R.string.daq),
-            painterResource(id = R.drawable.hyunkuk),
-            stringResource(id = R.string.daq_comment)
+            R.string.hence,
+            R.drawable.hyunsu,
+            R.string.hence_comment
         )
     )
 }
