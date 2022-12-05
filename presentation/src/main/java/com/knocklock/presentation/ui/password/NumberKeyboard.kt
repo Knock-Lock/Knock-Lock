@@ -148,7 +148,7 @@ fun NumberKeyboard(
         mutableListOf<KeyboardButtonType>().apply {
             addAll(
                 listOf(
-                    KeyboardButtonType.Text("7"), KeyboardButtonType.Text("8"), KeyboardButtonType.Text("9")
+                    KeyboardButtonType.Text("1"), KeyboardButtonType.Text("2"), KeyboardButtonType.Text("3")
                 )
             )
             addAll(
@@ -158,7 +158,7 @@ fun NumberKeyboard(
             )
             addAll(
                 listOf(
-                    KeyboardButtonType.Text("1"), KeyboardButtonType.Text("2"), KeyboardButtonType.Text("3")
+                    KeyboardButtonType.Text("7"), KeyboardButtonType.Text("8"), KeyboardButtonType.Text("9")
                 )
             )
             addAll(
