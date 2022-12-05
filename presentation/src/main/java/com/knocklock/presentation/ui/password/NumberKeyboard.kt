@@ -3,6 +3,7 @@
 package com.knocklock.presentation.ui.password
 
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.animateIntSizeAsState
 import androidx.compose.animation.core.tween
@@ -26,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -33,9 +35,10 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.knocklock.presentation.R
+import java.util.Collections.addAll
 
-enum class KeyBoardTextButtonState(val fontSize: Int) {
-    PRESSED(20), NONE(14)
+enum class KeyBoardTextButtonState(val fontScale: Float) {
+    PRESSED(1.5f), NONE(1f)
 }
 
 enum class KeyBoardImageButtonState(val imageSize: IntSize) {
@@ -52,8 +55,8 @@ fun KeyboardTextButton(
 ) {
     var buttonState by remember { mutableStateOf(KeyBoardTextButtonState.NONE) }
     var buttonEnabled by remember { mutableStateOf(true) }
-    val animateFontSize by animateIntAsState(
-        targetValue = buttonState.fontSize,
+    val animateFontSize by animateFloatAsState(
+        targetValue = buttonState.fontScale,
         animationSpec = tween(durationMillis = 200),
         finishedListener = {
             buttonEnabled = true
@@ -63,23 +66,23 @@ fun KeyboardTextButton(
 
     Box(
         modifier = modifier
-            .size(buttonWidth, buttonHeight),
+            .size(buttonWidth, buttonHeight)
+            .clickable(
+                enabled = buttonEnabled,
+                interactionSource = MutableInteractionSource(),
+                indication = null,
+                onClick = {
+                    buttonEnabled = false
+                    buttonState = KeyBoardTextButtonState.PRESSED
+                    onClickTextButton()
+                }
+            ),
         contentAlignment = Alignment.Center
     ) {
         Text(
-            modifier = Modifier
-                .clickable(
-                    enabled = buttonEnabled,
-                    interactionSource = MutableInteractionSource(),
-                    indication = null
-                ) {
-                    buttonEnabled = false
-                    onClickTextButton()
-                    buttonState = KeyBoardTextButtonState.PRESSED
-                },
+            modifier = Modifier.scale(animateFontSize),
             textAlign = TextAlign.Center,
-            text = text.text,
-            fontSize = animateFontSize.sp
+            text = text.text
         )
     }
 }
