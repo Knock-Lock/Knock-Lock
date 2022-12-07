@@ -24,19 +24,30 @@ import com.knocklock.presentation.ui.theme.KnockLockTheme
  */
 
 data class Notification(
+    val id: Int,
     val icon: Bitmap?,
-    val appTitle: String,
-    val notiTime: String,
-    val title: String,
-    val content: String
+    val appTitle: String?,
+    val notiTime: String?,
+    val title: String?,
+    val content: String?
 ) {
     companion object {
         val Test = Notification(
+            id = 0,
             icon = null,
             appTitle = "Kakao",
             notiTime = "Now",
             title = "KnockLock app 개발중",
             content = "이거 너무나 재미가 있는걸~"
+        )
+
+        val EMPTY = Notification(
+            id = 0,
+            icon = null,
+            appTitle = null,
+            notiTime = null,
+            title = null,
+            content = null
         )
     }
 }
@@ -53,13 +64,13 @@ fun LockNotiItem(
         LockNotiTop(
             modifier = Modifier.padding(horizontal = 10.dp).padding(top = 4.dp),
             icon = null,
-            appTitle = notification.appTitle,
-            time = notification.notiTime
+            appTitle = notification.appTitle ?: "",
+            time = notification.notiTime ?: ""
         )
         LockNotiContent(
             modifier = Modifier.padding(horizontal = 10.dp).padding(bottom = 4.dp).wrapContentHeight(),
-            title = notification.title,
-            content = notification.content
+            title = notification.title ?: "",
+            content = notification.content ?: ""
         )
     }
 }
