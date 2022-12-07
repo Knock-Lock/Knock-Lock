@@ -4,7 +4,6 @@ package com.knocklock.presentation.ui.password
 
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.animateIntSizeAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -15,16 +14,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.GridCells
-import androidx.compose.foundation.lazy.LazyVerticalGrid
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -33,9 +28,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.knocklock.presentation.R
-import java.util.Collections.addAll
 
 enum class KeyBoardTextButtonState(val fontScale: Float) {
     PRESSED(1.5f), NONE(1f)
@@ -148,29 +141,37 @@ fun NumberKeyboard(
         mutableListOf<KeyboardButtonType>().apply {
             addAll(
                 listOf(
-                    KeyboardButtonType.Text("1"), KeyboardButtonType.Text("2"), KeyboardButtonType.Text("3")
+                    KeyboardButtonType.Text("1"),
+                    KeyboardButtonType.Text("2"),
+                    KeyboardButtonType.Text("3")
                 )
             )
             addAll(
                 listOf(
-                    KeyboardButtonType.Text("4"), KeyboardButtonType.Text("5"), KeyboardButtonType.Text("6")
+                    KeyboardButtonType.Text("4"),
+                    KeyboardButtonType.Text("5"),
+                    KeyboardButtonType.Text("6")
                 )
             )
             addAll(
                 listOf(
-                    KeyboardButtonType.Text("7"), KeyboardButtonType.Text("8"), KeyboardButtonType.Text("9")
+                    KeyboardButtonType.Text("7"),
+                    KeyboardButtonType.Text("8"),
+                    KeyboardButtonType.Text("9")
                 )
             )
             addAll(
                 listOf(
-                    KeyboardButtonType.Empty, KeyboardButtonType.Text("0"), KeyboardButtonType.Image(R.drawable.ic_backspace)
+                    KeyboardButtonType.Empty,
+                    KeyboardButtonType.Text("0"),
+                    KeyboardButtonType.Image(R.drawable.ic_backspace)
                 )
             )
         }.toList()
     }
 
     LazyVerticalGrid(
-        cells = GridCells.Fixed(3),
+        columns = GridCells.Fixed(3),
         modifier = modifier.fillMaxSize()
     ) {
         items(buttons) { type ->

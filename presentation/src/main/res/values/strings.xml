@@ -13,4 +13,5 @@
     <string name="open_source_license">오픈소스 라이선스</string>
     <string name="service">이용약관</string>
     <string name="donate">후원하기</string>
+    <string name="knock_lock_credit">KnockLock 크레딧</string>
 </resources>
