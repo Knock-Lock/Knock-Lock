@@ -77,7 +77,7 @@ private fun Header(
             .fillMaxWidth()
             .height(headerHeight)
             .graphicsLayer {
-                translationY = -scroll.value.toFloat() / 2f
+                translationY = -scroll.value.toFloat() / 1.2f
                 alpha = (-1f / headerHeightPx) * scroll.value + 1
             }
     ) {
@@ -159,6 +159,7 @@ private fun Body(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun Toolbar(
     modifier: Modifier = Modifier,
@@ -178,17 +179,18 @@ private fun Toolbar(
         enter = fadeIn(animationSpec = tween(300)),
         exit = fadeOut(animationSpec = tween(300))
     ) {
-        SmallTopAppBar(
-            modifier = modifier.background(
-                brush = Brush.horizontalGradient(
-                    listOf(Color(0xff1FAB89), Color(0xff6AFCBD))
-                )
-            ),
+        CenterAlignedTopAppBar(
+            modifier = modifier
+                .background(
+                    brush = Brush.horizontalGradient(
+                        listOf(Color(0xff1FAB89), Color(0xff6AFCBD))
+                    )
+                ),
             navigationIcon = {
                 IconButton(
                     modifier = modifier
                         .padding(horizontal = 16.dp)
-                        .size(36.dp),
+                        .size(24.dp),
                     onClick = {},
                 ) {
                     Icon(
@@ -275,7 +277,7 @@ private fun Title(
                 titleHeightPx = it.size.height.toFloat()
                 titleWidthPx = it.size.width.toFloat()
             },
-        text = "Knock-Lock 크레딧",
+        text = stringResource(R.string.knock_lock_credit),
         fontSize = 30.sp,
         fontWeight = FontWeight.Bold
     )
