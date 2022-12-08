@@ -24,13 +24,13 @@ interface Menu {
 
 object ActivatePassword : Menu {
     override val title = "비밀번호 활성화"
-    override val isNeedSwitch = false
+    override val isNeedSwitch = true
     override val route = "activate_password"
 }
 
 object ChangePassword : Menu {
     override val title = "비밀번호 변경"
-    override val isNeedSwitch = true
+    override val isNeedSwitch = false
     override val route = "change_password"
 }
 
@@ -43,7 +43,9 @@ object Credit : Menu {
 @Composable
 fun MenuItem(
     modifier: Modifier = Modifier,
-    menuClickEvent: () -> Unit,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    onMenuSelected: () -> Unit,
     item: Menu,
 ) {
     Row(
@@ -51,7 +53,7 @@ fun MenuItem(
             .fillMaxWidth()
             .height(55.dp)
             .clickable(
-                onClick = menuClickEvent
+                onClick = onMenuSelected
             )
             .background(Color.White),
         verticalAlignment = Alignment.CenterVertically,
@@ -66,7 +68,7 @@ fun MenuItem(
         if (item.isNeedSwitch) {
             Switch(
                 modifier = modifier.padding(end = 16.dp),
-                checked = mCheckedState.value, onCheckedChange = { mCheckedState.value = it },
+                checked = checked, onCheckedChange = onCheckedChange,
                 colors = SwitchDefaults.colors(
                     checkedThumbColor = Color.White,
                     uncheckedThumbColor = Color.White,
@@ -83,22 +85,30 @@ fun MenuItem(
 @Composable
 fun MenuList(
     modifier: Modifier = Modifier,
-    menuClickEvent: () -> Unit
+    onMenuSelected: () -> Unit,
+    onCheckedChange: (Boolean) -> Unit,
+    checked: Boolean
 ) {
     Column(modifier = modifier) {
         MenuItem(
-            menuClickEvent = menuClickEvent,
-            item = ActivatePassword
+            onMenuSelected = onMenuSelected,
+            item = ActivatePassword,
+            onCheckedChange = onCheckedChange,
+            checked = checked
         )
         Divider(modifier, 1.dp, Color.Transparent)
         MenuItem(
-            menuClickEvent = menuClickEvent,
-            item = ChangePassword
+            onMenuSelected = onMenuSelected,
+            item = ChangePassword,
+            onCheckedChange = onCheckedChange,
+            checked = checked
         )
         Divider(modifier, 1.dp, Color.Transparent)
         MenuItem(
-            menuClickEvent = menuClickEvent,
-            item = Credit
+            onMenuSelected = onMenuSelected,
+            item = Credit,
+            onCheckedChange = onCheckedChange,
+            checked = checked
         )
     }
 
@@ -107,5 +117,10 @@ fun MenuList(
 @Preview
 @Composable
 private fun PreviewMenuList() {
-    MenuList(menuClickEvent = {})
+    MenuItem(
+        onMenuSelected = { },
+        item = ActivatePassword,
+        onCheckedChange = { },
+        checked = false
+    )
 }
