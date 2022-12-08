@@ -1,4 +1,4 @@
-package com.knocklock.presentation.ui.setting.menu
+package com.knocklock.presentation.ui.setting
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -13,7 +13,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.knocklock.presentation.R
-import com.knocklock.presentation.ui.setting.SettingViewModel
+import com.knocklock.presentation.ui.setting.menu.MenuList
 
 
 @OptIn(ExperimentalMaterial3Api::class)
