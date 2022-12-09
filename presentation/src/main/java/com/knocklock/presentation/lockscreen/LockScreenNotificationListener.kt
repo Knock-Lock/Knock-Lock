@@ -21,7 +21,8 @@ class LockScreenNotificationListener : NotificationListenerService() {
     private lateinit var notificationRepository: NotificationRepository
     override fun onCreate() {
         super.onCreate()
-        notificationRepository = NotificationRepositoryImpl(this) // data layer 의존성 제거 hilt로
+        // TODO: data layer 의존성 제거 hilt로
+        notificationRepository = NotificationRepositoryImpl(this)
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
@@ -41,9 +42,9 @@ class LockScreenNotificationListener : NotificationListenerService() {
                 notificationRepository.insertNotification(
                     NotificationDomainModel(
                         id = 0,
-                        title = title,
-                        subText = subText,
-                        text = text
+                        title = title ?: "",
+                        subText = subText ?: "",
+                        text = text ?: ""
                     )
                 )
             }
