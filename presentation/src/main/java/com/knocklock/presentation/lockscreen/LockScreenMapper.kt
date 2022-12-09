@@ -6,7 +6,7 @@ import com.knocklock.domain.model.Notification as DomainNotification
  * @Created by 김현국 2022/12/07
  */
 
-fun DomainNotification.toModel() = Notification.EMPTY.copy(
+fun DomainNotification.toModel() = Notification(
     id = this.id,
     icon = null,
     appTitle = this.subText,

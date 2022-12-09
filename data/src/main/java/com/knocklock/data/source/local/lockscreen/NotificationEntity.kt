@@ -11,16 +11,7 @@ import androidx.room.PrimaryKey
 data class NotificationEntity(
 
     @PrimaryKey(autoGenerate = true) val id: Int,
-    val title: String?,
-    val text: String?,
-    val subText: String?
-) {
-    companion object {
-        val EMPTY = NotificationEntity(
-            id = 0,
-            title = null,
-            text = null,
-            subText = null
-        )
-    }
-}
+    val title: String = "",
+    val text: String = "",
+    val subText: String = ""
+)

@@ -8,16 +8,16 @@ import com.knocklock.domain.model.Notification
  * @Time 3:28 PM
  */
 
-fun Notification.toEntity() = NotificationEntity.EMPTY.copy(
+fun Notification.toEntity() = NotificationEntity(
+    id = this.id,
     title = this.title,
     text = this.text,
     subText = this.subText
 )
 
-fun NotificationEntity.toModel() = Notification.EMPTY.copy(
+fun NotificationEntity.toModel() = Notification(
     id = this.id,
     title = this.title,
     text = this.text,
     subText = this.subText
-
 )
