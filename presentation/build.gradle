@@ -67,4 +67,6 @@ dependencies {
     // NotificationLogic Dependency
     implementation project(path: ':data') // hilt 적용 후 제거
 
+    implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.5")
+
 }
