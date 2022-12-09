@@ -11,7 +11,9 @@ import androidx.lifecycle.ViewModelProvider
 import com.knocklock.presentation.lockscreen.LockScreenRoute
 import com.knocklock.presentation.lockscreen.LockScreenViewModel
 import com.knocklock.presentation.ui.theme.KnockLockTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

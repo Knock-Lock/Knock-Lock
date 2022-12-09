@@ -1,7 +1,8 @@
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
-    id 'org.jetbrains.kotlin.kapt'
+    id 'kotlin-kapt'
+    id 'com.google.dagger.hilt.android'
 }
 
 android {
@@ -31,7 +32,12 @@ android {
 
 dependencies {
     implementation project(":domain")
-    testImplementation 'junit:junit:4.12'
+    testImplementation 'junit:junit:4.13.2'
+
+
+    // DI
+    implementation "com.google.dagger:hilt-android:$hilt_version"
+    kapt "com.google.dagger:hilt-compiler:$hilt_version"
 
     // Room Dependency
     def room_version = "2.4.3"
@@ -41,5 +47,8 @@ dependencies {
 
     // Coroutine
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
+}
 
+kapt {
+    correctErrorTypes true
 }
