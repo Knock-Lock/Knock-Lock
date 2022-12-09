@@ -17,7 +17,7 @@ class LockScreenViewModel constructor(context: Context) : ViewModel() {
 
     private val notificationRepository = NotificationRepositoryImpl(context = context)
 
-    private val _notificationList: MutableStateFlow<NotificationUiState> = MutableStateFlow(NotificationUiState.Init)
+    private val _notificationList: MutableStateFlow<NotificationUiState> = MutableStateFlow(NotificationUiState.Empty)
     val notificationList = _notificationList.asStateFlow()
 
     init {
