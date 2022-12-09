@@ -2,6 +2,7 @@ plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
+    id 'kotlinx-serialization'
     id 'com.google.dagger.hilt.android'
 }
 
@@ -47,6 +48,11 @@ dependencies {
 
     // Coroutine
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
+
+    // DataStore
+    implementation "androidx.datastore:datastore-preferences:1.0.0"
+
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1"
 }
 
 kapt {
