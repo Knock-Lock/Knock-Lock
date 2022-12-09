@@ -8,7 +8,6 @@ import com.knocklock.data.source.local.lockscreen.NotificationLocalDataSource
 import com.knocklock.domain.model.Notification
 import com.knocklock.domain.repository.NotificationRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 
 /**
@@ -35,13 +34,9 @@ class NotificationRepositoryImpl constructor(
     }
 
     override fun getNotificationList(): Flow<List<Notification>> {
-        return flow {
-            notificationLocalDataSource.getNotificationList().collect { notificationEntityList ->
-                emit(
-                    notificationEntityList.map {
-                        it.toModel()
-                    }
-                )
+        return notificationLocalDataSource.getNotificationList().map { list ->
+            list.map {
+                it.toModel()
             }
         }
     }
