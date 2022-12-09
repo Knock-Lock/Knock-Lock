@@ -40,24 +40,34 @@ fun LockScreen(
         Box(modifier = Modifier.background(color = MaterialTheme.colorScheme.primary)) // Image로 추후 변경
         when (notificationUiState) {
             is NotificationUiState.Success -> {
-                LazyColumn(
-                    modifier = Modifier,
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 10.dp)
-                ) {
-                    items(
-                        items = notificationUiState.notificationList,
-                        key = { notification -> notification.id }
-                    ) { notification ->
-                        LockNotiItem(
-                            modifier = Modifier.background(color = Color.White, shape = RoundedCornerShape(10.dp)),
-                            notification = notification
-                        )
-                    }
-                }
+                LockScreenNotificationListColumn(
+                    notificationList = notificationUiState.notificationList
+                )
             }
-            is NotificationUiState.Init -> {
+            is NotificationUiState.Empty -> {
             }
+        }
+    }
+}
+
+@Composable
+fun LockScreenNotificationListColumn(
+    modifier: Modifier = Modifier,
+    notificationList: List<Notification>
+) {
+    LazyColumn(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+        contentPadding = PaddingValues(10.dp)
+    ) {
+        items(
+            items = notificationList,
+            key = { notification -> notification.id }
+        ) { notification ->
+            LockNotiItem(
+                modifier = Modifier.background(color = Color.White, shape = RoundedCornerShape(10.dp)),
+                notification = notification
+            )
         }
     }
 }
