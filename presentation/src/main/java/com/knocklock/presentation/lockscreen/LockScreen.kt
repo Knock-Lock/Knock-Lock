@@ -15,6 +15,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 
 /**
  * @Created by 김현국 2022/12/02
@@ -41,7 +43,7 @@ fun LockScreen(
         when (notificationUiState) {
             is NotificationUiState.Success -> {
                 LockScreenNotificationListColumn(
-                    notificationList = notificationUiState.notificationList
+                    notificationList = notificationUiState.notificationList.toImmutableList()
                 )
             }
             is NotificationUiState.Empty -> {
@@ -53,7 +55,7 @@ fun LockScreen(
 @Composable
 fun LockScreenNotificationListColumn(
     modifier: Modifier = Modifier,
-    notificationList: List<Notification>
+    notificationList: ImmutableList<Notification>
 ) {
     LazyColumn(
         modifier = modifier,

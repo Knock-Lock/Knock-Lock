@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,6 +24,7 @@ import com.knocklock.presentation.ui.theme.KnockLockTheme
  * @Time 3:06 PM
  */
 
+@Immutable
 data class Notification(
     val id: Int = 0,
     val icon: Bitmap? = null,
