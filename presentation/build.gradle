@@ -1,6 +1,8 @@
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
+    id 'com.google.dagger.hilt.android'
 }
 
 android {
@@ -44,6 +46,10 @@ android {
     }
 }
 
+kapt {
+    correctErrorTypes true
+}
+
 dependencies {
     implementation project(":domain")
 
@@ -59,9 +65,20 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1"
 
     testImplementation 'junit:junit:4.13.2'
+
+    // DI
+    implementation "com.google.dagger:hilt-android:$hilt_version"
+    kapt "com.google.dagger:hilt-compiler:$hilt_version"
+
     androidTestImplementation 'androidx.test.ext:junit:1.1.4'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_ui_version"
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_ui_version"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_ui_version"
+
+    // NotificationLogic Dependency
+    implementation project(path: ':data') // hilt 적용 후 제거
+
+    implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.5")
+
 }
