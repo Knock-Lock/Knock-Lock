@@ -10,10 +10,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.knocklock.presentation.R
 import com.knocklock.presentation.ui.setting.menu.MenuList
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 
 @Composable
 fun SettingRoute(
@@ -21,13 +22,14 @@ fun SettingRoute(
     onMenuSelected: () -> Unit,
     onBackPressedIconSelected: () -> Unit
 ) {
-    val passwordActivateState by viewModel.isActivated.collectAsState()
+    val passwordActivateState by viewModel.isPasswordActivated.collectAsState()
 
     SettingScreen(
         onBackPressedIconSelected = onBackPressedIconSelected,
         onMenuSelected = onMenuSelected,
         onSwitchChanged = viewModel::tmpChangeSwitchChecked,
-        passwordActivateState = passwordActivateState
+        passwordActivateState = passwordActivateState,
+        menuList = viewModel.menuList.toImmutableList()
     )
 }
 
@@ -38,7 +40,8 @@ fun SettingScreen(
     onBackPressedIconSelected: () -> Unit,
     onMenuSelected: () -> Unit,
     onSwitchChanged: (Boolean) -> Unit,
-    passwordActivateState: Boolean
+    passwordActivateState: Boolean,
+    menuList: ImmutableList<SettingMenu>
 ) {
     Scaffold(
         topBar = { SettingHeader(modifier, onBackPressedIconSelected) },
@@ -48,8 +51,9 @@ fun SettingScreen(
             SettingBody(
                 modifier,
                 onMenuSelected,
-                onSwitchChanged = onSwitchChanged,
-                passwordActivateState
+                onSwitchChanged,
+                passwordActivateState,
+                menuList
             )
         }
     }
@@ -60,13 +64,14 @@ private fun SettingBody(
     modifier: Modifier = Modifier,
     onMenuSelected: () -> Unit,
     onSwitchChanged: (Boolean) -> Unit,
-    checked: Boolean
+    checked: Boolean,
+    menuList: ImmutableList<SettingMenu>
 ) {
     Surface(
         modifier.fillMaxSize(),
         color = Color(0xffEFEEF3)
     ) {
-        MenuList(modifier, onMenuSelected, onSwitchChanged, checked)
+        MenuList(modifier, onMenuSelected, onSwitchChanged, checked, menuList)
     }
 }
 
@@ -99,17 +104,5 @@ private fun SettingHeader(
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = Color.White
         )
-    )
-}
-
-
-@Preview
-@Composable
-fun PreviewSettingScreen() {
-    SettingScreen(
-        onBackPressedIconSelected = { },
-        onMenuSelected = {},
-        onSwitchChanged = {},
-        passwordActivateState = false
     )
 }
