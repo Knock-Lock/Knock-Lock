@@ -16,4 +16,10 @@
     <string name="knock_lock_credit">KnockLock 크레딧</string>
     <!-- Setting -->
     <string name="setting">설정</string>
+    <string name="actaivate_password">비밀번호 활성화</string>
+    <string name="activate_password_route">activate_password</string>
+    <string name="chagne_password">비밀번호 변경</string>
+    <string name="change_password_route">change_password_route</string>
+    <string name="credit">크레딧</string>
+    <string name="credit_route">credit_route</string>
 </resources>
