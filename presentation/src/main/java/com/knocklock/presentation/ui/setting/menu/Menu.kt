@@ -77,7 +77,7 @@ fun MenuList(
         MenuItem(
             onMenuSelected = onMenuSelected,
             item = SettingMenu.SwitchMenu(
-                title = stringResource(R.string.actaivate_password),
+                title = stringResource(R.string.activate_password),
                 isChecked = checked,
                 onSwitchChanged = onCheckedChange,
                 route = stringResource(R.string.activate_password_route)
@@ -109,7 +109,7 @@ private fun PreviewMenuList() {
     MenuItem(
         onMenuSelected = { },
         item = SettingMenu.SwitchMenu(
-            title = stringResource(R.string.actaivate_password),
+            title = stringResource(R.string.activate_password),
             isChecked = false,
             onSwitchChanged = { },
             route = stringResource(R.string.activate_password_route)

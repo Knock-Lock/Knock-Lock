@@ -6,15 +6,30 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.knocklock.presentation.R
 import com.knocklock.presentation.ui.setting.menu.MenuList
 
+@Composable
+fun SettingRoute(
+    viewModel: SettingViewModel,
+    onMenuSelected: () -> Unit,
+    onBackPressedIconSelected: () -> Unit
+) {
+    val passwordActivateState by viewModel.isActivated.collectAsState()
+
+    SettingScreen(
+        onBackPressedIconSelected = onBackPressedIconSelected,
+        onMenuSelected = onMenuSelected,
+        onSwitchChanged = viewModel::tmpChangeSwitchChecked,
+        passwordActivateState = passwordActivateState
+    )
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -22,7 +37,8 @@ fun SettingScreen(
     modifier: Modifier = Modifier,
     onBackPressedIconSelected: () -> Unit,
     onMenuSelected: () -> Unit,
-    settingViewModel: SettingViewModel = viewModel()
+    onSwitchChanged: (Boolean) -> Unit,
+    passwordActivateState: Boolean
 ) {
     Scaffold(
         topBar = { SettingHeader(modifier, onBackPressedIconSelected) },
@@ -32,8 +48,8 @@ fun SettingScreen(
             SettingBody(
                 modifier,
                 onMenuSelected,
-                onCheckedChange = { settingViewModel.tmpChangeSwitchChecked(it) },
-                settingViewModel.isActivated.collectAsState().value
+                onSwitchChanged = onSwitchChanged,
+                passwordActivateState
             )
         }
     }
@@ -43,14 +59,14 @@ fun SettingScreen(
 private fun SettingBody(
     modifier: Modifier = Modifier,
     onMenuSelected: () -> Unit,
-    onCheckedChange: (Boolean) -> Unit,
+    onSwitchChanged: (Boolean) -> Unit,
     checked: Boolean
 ) {
     Surface(
         modifier.fillMaxSize(),
         color = Color(0xffEFEEF3)
     ) {
-        MenuList(modifier, onMenuSelected, onCheckedChange, checked)
+        MenuList(modifier, onMenuSelected, onSwitchChanged, checked)
     }
 }
 
@@ -90,5 +106,10 @@ private fun SettingHeader(
 @Preview
 @Composable
 fun PreviewSettingScreen() {
-    SettingScreen(onBackPressedIconSelected = {}, onMenuSelected = {})
+    SettingScreen(
+        onBackPressedIconSelected = { },
+        onMenuSelected = {},
+        onSwitchChanged = {},
+        passwordActivateState = false
+    )
 }
