@@ -13,8 +13,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.knocklock.presentation.R
 import com.knocklock.presentation.ui.setting.menu.MenuList
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.toImmutableList
 
 @Composable
 fun SettingRoute(
@@ -22,14 +20,13 @@ fun SettingRoute(
     onMenuSelected: () -> Unit,
     onBackPressedIconSelected: () -> Unit
 ) {
-    val passwordActivateState by viewModel.isPasswordActivated.collectAsState()
+    val userSettings by viewModel.userSetting.collectAsState()
 
     SettingScreen(
         onBackPressedIconSelected = onBackPressedIconSelected,
         onMenuSelected = onMenuSelected,
-        onSwitchChanged = viewModel::tmpChangeSwitchChecked,
-        passwordActivateState = passwordActivateState,
-        menuList = viewModel.menuList.toImmutableList()
+        onChangedPasswordActivated = viewModel::onChangedPasswordActivated,
+        userSettings = userSettings
     )
 }
 
@@ -39,9 +36,8 @@ fun SettingScreen(
     modifier: Modifier = Modifier,
     onBackPressedIconSelected: () -> Unit,
     onMenuSelected: () -> Unit,
-    onSwitchChanged: (Boolean) -> Unit,
-    passwordActivateState: Boolean,
-    menuList: ImmutableList<SettingMenu>
+    onChangedPasswordActivated: (Boolean) -> Unit,
+    userSettings: UserSettings
 ) {
     Scaffold(
         topBar = { SettingHeader(modifier, onBackPressedIconSelected) },
@@ -51,9 +47,8 @@ fun SettingScreen(
             SettingBody(
                 modifier,
                 onMenuSelected,
-                onSwitchChanged,
-                passwordActivateState,
-                menuList
+                onChangedPasswordActivated,
+                userSettings
             )
         }
     }
@@ -63,15 +58,19 @@ fun SettingScreen(
 private fun SettingBody(
     modifier: Modifier = Modifier,
     onMenuSelected: () -> Unit,
-    onSwitchChanged: (Boolean) -> Unit,
-    checked: Boolean,
-    menuList: ImmutableList<SettingMenu>
+    onChangedPasswordActivated: (Boolean) -> Unit,
+    userSettings: UserSettings
 ) {
     Surface(
         modifier.fillMaxSize(),
         color = Color(0xffEFEEF3)
     ) {
-        MenuList(modifier, onMenuSelected, onSwitchChanged, checked, menuList)
+        MenuList(
+            modifier,
+            onMenuSelected,
+            onChangedPasswordActivated,
+            userSettings
+        )
     }
 }
 
