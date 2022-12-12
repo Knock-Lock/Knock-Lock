@@ -15,6 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 
@@ -25,7 +26,7 @@ import kotlinx.collections.immutable.toImmutableList
 
 @Composable
 fun LockScreenRoute(
-    lockScreenViewModel: LockScreenViewModel
+    lockScreenViewModel: LockScreenViewModel = hiltViewModel()
 ) {
     val notificationUiState by lockScreenViewModel.notificationList.collectAsState()
     LockScreen(notificationUiState = notificationUiState)
