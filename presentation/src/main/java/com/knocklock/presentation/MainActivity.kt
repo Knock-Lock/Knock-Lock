@@ -26,11 +26,9 @@ class MainActivity : ComponentActivity() {
             startActivity(intent)
         }
 
-        val factory = LockScreenFactory(this)
-        val lockScreenViewModel = ViewModelProvider(this, factory).get(LockScreenViewModel::class.java)
         setContent {
             KnockLockTheme {
-                LockScreenRoute(lockScreenViewModel)
+                LockScreenRoute()
             }
         }
     }
@@ -40,13 +38,3 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-class LockScreenFactory(
-    private val context: Context
-) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(LockScreenViewModel::class.java)) {
-            return LockScreenViewModel(context) as T
-        }
-        throw IllegalArgumentException("Not found ViewModel Class")
-    }
-}
