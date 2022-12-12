@@ -4,9 +4,10 @@ import android.app.Notification
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.text.TextUtils
-import com.knocklock.data.repository.NotificationRepositoryImpl
-import com.knocklock.domain.repository.NotificationRepository
+import com.knocklock.domain.usecase.notification.InsertNotificationUseCase
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
+import javax.inject.Inject
 import com.knocklock.domain.model.Notification as NotificationDomainModel
 
 /**
@@ -14,16 +15,13 @@ import com.knocklock.domain.model.Notification as NotificationDomainModel
  * @Time 5:50 PM
  */
 
+@AndroidEntryPoint
 class LockScreenNotificationListener : NotificationListenerService() {
 
     private val job by lazy { SupervisorJob() }
     private val scope by lazy { CoroutineScope(Dispatchers.IO + job) }
-    private lateinit var notificationRepository: NotificationRepository
-    override fun onCreate() {
-        super.onCreate()
-        // TODO: data layer 의존성 제거 hilt로
-        notificationRepository = NotificationRepositoryImpl(this)
-    }
+
+    @Inject lateinit var insertNotificationUseCase: InsertNotificationUseCase
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         super.onNotificationPosted(sbn)
@@ -39,7 +37,7 @@ class LockScreenNotificationListener : NotificationListenerService() {
             val largeIcon = notification.getLargeIcon()
 
             scope.launch {
-                notificationRepository.insertNotification(
+                insertNotificationUseCase.invoke(
                     NotificationDomainModel(
                         id = 0,
                         title = title ?: "",
