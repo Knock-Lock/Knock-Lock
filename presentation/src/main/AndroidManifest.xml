@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <application>
         <activity
             android:name=".MainActivity"
@@ -9,6 +9,14 @@
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".lockscreen.LockScreenActivity"
+            android:showOnLockScreen="true"
+            android:launchMode="singleTop"
+            android:exported="true">
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
 
@@ -28,6 +36,10 @@
                 android:name="android.service.notification.disabled_filter_types"
                 android:value="ongoing|silent">
             </meta-data>
+        </service>
+
+        <service
+            android:name=".lockscreen.StartApplicationService">
         </service>
     </application>
 
