@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.room.Room
 import com.knocklock.data.source.local.AppDatabase
 import com.knocklock.data.source.local.AppDatabase.Companion.AppDatabaseName
-import com.knocklock.data.source.local.AppDatabase_Impl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
