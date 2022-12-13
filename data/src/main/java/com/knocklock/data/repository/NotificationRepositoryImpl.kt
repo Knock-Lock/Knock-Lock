@@ -5,8 +5,11 @@ import com.knocklock.data.mapper.toModel
 import com.knocklock.data.source.local.lockscreen.NotificationLocalDataSource
 import com.knocklock.domain.model.Notification
 import com.knocklock.domain.repository.NotificationRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 /**
@@ -23,7 +26,9 @@ class NotificationRepositoryImpl @Inject constructor(
     }
 
     override suspend fun deleteAllNotification() {
-        notificationLocalDataSource.deleteAllNotification()
+        withContext(Dispatchers.IO) {
+            notificationLocalDataSource.deleteAllNotification()
+        }
     }
 
     override suspend fun deleteNotificationById(id: Int) {
@@ -35,6 +40,6 @@ class NotificationRepositoryImpl @Inject constructor(
             list.map {
                 it.toModel()
             }
-        }
+        }.flowOn(Dispatchers.IO)
     }
 }
