@@ -30,19 +30,19 @@ class LockScreenNotificationListener : NotificationListenerService() {
         if (sbn != null && !TextUtils.isEmpty(packageName)) {
             val notification: Notification = sbn.notification
             val extras = notification.extras
-            val title = extras.getString(Notification.EXTRA_TITLE)
-            val text = extras.getString(Notification.EXTRA_TEXT)
-            val subText = extras.getString(Notification.EXTRA_SUB_TEXT)
+            val title = extras.getString(Notification.EXTRA_TITLE) ?: ""
+            val text = extras.getString(Notification.EXTRA_TEXT) ?: ""
+            val subText = extras.getString(Notification.EXTRA_SUB_TEXT) ?:""
             val smallIcon = notification.smallIcon
             val largeIcon = notification.getLargeIcon()
 
             scope.launch {
-                insertNotificationUseCase.invoke(
+                insertNotificationUseCase(
                     NotificationDomainModel(
                         id = 0,
-                        title = title ?: "",
-                        subText = subText ?: "",
-                        text = text ?: ""
+                        title = title,
+                        subText = subText,
+                        text = text
                     )
                 )
             }
