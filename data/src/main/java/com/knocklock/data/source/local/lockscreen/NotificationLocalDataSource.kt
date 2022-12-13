@@ -2,12 +2,13 @@ package com.knocklock.data.source.local.lockscreen
 
 import com.knocklock.data.source.local.AppDatabase
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
 /**
  * @Created by 김현국 2022/12/06
  * @Time 2:26 PM
  */
-class NotificationLocalDataSource constructor(
+class NotificationLocalDataSource @Inject constructor(
     private val appDatabase: AppDatabase
 ) {
 

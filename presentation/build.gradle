@@ -76,8 +76,7 @@ dependencies {
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_ui_version"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_ui_version"
 
-    // NotificationLogic Dependency
-    implementation project(path: ':data') // hilt 적용 후 제거
+    implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
 
     implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.5")
 
