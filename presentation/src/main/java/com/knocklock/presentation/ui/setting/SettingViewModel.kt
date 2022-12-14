@@ -29,9 +29,9 @@ class SettingViewModel @Inject constructor(
         viewModelScope.launch {
             getUserTypeUseCase().collect { user ->
                 if (user.authenticationType == AuthenticationType.PASSWORD) {
-                    userSetting.update { userSetting.value.copy(isPasswordActivated = true) }
+                    userSetting.value = UserSettings(isPasswordActivated = true)
                 } else {
-                    userSetting.update { userSetting.value.copy(isPasswordActivated = false) }
+                    userSetting.value = UserSettings(isPasswordActivated = false)
                 }
             }
         }
