@@ -37,16 +37,10 @@ class SettingViewModel @Inject constructor(
         }
     }
 
-    private fun updateUserSetting() {
-        userSetting.update { setting ->
-            UserSettings(isPasswordActivated = !setting.isPasswordActivated)
-        }
-    }
 
     fun onChangedPasswordActivated(checked: Boolean) {
         viewModelScope.launch {
             changeAuthenticationTypeUseCase(checked)
-            updateUserSetting()
         }
     }
 }
