@@ -1,6 +1,8 @@
 package com.knocklock.data.di
 
+import com.knocklock.data.repository.NotificationRepositoryImpl
 import com.knocklock.data.repository.UserRepositoryImpl
+import com.knocklock.domain.repository.NotificationRepository
 import com.knocklock.domain.repository.UserRepository
 import dagger.Binds
 import dagger.Module
