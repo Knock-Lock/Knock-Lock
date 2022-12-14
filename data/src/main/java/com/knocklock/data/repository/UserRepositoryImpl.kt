@@ -6,14 +6,20 @@ import com.knocklock.data.source.local.userpreference.AuthenticationType
 import com.knocklock.data.source.local.userpreference.UserPreference
 import com.knocklock.domain.model.User
 import com.knocklock.domain.repository.UserRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
 class UserRepositoryImpl @Inject constructor(
-    private val userDataStore: DataStore<UserPreference>
+    private val userDataStore: DataStore<UserPreference>,
 ) : UserRepository {
-    override suspend fun getUser(): User =
-        userDataStore.data.first().toDomain()
+
+    override fun getUser(): Flow<User> = flow {
+        emit(userDataStore.data.first().toDomain())
+    }
 
     override suspend fun updatedPassword(password: String) {
         userDataStore.updateData { userPreference ->
