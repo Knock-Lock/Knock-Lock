@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class UserRepositoryImpl @Inject constructor(
-    private val userDataStore: DataStore<UserPreference>,
+    private val userDataStore: DataStore<UserPreference>
 ) : UserRepository {
 
     override fun getUser() = userDataStore.data.map {
