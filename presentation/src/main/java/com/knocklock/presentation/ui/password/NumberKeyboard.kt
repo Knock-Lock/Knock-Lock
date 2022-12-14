@@ -10,6 +10,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -165,7 +166,7 @@ fun NumberKeyboard(
 
     LazyVerticalGrid(
         columns = GridCells.Fixed(3),
-        modifier = modifier.fillMaxSize()
+        modifier = modifier.fillMaxWidth()
     ) {
         items(buttons) { type ->
             when (type) {
