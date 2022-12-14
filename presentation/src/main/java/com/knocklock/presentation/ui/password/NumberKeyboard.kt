@@ -1,12 +1,9 @@
-@file:OptIn(ExperimentalFoundationApi::class)
-
 package com.knocklock.presentation.ui.password
 
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntSizeAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -122,12 +119,8 @@ fun KeyboardImageButton(
     }
 }
 
-/**
- * @param _emptyButton: 현재는 사용하지 않지만 통일성과 확장성을 위해 전달
- */
 @Composable
 fun KeyboardEmptyButton(
-    _emptyButton: KeyboardButtonType.Empty,
     modifier: Modifier = Modifier
 ) {
     Spacer(modifier = modifier.size(buttonWidth, buttonHeight))
@@ -189,7 +182,7 @@ fun NumberKeyboard(
                     )
                 }
                 is KeyboardButtonType.Empty -> {
-                    KeyboardEmptyButton(_emptyButton = type)
+                    KeyboardEmptyButton()
                 }
             }
         }
