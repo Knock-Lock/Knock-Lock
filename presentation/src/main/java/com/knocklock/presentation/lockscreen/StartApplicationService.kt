@@ -31,7 +31,6 @@ class StartApplicationService : Service() {
             receiver = StartApplicationReceiver()
             val filter = IntentFilter().apply {
                 addAction(Intent.ACTION_SCREEN_OFF)
-                addAction(Intent.ACTION_SCREEN_ON)
                 addAction(Intent.ACTION_BOOT_COMPLETED)
             }
             registerReceiver(receiver, filter)
@@ -43,7 +42,7 @@ class StartApplicationService : Service() {
             if (receiver == null) {
                 receiver = StartApplicationReceiver()
                 val filter = IntentFilter().apply {
-                    addAction(Intent.ACTION_SCREEN_ON)
+                    addAction(Intent.ACTION_SCREEN_OFF)
                     addAction(Intent.ACTION_BOOT_COMPLETED)
                 }
                 registerReceiver(receiver, filter)
@@ -80,12 +79,12 @@ class StartApplicationService : Service() {
             .build()
     }
 
-//    override fun onDestroy() {
-//        super.onDestroy()
-//        if (receiver != null) {
-//            unregisterReceiver(receiver)
-//        }
-//    }
+    override fun onDestroy() {
+        super.onDestroy()
+        if (receiver != null) {
+            unregisterReceiver(receiver)
+        }
+    }
 
     override fun onBind(p0: Intent?): IBinder? {
         return null

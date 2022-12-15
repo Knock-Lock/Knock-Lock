@@ -12,7 +12,7 @@ class StartApplicationReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
         when (intent?.action) {
-            Intent.ACTION_SCREEN_ON -> {
+            Intent.ACTION_SCREEN_OFF -> {
                 startLockScreen(context)
             }
             Intent.ACTION_BOOT_COMPLETED -> {
@@ -23,14 +23,13 @@ class StartApplicationReceiver : BroadcastReceiver() {
 
     private fun startLockScreen(context: Context?) {
         if (context != null) {
-            try{
+            try {
                 val intent = Intent(context, LockScreenActivity::class.java)
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 context.startActivity(intent)
-            }catch(e: Exception){
+            } catch (e: Exception) {
                 println(e.stackTraceToString())
             }
-
         }
     }
 }
