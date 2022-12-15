@@ -38,7 +38,7 @@ class LockScreenNotificationListener : NotificationListenerService() {
 
             if (title.isNotBlank() && text.isNotBlank()) {
                 scope.launch {
-                    notificationRepository.insertNotification(
+                    insertNotificationUseCase(
                         NotificationDomainModel(
                             id = 0,
                             title = title,
