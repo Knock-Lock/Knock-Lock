@@ -13,7 +13,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingViewModel @Inject constructor(
-    private val getUserUseCase: GetUserUseCase,
+    getUserUseCase: GetUserUseCase,
     private val updatePasswordUseCase: UpdatePasswordUseCase,
     private val changeAuthenticationTypeUseCase: ChangeAuthenticationTypeUseCase
 ) : ViewModel() {
@@ -24,7 +24,11 @@ class SettingViewModel @Inject constructor(
 
     fun onChangedPasswordActivated(checked: Boolean) {
         viewModelScope.launch {
-            changeAuthenticationTypeUseCase(checked)
+            if (checked) {
+                changeAuthenticationTypeUseCase(AuthenticationType.PASSWORD)
+            } else {
+                changeAuthenticationTypeUseCase(AuthenticationType.GESTURE)
+            }
         }
     }
 }
