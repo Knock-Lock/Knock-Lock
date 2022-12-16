@@ -1,9 +1,13 @@
 package com.knocklock.domain.repository
 
+import com.knocklock.domain.model.AuthenticationType
 import com.knocklock.domain.model.User
+import kotlinx.coroutines.flow.Flow
 
 interface UserRepository {
-    suspend fun getUser(): User
+    fun getUser(): Flow<User>
 
     suspend fun updatedPassword(password: String)
+
+    suspend fun changeMode(type: AuthenticationType)
 }

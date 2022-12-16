@@ -1,18 +1,35 @@
 package com.knocklock.presentation.ui.setting
 
 import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
+import androidx.lifecycle.viewModelScope
+import com.knocklock.domain.model.AuthenticationType
+import com.knocklock.domain.usecase.setting.ChangeAuthenticationTypeUseCase
+import com.knocklock.domain.usecase.setting.GetUserUseCase
+import com.knocklock.domain.usecase.setting.UpdatePasswordUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-// TODO Hilt 세팅전 임시 세팅
-//  DataStore나 SharedPreference에서 활성화 갑 가져와야함
-class SettingViewModel : ViewModel() {
+@HiltViewModel
+class SettingViewModel @Inject constructor(
+    getUserUseCase: GetUserUseCase,
+    private val updatePasswordUseCase: UpdatePasswordUseCase,
+    private val changeAuthenticationTypeUseCase: ChangeAuthenticationTypeUseCase
+) : ViewModel() {
 
-    val userSetting = MutableStateFlow(
-        UserSettings(isPasswordActivated = false)
-    )
+    val userSetting = getUserUseCase().map { user ->
+        UserSettings(isPasswordActivated = user.authenticationType == AuthenticationType.PASSWORD)
+    }
 
     fun onChangedPasswordActivated(checked: Boolean) {
-
+        viewModelScope.launch {
+            if (checked) {
+                changeAuthenticationTypeUseCase(AuthenticationType.PASSWORD)
+            } else {
+                changeAuthenticationTypeUseCase(AuthenticationType.GESTURE)
+            }
+        }
     }
 }
 
