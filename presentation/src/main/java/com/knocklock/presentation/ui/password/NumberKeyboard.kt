@@ -1,18 +1,16 @@
-@file:OptIn(ExperimentalFoundationApi::class)
-
 package com.knocklock.presentation.ui.password
 
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntSizeAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -122,12 +120,8 @@ fun KeyboardImageButton(
     }
 }
 
-/**
- * @param _emptyButton: 현재는 사용하지 않지만 통일성과 확장성을 위해 전달
- */
 @Composable
 fun KeyboardEmptyButton(
-    _emptyButton: KeyboardButtonType.Empty,
     modifier: Modifier = Modifier
 ) {
     Spacer(modifier = modifier.size(buttonWidth, buttonHeight))
@@ -172,7 +166,7 @@ fun NumberKeyboard(
 
     LazyVerticalGrid(
         columns = GridCells.Fixed(3),
-        modifier = modifier.fillMaxSize()
+        modifier = modifier.fillMaxWidth()
     ) {
         items(buttons) { type ->
             when (type) {
@@ -189,7 +183,7 @@ fun NumberKeyboard(
                     )
                 }
                 is KeyboardButtonType.Empty -> {
-                    KeyboardEmptyButton(_emptyButton = type)
+                    KeyboardEmptyButton()
                 }
             }
         }
