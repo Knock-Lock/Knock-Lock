@@ -9,9 +9,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.NotificationManagerCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.knocklock.presentation.lockscreen.StartApplicationService
-import com.knocklock.presentation.ui.setting.SettingScreen
-import com.knocklock.presentation.ui.setting.UserSettings
+import com.knocklock.presentation.ui.setting.SettingRoute
+import com.knocklock.presentation.ui.setting.SettingViewModel
 import com.knocklock.presentation.ui.theme.KnockLockTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -25,12 +26,12 @@ class MainActivity : ComponentActivity() {
         checkPermissionGranted()
 
         setContent {
+            val settingViewModel : SettingViewModel = hiltViewModel()
             KnockLockTheme {
-                SettingScreen(
-                    onBackPressedIconSelected = { /*TODO*/ },
+                SettingRoute(
+                    viewModel = settingViewModel,
                     onMenuSelected = { /*TODO*/ },
-                    onChangedPasswordActivated = { },
-                    userSettings = UserSettings(false)
+                    onBackPressedIconSelected = { /*TODO*/ }
                 )
             }
         }
