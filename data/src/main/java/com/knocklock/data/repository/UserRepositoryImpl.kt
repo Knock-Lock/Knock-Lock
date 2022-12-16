@@ -2,7 +2,7 @@ package com.knocklock.data.repository
 
 import androidx.datastore.core.DataStore
 import com.knocklock.data.mapper.toDomain
-import com.knocklock.data.source.local.userpreference.AuthenticationType
+import com.knocklock.data.mapper.toPreferenceType
 import com.knocklock.data.source.local.userpreference.UserPreference
 import com.knocklock.domain.repository.UserRepository
 import kotlinx.coroutines.flow.map
@@ -25,14 +25,7 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun changeMode(type: DomainAuthType) {
         userDataStore.updateData { userPreference ->
-            when (type) {
-                DomainAuthType.GESTURE -> {
-                    userPreference.copy(authenticationType = AuthenticationType.GESTURE)
-                }
-                DomainAuthType.PASSWORD -> {
-                    userPreference.copy(authenticationType = AuthenticationType.PASSWORD)
-                }
-            }
+            userPreference.copy(authenticationType = type.toPreferenceType())
         }
     }
 }
