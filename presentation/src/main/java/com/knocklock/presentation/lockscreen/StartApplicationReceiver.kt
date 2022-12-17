@@ -11,14 +11,7 @@ import android.content.Intent
 class StartApplicationReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
-        when (intent?.action) {
-            Intent.ACTION_SCREEN_OFF -> {
-                startLockScreen(context)
-            }
-            Intent.ACTION_BOOT_COMPLETED -> {
-                startLockScreen(context)
-            }
-        }
+        startLockScreen(context)
     }
 
     private fun startLockScreen(context: Context?) {
