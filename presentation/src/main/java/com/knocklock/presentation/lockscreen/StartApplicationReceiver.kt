@@ -3,6 +3,7 @@ package com.knocklock.presentation.lockscreen
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 
 /**
  * @Created by 김현국 2022/12/13
@@ -21,7 +22,7 @@ class StartApplicationReceiver : BroadcastReceiver() {
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 context.startActivity(intent)
             } catch (e: Exception) {
-                println(e.stackTraceToString())
+                Log.e("Receiver Exception",e.stackTraceToString())
             }
         }
     }
