@@ -9,12 +9,10 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.core.app.NotificationManagerCompat
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.normal.TedPermission
 import com.knocklock.presentation.lockscreen.StartApplicationService
 import com.knocklock.presentation.ui.setting.SettingRoute
-import com.knocklock.presentation.ui.setting.SettingViewModel
 import com.knocklock.presentation.ui.theme.KnockLockTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -29,10 +27,8 @@ class MainActivity : ComponentActivity() {
         startService()
 
         setContent {
-            val settingViewModel: SettingViewModel = hiltViewModel()
             KnockLockTheme {
                 SettingRoute(
-                    viewModel = settingViewModel,
                     onMenuSelected = { /*TODO*/ },
                     onBackPressedIconSelected = { /*TODO*/ }
                 )
