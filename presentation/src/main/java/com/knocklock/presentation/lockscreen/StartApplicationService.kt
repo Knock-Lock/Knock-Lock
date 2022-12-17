@@ -19,36 +19,22 @@ import androidx.core.app.NotificationCompat
  */
 class StartApplicationService : Service() {
 
-    var receiver: StartApplicationReceiver? = null
-    private val ANDROID_CHANNEL_ID = "KnockLockScreenNotification"
-    private val ANDROID_CHANNEL_NAME = "KnockLockScreen"
-    lateinit var notificationManager: NotificationManager
-
+    private val receiver by lazy { StartApplicationReceiver() }
+    private val notificationManager by lazy { getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager }
+    companion object {
+        private const val ANDROID_CHANNEL_ID = "KnockLockScreenNotification"
+        private const val ANDROID_CHANNEL_NAME = "KnockLockScreen"
+    }
     override fun onCreate() {
         super.onCreate()
-        notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        if (receiver == null) {
-            receiver = StartApplicationReceiver()
-            val filter = IntentFilter().apply {
-                addAction(Intent.ACTION_SCREEN_OFF)
-                addAction(Intent.ACTION_BOOT_COMPLETED)
-            }
-            registerReceiver(receiver, filter)
+        val filter = IntentFilter().apply {
+            addAction(Intent.ACTION_SCREEN_OFF)
+            addAction(Intent.ACTION_BOOT_COMPLETED)
         }
+        registerReceiver(receiver, filter)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent != null) {
-            if (receiver == null) {
-                receiver = StartApplicationReceiver()
-                val filter = IntentFilter().apply {
-                    addAction(Intent.ACTION_SCREEN_OFF)
-                    addAction(Intent.ACTION_BOOT_COMPLETED)
-                }
-                registerReceiver(receiver, filter)
-            }
-        }
-
         createNotificationChannel()
         startForeground(9999, createNotification())
 
@@ -81,9 +67,7 @@ class StartApplicationService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        if (receiver != null) {
-            unregisterReceiver(receiver)
-        }
+        unregisterReceiver(receiver)
     }
 
     override fun onBind(p0: Intent?): IBinder? {
