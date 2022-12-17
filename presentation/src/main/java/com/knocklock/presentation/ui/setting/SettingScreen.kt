@@ -11,16 +11,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.knocklock.presentation.R
 import com.knocklock.presentation.ui.setting.menu.MenuList
 
 @Composable
 fun SettingRoute(
-    viewModel: SettingViewModel,
+    viewModel: SettingViewModel = hiltViewModel(),
     onMenuSelected: () -> Unit,
     onBackPressedIconSelected: () -> Unit
 ) {
-    val userSettings by viewModel.userSetting.collectAsState()
+    val userSettings by viewModel.userSetting.collectAsState(UserSettings(isPasswordActivated = false))
 
     SettingScreen(
         onBackPressedIconSelected = onBackPressedIconSelected,
