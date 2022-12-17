@@ -22,7 +22,7 @@ class StartApplicationReceiver : BroadcastReceiver() {
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 context.startActivity(intent)
             } catch (e: Exception) {
-                Log.e("Receiver Exception",e.stackTraceToString())
+                Log.e("Receiver Exception", e.stackTraceToString())
             }
         }
     }
