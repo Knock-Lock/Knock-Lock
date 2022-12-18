@@ -21,12 +21,17 @@ fun SettingRoute(
     onMenuSelected: () -> Unit,
     onBackPressedIconSelected: () -> Unit
 ) {
-    val userSettings by viewModel.userSetting.collectAsState(UserSettings(isPasswordActivated = false))
+    val userSettings by viewModel.userSetting.collectAsState(
+        UserSettings(
+            isPasswordActivated = false,
+            isLockActivated = false
+        )
+    )
 
     SettingScreen(
         onBackPressedIconSelected = onBackPressedIconSelected,
         onMenuSelected = onMenuSelected,
-        onChangedPasswordActivated = viewModel::onChangedPasswordActivated,
+        onChangedPasswordActivated = viewModel::onPasswordActivatedChanged,
         userSettings = userSettings
     )
 }

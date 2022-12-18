@@ -17,7 +17,7 @@ class UserPreferenceSerializer @Inject constructor() : Serializer<UserPreference
     override val defaultValue = UserPreference(
         authenticationType = AuthenticationType.GESTURE,
         password = "",
-        isLockActivated = true
+        isLockActivated = false
     )
 
     override suspend fun readFrom(input: InputStream): UserPreference =
