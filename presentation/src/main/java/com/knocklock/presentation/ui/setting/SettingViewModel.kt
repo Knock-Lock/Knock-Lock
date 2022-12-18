@@ -17,6 +17,7 @@ class SettingViewModel @Inject constructor(
     getUserUseCase: GetUserUseCase,
     private val updatePasswordUseCase: UpdatePasswordUseCase,
     private val changeAuthenticationTypeUseCase: ChangeAuthenticationTypeUseCase,
+    private val activateLockUseCase: ActivateLockUseCase
 ) : ViewModel() {
 
     val userSetting = getUserUseCase().map { user ->
@@ -33,6 +34,12 @@ class SettingViewModel @Inject constructor(
             } else {
                 changeAuthenticationTypeUseCase(AuthenticationType.GESTURE)
             }
+        }
+    }
+
+    fun onLockActivatedChanged(checked: Boolean) {
+        viewModelScope.launch {
+            activateLockUseCase(checked)
         }
     }
 }
