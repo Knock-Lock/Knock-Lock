@@ -8,7 +8,7 @@
     <string name="hence_comment">안드로이드 재밌지만 너무 어려워요.\n커피로 저를 혼내주시면 감사합니다.</string>
     <!-- Credit -->
     <string name="github">Github</string>
-    <string name="evalutae">앱 평가하기</string>
+    <string name="evaluate">앱 평가하기</string>
     <string name="inquiry">문의하기</string>
     <string name="open_source_license">오픈소스 라이선스</string>
     <string name="service">이용약관</string>
@@ -18,8 +18,9 @@
     <string name="setting">설정</string>
     <string name="activate_password">비밀번호 활성화</string>
     <string name="activate_password_route">activate_password</string>
-    <string name="chagne_password">비밀번호 변경</string>
+    <string name="change_password">비밀번호 변경</string>
     <string name="change_password_route">change_password_route</string>
     <string name="credit">크레딧</string>
     <string name="credit_route">credit_route</string>
+    <string name="activate_knocklock">KnockLock 활성화</string>
 </resources>

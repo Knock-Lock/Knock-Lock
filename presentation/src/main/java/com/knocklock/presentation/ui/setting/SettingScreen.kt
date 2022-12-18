@@ -31,7 +31,8 @@ fun SettingRoute(
     SettingScreen(
         onBackPressedIconSelected = onBackPressedIconSelected,
         onMenuSelected = onMenuSelected,
-        onChangedPasswordActivated = viewModel::onPasswordActivatedChanged,
+        onPasswordActivatedChanged = viewModel::onPasswordActivatedChanged,
+        onLockActivatedChanged = viewModel::onLockActivatedChanged,
         userSettings = userSettings
     )
 }
@@ -42,7 +43,8 @@ fun SettingScreen(
     modifier: Modifier = Modifier,
     onBackPressedIconSelected: () -> Unit,
     onMenuSelected: () -> Unit,
-    onChangedPasswordActivated: (Boolean) -> Unit,
+    onPasswordActivatedChanged: (Boolean) -> Unit,
+    onLockActivatedChanged: (Boolean) -> Unit,
     userSettings: UserSettings
 ) {
     Scaffold(
@@ -53,7 +55,8 @@ fun SettingScreen(
             SettingBody(
                 modifier,
                 onMenuSelected,
-                onChangedPasswordActivated,
+                onPasswordActivatedChanged,
+                onLockActivatedChanged,
                 userSettings
             )
         }
@@ -64,7 +67,8 @@ fun SettingScreen(
 private fun SettingBody(
     modifier: Modifier = Modifier,
     onMenuSelected: () -> Unit,
-    onChangedPasswordActivated: (Boolean) -> Unit,
+    onPasswordActivatedChanged: (Boolean) -> Unit,
+    onLockActivatedChanged: (Boolean) -> Unit,
     userSettings: UserSettings
 ) {
     Surface(
@@ -74,7 +78,8 @@ private fun SettingBody(
         MenuList(
             modifier,
             onMenuSelected,
-            onChangedPasswordActivated,
+            onPasswordActivatedChanged,
+            onLockActivatedChanged,
             userSettings
         )
     }
