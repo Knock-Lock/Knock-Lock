@@ -126,7 +126,7 @@ private fun Body(
                 textDecoration = TextDecoration.Underline
             )
             Text(
-                text = stringResource(R.string.evalutae),
+                text = stringResource(R.string.evaluate),
                 fontSize = 12.sp,
                 color = Color.Blue,
                 textDecoration = TextDecoration.Underline

@@ -5,7 +5,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class UserPreference(
     val authenticationType: AuthenticationType,
-    val password: String
+    val password: String,
+    val isLockActivated: Boolean
 )
 
 enum class AuthenticationType {

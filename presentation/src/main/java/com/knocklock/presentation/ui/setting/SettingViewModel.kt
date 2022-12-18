@@ -3,6 +3,7 @@ package com.knocklock.presentation.ui.setting
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.knocklock.domain.model.AuthenticationType
+import com.knocklock.domain.usecase.setting.ActivateLockUseCase
 import com.knocklock.domain.usecase.setting.ChangeAuthenticationTypeUseCase
 import com.knocklock.domain.usecase.setting.GetUserUseCase
 import com.knocklock.domain.usecase.setting.UpdatePasswordUseCase
@@ -15,14 +16,18 @@ import javax.inject.Inject
 class SettingViewModel @Inject constructor(
     getUserUseCase: GetUserUseCase,
     private val updatePasswordUseCase: UpdatePasswordUseCase,
-    private val changeAuthenticationTypeUseCase: ChangeAuthenticationTypeUseCase
+    private val changeAuthenticationTypeUseCase: ChangeAuthenticationTypeUseCase,
+    private val activateLockUseCase: ActivateLockUseCase
 ) : ViewModel() {
 
     val userSetting = getUserUseCase().map { user ->
-        UserSettings(isPasswordActivated = user.authenticationType == AuthenticationType.PASSWORD)
+        UserSettings(
+            isPasswordActivated = user.authenticationType == AuthenticationType.PASSWORD,
+            isLockActivated = user.isLockActivated
+        )
     }
 
-    fun onChangedPasswordActivated(checked: Boolean) {
+    fun onPasswordActivatedChanged(checked: Boolean) {
         viewModelScope.launch {
             if (checked) {
                 changeAuthenticationTypeUseCase(AuthenticationType.PASSWORD)
@@ -31,8 +36,15 @@ class SettingViewModel @Inject constructor(
             }
         }
     }
+
+    fun onLockActivatedChanged(checked: Boolean) {
+        viewModelScope.launch {
+            activateLockUseCase(checked)
+        }
+    }
 }
 
 data class UserSettings(
-    val isPasswordActivated: Boolean
+    val isPasswordActivated: Boolean,
+    val isLockActivated: Boolean
 )

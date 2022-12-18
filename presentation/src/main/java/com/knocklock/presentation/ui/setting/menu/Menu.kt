@@ -82,24 +82,31 @@ fun SwitchMenu(
 fun MenuList(
     modifier: Modifier = Modifier,
     onMenuSelected: () -> Unit,
-    onChangedPasswordActivated: (Boolean) -> Unit,
+    onPasswordActivatedChanged: (Boolean) -> Unit,
+    onLockActivatedChanged: (Boolean) -> Unit,
     userSettings: UserSettings
 ) {
     Column(modifier = modifier) {
         SwitchMenu(
-            onSwitchChanged = onChangedPasswordActivated,
+            onSwitchChanged = onPasswordActivatedChanged,
             isChecked = userSettings.isPasswordActivated,
             title = stringResource(R.string.activate_password)
         )
         Divider(modifier, 1.dp, Color.Transparent)
         NormalMenu(
             onMenuSelected = onMenuSelected,
-            title = stringResource(R.string.chagne_password)
+            title = stringResource(R.string.change_password)
         )
         Divider(modifier, 1.dp, Color.Transparent)
         NormalMenu(
             onMenuSelected = onMenuSelected,
             title = stringResource(R.string.credit)
+        )
+        Divider(modifier, 30.dp, Color.Transparent)
+        SwitchMenu(
+            title = stringResource(R.string.activate_knocklock),
+            isChecked = userSettings.isLockActivated,
+            onSwitchChanged = onLockActivatedChanged
         )
     }
 }

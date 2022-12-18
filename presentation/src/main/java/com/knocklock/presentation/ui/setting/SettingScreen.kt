@@ -21,12 +21,18 @@ fun SettingRoute(
     onMenuSelected: () -> Unit,
     onBackPressedIconSelected: () -> Unit
 ) {
-    val userSettings by viewModel.userSetting.collectAsState(UserSettings(isPasswordActivated = false))
+    val userSettings by viewModel.userSetting.collectAsState(
+        UserSettings(
+            isPasswordActivated = false,
+            isLockActivated = false
+        )
+    )
 
     SettingScreen(
         onBackPressedIconSelected = onBackPressedIconSelected,
         onMenuSelected = onMenuSelected,
-        onChangedPasswordActivated = viewModel::onChangedPasswordActivated,
+        onPasswordActivatedChanged = viewModel::onPasswordActivatedChanged,
+        onLockActivatedChanged = viewModel::onLockActivatedChanged,
         userSettings = userSettings
     )
 }
@@ -37,7 +43,8 @@ fun SettingScreen(
     modifier: Modifier = Modifier,
     onBackPressedIconSelected: () -> Unit,
     onMenuSelected: () -> Unit,
-    onChangedPasswordActivated: (Boolean) -> Unit,
+    onPasswordActivatedChanged: (Boolean) -> Unit,
+    onLockActivatedChanged: (Boolean) -> Unit,
     userSettings: UserSettings
 ) {
     Scaffold(
@@ -48,7 +55,8 @@ fun SettingScreen(
             SettingBody(
                 modifier,
                 onMenuSelected,
-                onChangedPasswordActivated,
+                onPasswordActivatedChanged,
+                onLockActivatedChanged,
                 userSettings
             )
         }
@@ -59,7 +67,8 @@ fun SettingScreen(
 private fun SettingBody(
     modifier: Modifier = Modifier,
     onMenuSelected: () -> Unit,
-    onChangedPasswordActivated: (Boolean) -> Unit,
+    onPasswordActivatedChanged: (Boolean) -> Unit,
+    onLockActivatedChanged: (Boolean) -> Unit,
     userSettings: UserSettings
 ) {
     Surface(
@@ -69,7 +78,8 @@ private fun SettingBody(
         MenuList(
             modifier,
             onMenuSelected,
-            onChangedPasswordActivated,
+            onPasswordActivatedChanged,
+            onLockActivatedChanged,
             userSettings
         )
     }
