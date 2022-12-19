@@ -25,6 +25,8 @@ import com.knocklock.presentation.ui.theme.KnockLockTheme
 @Composable
 fun PasswordInputScreen(
     inputtedPassword: String,
+    onClickTextButton: (String) -> Unit,
+    onClickAction: (KeyboardAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier) {
@@ -48,7 +50,9 @@ fun PasswordInputScreen(
                 NumberKeyboard(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 24.dp, vertical = 40.dp)
+                        .padding(horizontal = 24.dp, vertical = 40.dp),
+                    onClickTextButton = onClickTextButton,
+                    onClickAction = onClickAction
                 )
             }
         }
@@ -99,6 +103,8 @@ fun PasswordInputScreenPrev() {
         Surface(color = MaterialTheme.colorScheme.primary) {
             PasswordInputScreen(
                 inputtedPassword = "",
+                onClickTextButton = {},
+                onClickAction = {},
                 modifier = Modifier.fillMaxSize()
             )
         }
