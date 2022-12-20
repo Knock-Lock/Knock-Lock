@@ -10,8 +10,10 @@ import androidx.activity.compose.setContent
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import com.gun0912.tedpermission.provider.TedPermissionProvider
 import com.knocklock.presentation.ui.theme.KnockLockTheme
 import dagger.hilt.android.AndroidEntryPoint
+import java.lang.reflect.Method
 
 /**
  * @Created by 김현국 2022/12/13
@@ -24,6 +26,7 @@ class LockScreenActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        disableStatusBar()
         hideSystemUI()
         setContent {
             KnockLockTheme {
@@ -50,5 +53,27 @@ class LockScreenActivity : ComponentActivity() {
         windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
         window.statusBarColor = Color.TRANSPARENT
         windowInsetsController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+    }
+    private fun disableWithReflection() {
+        val sbservice = TedPermissionProvider.context.getSystemService("statusbar")
+        try {
+            val statusbarManager = Class.forName("android.app.StatusBarManager")
+            var collapseStatusBar: Method? = null
+            collapseStatusBar = if (Build.VERSION.SDK_INT <= 16) {
+                statusbarManager.getMethod("collapse")
+            } else {
+                statusbarManager.getMethod("collapsePanels")
+            }
+            collapseStatusBar.isAccessible = true
+            collapseStatusBar.invoke(sbservice)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+    private fun disableStatusBar() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        } else {
+            disableWithReflection()
+        }
     }
 }

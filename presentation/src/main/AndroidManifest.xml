@@ -37,6 +37,15 @@
         <service
             android:name=".lockscreen.StartApplicationService">
         </service>
+
+        <service
+            android:name=".lockscreen.DismissStatusBarService"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService"/>
+            </intent-filter>
+
+        </service>
     </application>
 
 
