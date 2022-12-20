@@ -1,4 +1,4 @@
-package com.knocklock.presentation.ui.password
+package com.knocklock.presentation.password
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.layout.Arrangement
@@ -52,7 +52,7 @@ fun PasswordInputField(
 fun PasswordInputFieldLayout(
     modifier: Modifier = Modifier,
     password: String,
-    maxPasswordLength: Int = 6
+    maxPasswordLength: Int = 5
 ) {
     Row(
         modifier = modifier,

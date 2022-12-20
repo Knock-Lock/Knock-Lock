@@ -1,4 +1,4 @@
-package com.knocklock.presentation.ui.password
+package com.knocklock.presentation.password
 
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.animateFloatAsState
@@ -9,7 +9,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -17,7 +16,11 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -40,15 +43,15 @@ enum class KeyBoardImageButtonState(val imageSize: IntSize) {
 
 @Composable
 fun KeyboardTextButton(
-    text: KeyboardButtonType.Text,
-    onClickTextButton: () -> Unit,
+    textButtonItem: KeyboardButtonType.Text,
+    onClickTextButton: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var buttonState by remember { mutableStateOf(KeyBoardTextButtonState.NONE) }
     var buttonEnabled by remember { mutableStateOf(true) }
     val animateFontSize by animateFloatAsState(
         targetValue = buttonState.fontScale,
-        animationSpec = tween(durationMillis = 200),
+        animationSpec = tween(durationMillis = 100),
         finishedListener = {
             buttonEnabled = true
             buttonState = KeyBoardTextButtonState.NONE
@@ -65,7 +68,7 @@ fun KeyboardTextButton(
                 onClick = {
                     buttonEnabled = false
                     buttonState = KeyBoardTextButtonState.PRESSED
-                    onClickTextButton()
+                    onClickTextButton(textButtonItem.text)
                 }
             ),
         contentAlignment = Alignment.Center
@@ -73,7 +76,7 @@ fun KeyboardTextButton(
         Text(
             modifier = Modifier.scale(animateFontSize),
             textAlign = TextAlign.Center,
-            text = text.text
+            text = textButtonItem.text
         )
     }
 }
@@ -81,8 +84,8 @@ fun KeyboardTextButton(
 
 @Composable
 fun KeyboardImageButton(
-    image: KeyboardButtonType.Image,
-    onClickImageButton: () -> Unit,
+    imageButtonItem: KeyboardButtonType.Image,
+    onClickImageButton: (KeyboardAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var buttonState by remember { mutableStateOf(KeyBoardImageButtonState.NONE) }
@@ -90,7 +93,7 @@ fun KeyboardImageButton(
 
     val animateImageSize by animateIntSizeAsState(
         targetValue = buttonState.imageSize,
-        animationSpec = tween(durationMillis = 200),
+        animationSpec = tween(durationMillis = 100),
         finishedListener = {
             buttonEnabled = true
             buttonState = KeyBoardImageButtonState.NONE
@@ -106,13 +109,13 @@ fun KeyboardImageButton(
                 indication = null
             ) {
                 buttonEnabled = false
-                onClickImageButton()
+                onClickImageButton(imageButtonItem.action)
                 buttonState = KeyBoardImageButtonState.PRESSED
             },
         contentAlignment = Alignment.Center
     ) {
         Image(
-            painter = painterResource(id = image.drawableRes),
+            painter = painterResource(id = imageButtonItem.drawableRes),
             modifier = Modifier
                 .size(animateImageSize.width.dp, animateImageSize.height.dp),
             contentDescription = null
@@ -129,7 +132,9 @@ fun KeyboardEmptyButton(
 
 @Composable
 fun NumberKeyboard(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClickTextButton: (String) -> Unit,
+    onClickAction: (KeyboardAction) -> Unit
 ) {
     val buttons = remember {
         mutableListOf<KeyboardButtonType>().apply {
@@ -158,7 +163,10 @@ fun NumberKeyboard(
                 listOf(
                     KeyboardButtonType.Empty,
                     KeyboardButtonType.Text("0"),
-                    KeyboardButtonType.Image(R.drawable.ic_backspace)
+                    KeyboardButtonType.Image(
+                        action = KeyboardAction.BACK_SPACE,
+                        drawableRes = R.drawable.ic_backspace
+                    )
                 )
             )
         }.toList()
@@ -172,14 +180,14 @@ fun NumberKeyboard(
             when (type) {
                 is KeyboardButtonType.Text -> {
                     KeyboardTextButton(
-                        text = type,
-                        onClickTextButton = { }
+                        textButtonItem = type,
+                        onClickTextButton = onClickTextButton
                     )
                 }
                 is KeyboardButtonType.Image -> {
                     KeyboardImageButton(
-                        image = type,
-                        onClickImageButton = { }
+                        imageButtonItem = type,
+                        onClickImageButton = onClickAction
                     )
                 }
                 is KeyboardButtonType.Empty -> {
@@ -206,7 +214,7 @@ fun KeyboardTextButtonPrev() {
 fun KeyboardImageButtonPrev() {
     Surface {
         KeyboardImageButton(
-            KeyboardButtonType.Image(R.drawable.ic_backspace),
+            KeyboardButtonType.Image(KeyboardAction.BACK_SPACE, R.drawable.ic_backspace),
             onClickImageButton = {}
         )
     }
@@ -216,14 +224,25 @@ fun KeyboardImageButtonPrev() {
 @Composable
 fun KeyboardPrev() {
     Surface {
-        NumberKeyboard()
+        NumberKeyboard(
+            onClickTextButton = {},
+            onClickAction = {}
+        )
     }
 }
 
 sealed interface KeyboardButtonType {
-    data class Image(@DrawableRes val drawableRes: Int) : KeyboardButtonType
+    data class Image(
+        val action: KeyboardAction,
+        @DrawableRes val drawableRes: Int
+    ) : KeyboardButtonType
+
     data class Text(val text: String) : KeyboardButtonType
     object Empty : KeyboardButtonType
+}
+
+enum class KeyboardAction {
+    BACK_SPACE
 }
 
 private val buttonWidth = 56.dp
