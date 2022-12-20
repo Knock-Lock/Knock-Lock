@@ -2,4 +2,5 @@
 <resources>
 
     <style name="Theme.MainActivity" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="LockScreenActivity"/>
 </resources>
