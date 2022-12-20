@@ -22,7 +22,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.unit.sp
@@ -40,8 +39,17 @@ private const val titleFontScaleStart = 1f
 private const val titleFontScaleEnd = 0.66f
 
 @Composable
+fun CreditRoute(
+    modifier: Modifier = Modifier,
+    onIconClick: () -> Unit
+) {
+    CreditScreen(modifier, onIconClick)
+}
+
+@Composable
 fun CreditScreen(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onIconClick: () -> Unit
 ) {
     val scrollState = rememberScrollState(0)
     val headerHeightPx = with(LocalDensity.current) { headerHeight.toPx() }
@@ -55,7 +63,8 @@ fun CreditScreen(
         Toolbar(
             scroll = scrollState,
             headerHeightPx = headerHeightPx,
-            toolbarHeightPx = toolbarHeightPx
+            toolbarHeightPx = toolbarHeightPx,
+            onIconClick = onIconClick
         )
         Title(
             scroll = scrollState,
@@ -165,7 +174,8 @@ private fun Toolbar(
     modifier: Modifier = Modifier,
     scroll: ScrollState,
     headerHeightPx: Float,
-    toolbarHeightPx: Float
+    toolbarHeightPx: Float,
+    onIconClick: () -> Unit
 ) {
     val toolbarBottom = headerHeightPx - toolbarHeightPx
     val showToolbar by remember {
@@ -191,7 +201,7 @@ private fun Toolbar(
                     modifier = modifier
                         .padding(horizontal = 16.dp)
                         .size(24.dp),
-                    onClick = {},
+                    onClick = onIconClick,
                 ) {
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
@@ -281,10 +291,4 @@ private fun Title(
         fontSize = 30.sp,
         fontWeight = FontWeight.Bold
     )
-}
-
-@Preview
-@Composable
-private fun PreviewCreditScreen() {
-    CreditScreen()
 }
