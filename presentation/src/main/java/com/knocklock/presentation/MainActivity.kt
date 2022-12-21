@@ -9,10 +9,11 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.core.app.NotificationManagerCompat
+import androidx.navigation.compose.rememberNavController
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.normal.TedPermission
 import com.knocklock.presentation.lockscreen.StartApplicationService
-import com.knocklock.presentation.ui.setting.SettingRoute
+import com.knocklock.presentation.ui.setting.SettingNavHost
 import com.knocklock.presentation.ui.theme.KnockLockTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -28,10 +29,8 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             KnockLockTheme {
-                SettingRoute(
-                    onMenuSelected = { /*TODO*/ },
-                    onBackPressedIconSelected = { /*TODO*/ }
-                )
+                val navController = rememberNavController()
+                SettingNavHost(navController = navController)
             }
         }
     }
@@ -61,7 +60,8 @@ class MainActivity : ComponentActivity() {
                     }
 
                     override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {
-                        Toast.makeText(this@MainActivity, "권한이 허용되지 않았습니다.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@MainActivity, "권한이 허용되지 않았습니다.", Toast.LENGTH_SHORT)
+                            .show()
                     }
                 })
                 .setDeniedMessage("권한을 허용해주세요")

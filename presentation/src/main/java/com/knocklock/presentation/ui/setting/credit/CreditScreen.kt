@@ -41,7 +41,7 @@ private const val titleFontScaleEnd = 0.66f
 @Composable
 fun CreditRoute(
     modifier: Modifier = Modifier,
-    onIconClick: () -> Unit
+    onIconClick: () -> Boolean
 ) {
     CreditScreen(modifier, onIconClick)
 }
@@ -49,7 +49,7 @@ fun CreditRoute(
 @Composable
 fun CreditScreen(
     modifier: Modifier = Modifier,
-    onIconClick: () -> Unit
+    onIconClick: () -> Boolean
 ) {
     val scrollState = rememberScrollState(0)
     val headerHeightPx = with(LocalDensity.current) { headerHeight.toPx() }
@@ -175,7 +175,7 @@ private fun Toolbar(
     scroll: ScrollState,
     headerHeightPx: Float,
     toolbarHeightPx: Float,
-    onIconClick: () -> Unit
+    onIconClick: () -> Boolean
 ) {
     val toolbarBottom = headerHeightPx - toolbarHeightPx
     val showToolbar by remember {
@@ -201,7 +201,7 @@ private fun Toolbar(
                     modifier = modifier
                         .padding(horizontal = 16.dp)
                         .size(24.dp),
-                    onClick = onIconClick,
+                    onClick = { onIconClick() }
                 ) {
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
