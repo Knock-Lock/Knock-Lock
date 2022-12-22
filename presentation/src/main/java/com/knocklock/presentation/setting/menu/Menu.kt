@@ -1,5 +1,6 @@
-package com.knocklock.presentation.ui.setting.menu
+package com.knocklock.presentation.setting.menu
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -15,28 +16,26 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.knocklock.presentation.R
-import com.knocklock.presentation.ui.setting.UserSettings
+import com.knocklock.presentation.setting.UserSettings
 
 @Composable
 fun NormalMenu(
     modifier: Modifier = Modifier,
-    onMenuSelected: () -> Unit,
-    title: String
+    onMenuSelected: (Int) -> Unit,
+    @StringRes titleRes: Int
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
             .height(55.dp)
-            .clickable(
-                onClick = onMenuSelected
-            )
+            .clickable { onMenuSelected(titleRes) }
             .background(Color.White),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
             modifier = modifier.padding(start = 16.dp),
-            text = title,
+            text = stringResource(titleRes),
             color = Color.DarkGray
         )
     }
@@ -45,7 +44,7 @@ fun NormalMenu(
 @Composable
 fun SwitchMenu(
     modifier: Modifier = Modifier,
-    title: String,
+    @StringRes titleRes: Int,
     isChecked: Boolean,
     onSwitchChanged: (Boolean) -> Unit,
 ) {
@@ -59,7 +58,7 @@ fun SwitchMenu(
     ) {
         Text(
             modifier = modifier.padding(start = 16.dp),
-            text = title,
+            text = stringResource(titleRes),
             color = Color.DarkGray
         )
         Switch(
@@ -81,7 +80,7 @@ fun SwitchMenu(
 @Composable
 fun MenuList(
     modifier: Modifier = Modifier,
-    onMenuSelected: () -> Unit,
+    onMenuSelected: (Int) -> Unit,
     onPasswordActivatedChanged: (Boolean) -> Unit,
     onLockActivatedChanged: (Boolean) -> Unit,
     userSettings: UserSettings
@@ -90,33 +89,23 @@ fun MenuList(
         SwitchMenu(
             onSwitchChanged = onPasswordActivatedChanged,
             isChecked = userSettings.isPasswordActivated,
-            title = stringResource(R.string.activate_password)
+            titleRes = R.string.activate_password
         )
         Divider(modifier, 1.dp, Color.Transparent)
         NormalMenu(
             onMenuSelected = onMenuSelected,
-            title = stringResource(R.string.change_password)
+            titleRes = R.string.change_password
         )
         Divider(modifier, 1.dp, Color.Transparent)
         NormalMenu(
             onMenuSelected = onMenuSelected,
-            title = stringResource(R.string.credit)
+            titleRes = R.string.credit
         )
         Divider(modifier, 30.dp, Color.Transparent)
         SwitchMenu(
-            title = stringResource(R.string.activate_knocklock),
+            titleRes = R.string.activate_knocklock,
             isChecked = userSettings.isLockActivated,
             onSwitchChanged = onLockActivatedChanged
         )
     }
-}
-
-@Preview
-@Composable
-private fun PreviewMenuList() {
-    SwitchMenu(
-        onSwitchChanged = { },
-        isChecked = false,
-        title = "test"
-    )
 }

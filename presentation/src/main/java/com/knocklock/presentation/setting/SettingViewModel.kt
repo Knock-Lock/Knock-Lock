@@ -1,4 +1,4 @@
-package com.knocklock.presentation.ui.setting
+package com.knocklock.presentation.setting
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

@@ -1,8 +1,6 @@
-package com.knocklock.presentation.ui.setting
+package com.knocklock.presentation.setting
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -13,13 +11,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.knocklock.presentation.R
-import com.knocklock.presentation.ui.setting.menu.MenuList
+import com.knocklock.presentation.setting.menu.MenuList
 
 @Composable
 fun SettingRoute(
+    modifier: Modifier = Modifier,
     viewModel: SettingViewModel = hiltViewModel(),
-    onMenuSelected: () -> Unit,
-    onBackPressedIconSelected: () -> Unit
+    onMenuSelected: (Int) -> Unit
 ) {
     val userSettings by viewModel.userSetting.collectAsState(
         UserSettings(
@@ -29,7 +27,7 @@ fun SettingRoute(
     )
 
     SettingScreen(
-        onBackPressedIconSelected = onBackPressedIconSelected,
+        modifier = modifier,
         onMenuSelected = onMenuSelected,
         onPasswordActivatedChanged = viewModel::onPasswordActivatedChanged,
         onLockActivatedChanged = viewModel::onLockActivatedChanged,
@@ -41,14 +39,13 @@ fun SettingRoute(
 @Composable
 fun SettingScreen(
     modifier: Modifier = Modifier,
-    onBackPressedIconSelected: () -> Unit,
-    onMenuSelected: () -> Unit,
+    onMenuSelected: (Int) -> Unit,
     onPasswordActivatedChanged: (Boolean) -> Unit,
     onLockActivatedChanged: (Boolean) -> Unit,
     userSettings: UserSettings
 ) {
     Scaffold(
-        topBar = { SettingHeader(modifier, onBackPressedIconSelected) },
+        topBar = { SettingHeader(modifier) },
     ) {
         Column(modifier.padding(it)) {
             Spacer(modifier.padding(20.dp))
@@ -66,7 +63,7 @@ fun SettingScreen(
 @Composable
 private fun SettingBody(
     modifier: Modifier = Modifier,
-    onMenuSelected: () -> Unit,
+    onMenuSelected: (Int) -> Unit,
     onPasswordActivatedChanged: (Boolean) -> Unit,
     onLockActivatedChanged: (Boolean) -> Unit,
     userSettings: UserSettings
@@ -89,23 +86,9 @@ private fun SettingBody(
 @Composable
 private fun SettingHeader(
     modifier: Modifier = Modifier,
-    onBackPressedIconSelected: () -> Unit
 ) {
     CenterAlignedTopAppBar(
-        navigationIcon = {
-            IconButton(
-                modifier = modifier
-                    .padding(horizontal = 16.dp)
-                    .size(24.dp),
-                onClick = onBackPressedIconSelected
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = null,
-                    tint = Color.Black
-                )
-            }
-        },
+        modifier = modifier,
         title = {
             Text(
                 text = stringResource(R.string.setting)
