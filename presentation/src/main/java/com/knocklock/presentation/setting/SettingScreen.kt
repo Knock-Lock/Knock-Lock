@@ -1,4 +1,4 @@
-package com.knocklock.presentation.ui.setting
+package com.knocklock.presentation.setting
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -11,7 +11,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.knocklock.presentation.R
-import com.knocklock.presentation.ui.setting.menu.MenuList
+import com.knocklock.presentation.setting.menu.MenuList
 
 @Composable
 fun SettingRoute(

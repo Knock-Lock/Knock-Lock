@@ -1,4 +1,4 @@
-package com.knocklock.presentation.ui.setting.credit
+package com.knocklock.presentation.setting.credit
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween

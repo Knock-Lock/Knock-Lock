@@ -1,4 +1,4 @@
-package com.knocklock.presentation.ui.setting.menu
+package com.knocklock.presentation.setting.menu
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
@@ -16,7 +16,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.knocklock.presentation.R
-import com.knocklock.presentation.ui.setting.UserSettings
+import com.knocklock.presentation.setting.UserSettings
 
 @Composable
 fun NormalMenu(
