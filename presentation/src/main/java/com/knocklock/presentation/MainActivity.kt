@@ -8,18 +8,22 @@ import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
+import androidx.compose.ui.Modifier
 import androidx.core.app.NotificationManagerCompat
 import androidx.navigation.compose.rememberNavController
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.normal.TedPermission
 import com.knocklock.presentation.lockscreen.StartApplicationService
-import com.knocklock.presentation.ui.setting.SettingNavHost
 import com.knocklock.presentation.ui.theme.KnockLockTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -30,7 +34,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             KnockLockTheme {
                 val navController = rememberNavController()
-                SettingNavHost(navController = navController)
+                Scaffold() { paddingValues ->
+                    KnockLockNavHost(
+                        modifier = Modifier.padding(paddingValues), navController = navController
+                    )
+                }
             }
         }
     }
