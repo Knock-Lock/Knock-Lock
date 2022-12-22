@@ -17,6 +17,7 @@ import androidx.navigation.compose.rememberNavController
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.normal.TedPermission
 import com.knocklock.presentation.lockscreen.StartApplicationService
+import com.knocklock.presentation.navigation.KnockLockNavHost
 import com.knocklock.presentation.ui.theme.KnockLockTheme
 import dagger.hilt.android.AndroidEntryPoint
 

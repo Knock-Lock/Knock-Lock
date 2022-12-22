@@ -1,4 +1,4 @@
-package com.knocklock.presentation
+package com.knocklock.presentation.navigation
 
 sealed class NavigationRoute {
     abstract val route: String
