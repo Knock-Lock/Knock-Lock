@@ -6,5 +6,5 @@ import javax.inject.Inject
 class CheckPasswordSetUseCase @Inject constructor(
     private val userRepository: UserRepository
 ) {
-    operator fun invoke() = userRepository.checkPasswordSet()
+    suspend operator fun invoke() = userRepository.checkPasswordSet()
 }

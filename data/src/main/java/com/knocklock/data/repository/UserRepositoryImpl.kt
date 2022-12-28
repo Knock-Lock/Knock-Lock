@@ -5,7 +5,6 @@ import com.knocklock.data.mapper.toDomain
 import com.knocklock.data.mapper.toPreferenceType
 import com.knocklock.data.source.local.userpreference.UserPreference
 import com.knocklock.domain.repository.UserRepository
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import com.knocklock.domain.model.AuthenticationType as DomainAuthType
@@ -36,7 +35,9 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun checkPasswordSet(): Flow<Boolean> = userDataStore.data.map {
-        it.isPasswordSet
+    override suspend fun checkPasswordSet() {
+        userDataStore.updateData { userPreference ->
+            userPreference.copy(isPasswordSet = true)
+        }
     }
 }

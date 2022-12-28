@@ -13,5 +13,5 @@ interface UserRepository {
 
     suspend fun activateLock(isActivated: Boolean)
 
-    fun checkPasswordSet(): Flow<Boolean>
+    suspend fun checkPasswordSet()
 }
