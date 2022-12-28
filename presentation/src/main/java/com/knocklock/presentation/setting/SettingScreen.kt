@@ -17,19 +17,27 @@ import com.knocklock.presentation.setting.menu.MenuList
 fun SettingRoute(
     modifier: Modifier = Modifier,
     viewModel: SettingViewModel = hiltViewModel(),
-    onMenuSelected: (Int) -> Unit
+    onMenuSelected: (Int) -> Unit,
+    navigateByUserSettings: () -> Unit
 ) {
     val userSettings by viewModel.userSetting.collectAsState(
         UserSettings(
             isPasswordActivated = false,
-            isLockActivated = false
+            isLockActivated = false,
+            isPasswordSet = false
         )
     )
 
     SettingScreen(
         modifier = modifier,
         onMenuSelected = onMenuSelected,
-        onPasswordActivatedChanged = viewModel::onPasswordActivatedChanged,
+        onPasswordActivatedChanged = { isChecked ->
+            if (userSettings.isPasswordSet) {
+                viewModel.onPasswordActivatedChanged(isChecked)
+            } else {
+                navigateByUserSettings()
+            }
+        },
         onLockActivatedChanged = viewModel::onLockActivatedChanged,
         userSettings = userSettings
     )
