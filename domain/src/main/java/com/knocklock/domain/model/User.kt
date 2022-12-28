@@ -3,7 +3,8 @@ package com.knocklock.domain.model
 data class User(
     val authenticationType: AuthenticationType,
     val password: String,
-    val isLockActivated: Boolean
+    val isLockActivated: Boolean,
+    val isPasswordSet: Boolean
 )
 
 enum class AuthenticationType {
