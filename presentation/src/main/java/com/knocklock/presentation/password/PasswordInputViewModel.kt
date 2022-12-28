@@ -31,7 +31,7 @@ class PasswordInputViewModel @Inject constructor() : ViewModel() {
 
     private fun addPassword(newPasswordNumber: String) {
         val state = passwordInputState
-        if (state.getPasswordLength() >= MAX_PASSWORD_LENGTH) return
+        if (state.inputPassword.length >= MAX_PASSWORD_LENGTH) return
 
         passwordInputState = when (state) {
             is PasswordInputState.PasswordNoneState -> {
@@ -45,7 +45,7 @@ class PasswordInputViewModel @Inject constructor() : ViewModel() {
 
     private fun removeLastPassword() {
         val state = passwordInputState
-        if (state.getPasswordLength() <= 0) return
+        if (state.inputPassword.isEmpty()) return
 
         passwordInputState = when (state) {
             is PasswordInputState.PasswordNoneState -> {
@@ -59,18 +59,15 @@ class PasswordInputViewModel @Inject constructor() : ViewModel() {
 }
 
 sealed interface PasswordInputState {
-    fun getPasswordLength(): Int
+    val inputPassword: String
 
     data class PasswordNoneState(
-        val inputPassword: String
-    ) : PasswordInputState {
-        override fun getPasswordLength() = inputPassword.length
-    }
+        override val inputPassword: String
+    ) : PasswordInputState
 
     data class PasswordConfirmState(
-        val inputPassword: String,
-        val savedPassword: String
-    ) : PasswordInputState {
-        override fun getPasswordLength() = inputPassword.length
-    }
+        override val inputPassword: String,
+        val savedPassword: String,
+        val mismatchPassword: Boolean = false
+    ) : PasswordInputState
 }

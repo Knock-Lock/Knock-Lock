@@ -11,7 +11,7 @@ fun PasswordInputRoute(
 ) {
     PasswordInputScreen(
         modifier = Modifier.fillMaxSize(),
-        inputtedPassword = viewModel.inputPassword.value,
+        state = viewModel.passwordInputState,
         onClickTextButton = viewModel::onClickTextButton,
         onClickAction = viewModel::onClickKeyboardAction,
     )
