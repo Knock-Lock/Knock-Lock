@@ -34,10 +34,4 @@ class UserRepositoryImpl @Inject constructor(
             userPreference.copy(isLockActivated = isActivated)
         }
     }
-
-    override suspend fun checkPasswordSet() {
-        userDataStore.updateData { userPreference ->
-            userPreference.copy(isPasswordSet = true)
-        }
-    }
 }

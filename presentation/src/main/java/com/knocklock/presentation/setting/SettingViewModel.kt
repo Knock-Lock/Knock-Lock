@@ -22,9 +22,9 @@ class SettingViewModel @Inject constructor(
 
     val userSetting = getUserUseCase().map { user ->
         UserSettings(
+            password = user.password,
             isPasswordActivated = user.authenticationType == AuthenticationType.PASSWORD,
             isLockActivated = user.isLockActivated,
-            isPasswordSet = user.isPasswordSet
         )
     }
 
@@ -46,7 +46,7 @@ class SettingViewModel @Inject constructor(
 }
 
 data class UserSettings(
-    val isPasswordActivated: Boolean,
-    val isLockActivated: Boolean,
-    val isPasswordSet: Boolean
+    val password: String = "",
+    val isPasswordActivated: Boolean = false,
+    val isLockActivated: Boolean = false,
 )

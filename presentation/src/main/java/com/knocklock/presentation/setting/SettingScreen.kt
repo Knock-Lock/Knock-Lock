@@ -18,24 +18,18 @@ fun SettingRoute(
     modifier: Modifier = Modifier,
     viewModel: SettingViewModel = hiltViewModel(),
     onMenuSelected: (Int) -> Unit,
-    navigateByUserSettings: () -> Unit
+    navigateToPasswordInputScreen: () -> Unit
 ) {
-    val userSettings by viewModel.userSetting.collectAsState(
-        UserSettings(
-            isPasswordActivated = false,
-            isLockActivated = false,
-            isPasswordSet = false
-        )
-    )
+    val userSettings by viewModel.userSetting.collectAsState(UserSettings())
 
     SettingScreen(
         modifier = modifier,
         onMenuSelected = onMenuSelected,
         onPasswordActivatedChanged = { isChecked ->
-            if (userSettings.isPasswordSet) {
+            if (userSettings.password.isEmpty()) {
                 viewModel.onPasswordActivatedChanged(isChecked)
             } else {
-                navigateByUserSettings()
+                navigateToPasswordInputScreen()
             }
         },
         onLockActivatedChanged = viewModel::onLockActivatedChanged,

@@ -8,15 +8,13 @@ import com.knocklock.data.source.local.userpreference.AuthenticationType as Data
 fun User.toData() = UserPreference(
     authenticationType = DataAuthenticationType.getValue(authenticationType.name),
     password = password,
-    isLockActivated = isLockActivated,
-    isPasswordSet = isPasswordSet
+    isLockActivated = isLockActivated
 )
 
 fun UserPreference.toDomain() = User(
     authenticationType = AuthenticationType.getValue(authenticationType.name),
     password = password,
-    isLockActivated = isLockActivated,
-    isPasswordSet = isPasswordSet
+    isLockActivated = isLockActivated
 )
 
 fun AuthenticationType.toPreferenceType(): DataAuthenticationType {
