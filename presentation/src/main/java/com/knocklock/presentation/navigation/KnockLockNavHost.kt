@@ -39,6 +39,7 @@ fun NavGraphBuilder.settingGraph(
         composable(route = NavigationRoute.SettingGraph.Setting.route) {
             SettingRoute(
                 modifier = modifier,
+                navigateToPasswordInputScreen = { navController.navigate(NavigationRoute.SettingGraph.Password.route) },
                 onMenuSelected = { titleRes ->
                     when (titleRes) {
                         R.string.change_password -> {
