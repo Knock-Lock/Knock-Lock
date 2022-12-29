@@ -1,9 +1,11 @@
 package com.knocklock.presentation.password
 
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material3.LocalContentColor
@@ -24,21 +26,44 @@ import com.knocklock.presentation.ui.theme.KnockLockTheme
 
 @Composable
 fun PasswordInputScreen(
-    inputtedPassword: String,
+    state: PasswordInputState,
     onClickTextButton: (String) -> Unit,
     onClickAction: (KeyboardAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Box(modifier = modifier) {
-        PasswordInputContent(
-            modifier = Modifier.fillMaxWidth(),
-            inputtedPassword = inputtedPassword
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.SpaceBetween
+    ) {
+        when (state) {
+            is PasswordInputState.PasswordNoneState -> {
+                PasswordInputContent(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 60.dp)
+                )
+            }
+            is PasswordInputState.PasswordConfirmState -> {
+                PasswordInputConfirmContent(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 60.dp),
+                    state = state
+                )
+            }
+        }
+
+        PasswordInputFieldLayout(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+                .padding(top = 16.dp),
+            password = state.inputPassword
         )
 
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .align(Alignment.BottomCenter)
                 .clip(
                     MaterialTheme.shapes.extraLarge.copy(
                         bottomEnd = CornerSize(0.dp), bottomStart = CornerSize(0.dp)
@@ -61,48 +86,89 @@ fun PasswordInputScreen(
 
 @Composable
 fun PasswordInputContent(
-    modifier: Modifier = Modifier,
-    inputtedPassword: String
+    modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier,
+        modifier = modifier.height(100.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            modifier = Modifier.padding(top = 60.dp),
-            text = stringResource(id = R.string.desc_password_input)
-        )
-
-        PasswordInputFieldLayout(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp)
-                .padding(top = 16.dp),
-            password = inputtedPassword
+            style = MaterialTheme.typography.titleMedium,
+            text = stringResource(R.string.desc_password_input)
         )
     }
 }
 
-@Preview
 @Composable
-fun PasswordInputContentPrev() {
+fun PasswordInputConfirmContent(
+    modifier: Modifier = Modifier,
+    state: PasswordInputState.PasswordConfirmState
+) {
+    Column(
+        modifier = modifier.height(100.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            style = MaterialTheme.typography.titleMedium,
+            text = stringResource(R.string.desc_password_input_confirm)
+        )
+        if (state.mismatchPassword) {
+            Text(
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(top = 16.dp),
+                color = MaterialTheme.colorScheme.onError,
+                text = stringResource(R.string.desc_forget_password)
+            )
+        }
+    }
+}
+
+
+@Preview("비밀번호 입력 화면")
+@Composable
+fun PasswordInputScreenPrev() {
     KnockLockTheme {
         Surface(color = MaterialTheme.colorScheme.primary) {
-            PasswordInputContent(
-                inputtedPassword = "",
+            PasswordInputScreen(
+                state = PasswordInputState.PasswordNoneState(""),
+                onClickTextButton = {},
+                onClickAction = {},
                 modifier = Modifier.fillMaxSize()
             )
         }
     }
 }
 
-@Preview
+@Preview("비밀번호 확인 화면")
 @Composable
-fun PasswordInputScreenPrev() {
+fun PasswordInputConfirmScreenPrev() {
     KnockLockTheme {
         Surface(color = MaterialTheme.colorScheme.primary) {
             PasswordInputScreen(
-                inputtedPassword = "",
+                state = PasswordInputState.PasswordConfirmState(
+                    inputPassword = "",
+                    savedPassword = "",
+                    mismatchPassword = false
+                ),
+                onClickTextButton = {},
+                onClickAction = {},
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+    }
+}
+
+@Preview("비밀번호 확인 화면 - 실패")
+@Composable
+fun PasswordInputConfirmFailedScreenPrev() {
+    KnockLockTheme {
+        Surface(color = MaterialTheme.colorScheme.primary) {
+            PasswordInputScreen(
+                state = PasswordInputState.PasswordConfirmState(
+                    inputPassword = "",
+                    savedPassword = "",
+                    mismatchPassword = true
+                ),
                 onClickTextButton = {},
                 onClickAction = {},
                 modifier = Modifier.fillMaxSize()
