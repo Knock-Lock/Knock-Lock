@@ -103,7 +103,6 @@ class LockScreenNotificationListener :
         initHomeWatcher()
         initStartApplicationReceiver()
         windowManager.defaultDisplay.getRealSize(point)
-        addLockScreen()
     }
 
     private fun addLockScreen() {
