@@ -1,6 +1,7 @@
 package com.knocklock.presentation
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -11,7 +12,8 @@ import androidx.activity.compose.setContent
 import androidx.core.app.NotificationManagerCompat
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.normal.TedPermission
-import com.knocklock.presentation.lockscreen.StartApplicationService
+import com.knocklock.presentation.lockscreen.util.DismissStatusBarService
+import com.knocklock.presentation.lockscreen.service.LockScreenNotificationListener
 import com.knocklock.presentation.ui.setting.SettingRoute
 import com.knocklock.presentation.ui.theme.KnockLockTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -69,6 +71,12 @@ class MainActivity : ComponentActivity() {
                     Manifest.permission.SYSTEM_ALERT_WINDOW
                 ).check()
         }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (!isAccessServiceEnabled(this, DismissStatusBarService::class.java)) {
+                val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                startActivity(intent)
+            }
+        }
     }
 
     private fun checkNotificationPermission() {
@@ -84,9 +92,16 @@ class MainActivity : ComponentActivity() {
 
     private fun startService() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(Intent(this, StartApplicationService::class.java))
+            startForegroundService(Intent(this, LockScreenNotificationListener::class.java))
         } else {
-            startService(Intent(this, StartApplicationService::class.java))
+            startService(Intent(this, LockScreenNotificationListener::class.java))
         }
+    }
+    private fun isAccessServiceEnabled(context: Context, accessibilityServiceClass: Class<*>): Boolean {
+        val prefString = Settings.Secure.getString(
+            context.getContentResolver(),
+            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+        )
+        return prefString != null && prefString.contains(context.getPackageName() + "/" + accessibilityServiceClass.name)
     }
 }

@@ -22,4 +22,7 @@
     <string name="change_password_route">change_password_route</string>
     <string name="credit">크레딧</string>
     <string name="credit_route">credit_route</string>
+
+    <!-- Service -->
+    <string name="dismiss_status_bar_service">상태바 비활성화 서비스</string>
 </resources>
