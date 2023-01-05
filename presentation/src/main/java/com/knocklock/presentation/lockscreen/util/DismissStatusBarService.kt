@@ -1,4 +1,4 @@
-package com.knocklock.presentation.lockscreen
+package com.knocklock.presentation.lockscreen.util
 
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
