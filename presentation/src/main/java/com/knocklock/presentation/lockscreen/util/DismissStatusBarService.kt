@@ -2,7 +2,6 @@ package com.knocklock.presentation.lockscreen.util
 
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
-import android.content.Intent
 import android.os.Build
 import android.view.accessibility.AccessibilityEvent
 
@@ -25,10 +24,6 @@ class DismissStatusBarService : AccessibilityService() {
     }
 
     override fun onInterrupt() {
-    }
-
-    override fun onUnbind(intent: Intent?): Boolean {
-        return super.onUnbind(intent)
     }
 
     override fun onDestroy() {

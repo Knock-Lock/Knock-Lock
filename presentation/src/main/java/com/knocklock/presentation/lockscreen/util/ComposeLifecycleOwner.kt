@@ -42,7 +42,3 @@ class ComposeLifecycleOwner : SavedStateRegistryOwner {
         mSavedStateRegistryController.performSave(outBundle)
     }
 }
-
-/*
-https://medium.com/mobile-app-development-publication/building-a-jetpack-compose-window-with-abstractcomposeview-a7efb1768e0b
- */
