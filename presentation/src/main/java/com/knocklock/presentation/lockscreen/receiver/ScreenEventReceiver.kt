@@ -13,9 +13,9 @@ import dagger.hilt.android.AndroidEntryPoint
  */
 
 @AndroidEntryPoint
-class StartApplicationReceiver(
+class ScreenEventReceiver(
     private val context: Context,
-    private val openLockScreen: OpenLockScreen
+    private val onScreenEventListener: OnScreenEventListener
 ) : BroadcastReceiver() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
@@ -25,17 +25,17 @@ class StartApplicationReceiver(
     private fun startLockScreen(context: Context?) {
         if (context != null) {
             try {
-                openLockScreen.openLockScreenByIntent()
+                onScreenEventListener.openLockScreenByIntent()
             } catch (e: Exception) {
                 Log.e("Receiver Exception", e.stackTraceToString())
             }
         }
     }
-    fun stop() {
+    fun unregisterReceiver() {
         context.unregisterReceiver(this)
     }
 
-    fun start() {
+    fun registerReceiver() {
         val intentFilter = IntentFilter().apply {
             addAction(Intent.ACTION_SCREEN_OFF)
             addAction(Intent.ACTION_BOOT_COMPLETED)
@@ -43,6 +43,6 @@ class StartApplicationReceiver(
         context.registerReceiver(this, intentFilter)
     }
 }
-interface OpenLockScreen {
+interface OnScreenEventListener {
     fun openLockScreenByIntent()
 }

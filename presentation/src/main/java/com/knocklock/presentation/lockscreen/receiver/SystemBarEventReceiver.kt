@@ -9,15 +9,15 @@ import android.content.IntentFilter
  * @Created by 김현국 2022/12/28
  * @Time 2:47 PM
  */
-class HomeWatcher(
+class SystemBarEventReceiver(
     private val context: Context,
     private val intentFilter: IntentFilter = IntentFilter(Intent.ACTION_CLOSE_SYSTEM_DIALOGS),
-    private val systemBarListener: OnSystemBarPressedListener
+    private val onSystemBarListener: OnSystemBarListener
 ) {
 
     private val systemBarEventReceiver: SystemBarEventReceiver
 
-    interface OnSystemBarPressedListener {
+    interface OnSystemBarListener {
         fun onSystemBarClicked()
     }
 
@@ -25,11 +25,11 @@ class HomeWatcher(
         systemBarEventReceiver = SystemBarEventReceiver()
     }
 
-    fun startWatch() {
+    fun registerReceiver() {
         context.registerReceiver(systemBarEventReceiver, intentFilter)
     }
 
-    fun stopWatch() {
+    fun unregisterReceiver() {
         context.unregisterReceiver(systemBarEventReceiver)
     }
 
@@ -40,7 +40,7 @@ class HomeWatcher(
                 val reason = intent.getStringExtra(SYSTEM_DIALOG_REASON_KEY)
                 if (reason != null) {
                     if (reason == SYSTEM_DIALOG_REASON_HOME_KEY || reason == SYSTEM_DIALOG_REASON_RECENT_APPS) {
-                        systemBarListener.onSystemBarClicked()
+                        onSystemBarListener.onSystemBarClicked()
                     }
                 }
             }

@@ -32,7 +32,7 @@ import kotlinx.coroutines.launch
 class InitLockScreenView(
     private val context: Context,
     private val composeView: ComposeView,
-    private val controlView: ControlComposeView,
+    private val onComposeViewListener: OnComposeViewListener,
     private val point: Point
 ) {
     private val lifecycleOwner by lazy { ComposeLifecycleOwner() }
@@ -47,7 +47,7 @@ class InitLockScreenView(
             val stateHolder = rememberLockScreenStateHolder(context = context)
             val notificationUiState by stateHolder.notificationList.collectAsState()
             LockScreenRoute(notificationUiState, userSwipe = {
-                controlView.remove(composeView)
+                onComposeViewListener.remove(composeView)
             })
         }
 
@@ -117,6 +117,6 @@ class InitLockScreenView(
         return params
     }
 }
-interface ControlComposeView {
+interface OnComposeViewListener {
     fun remove(composeView: ComposeView)
 }
