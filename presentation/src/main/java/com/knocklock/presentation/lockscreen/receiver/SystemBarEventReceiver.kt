@@ -12,12 +12,12 @@ import android.content.IntentFilter
 class SystemBarEventReceiver(
     private val context: Context,
     private val intentFilter: IntentFilter = IntentFilter(Intent.ACTION_CLOSE_SYSTEM_DIALOGS),
-    private val onSystemBarListener: OnSystemBarListener
+    private val onSystemBarEventListener: OnSystemBarEventListener
 ) {
 
     private val systemBarEventReceiver: SystemBarEventReceiver
 
-    interface OnSystemBarListener {
+    interface OnSystemBarEventListener {
         fun onSystemBarClicked()
     }
 
@@ -40,7 +40,7 @@ class SystemBarEventReceiver(
                 val reason = intent.getStringExtra(SYSTEM_DIALOG_REASON_KEY)
                 if (reason != null) {
                     if (reason == SYSTEM_DIALOG_REASON_HOME_KEY || reason == SYSTEM_DIALOG_REASON_RECENT_APPS) {
-                        onSystemBarListener.onSystemBarClicked()
+                        onSystemBarEventListener.onSystemBarClicked()
                     }
                 }
             }

@@ -71,7 +71,7 @@ class LockScreenNotificationListener :
     private val systemBarEventReceiver by lazy {
         SystemBarEventReceiver(
             context = this,
-            onSystemBarListener = object : SystemBarEventReceiver.OnSystemBarListener {
+            onSystemBarEventListener = object : SystemBarEventReceiver.OnSystemBarEventListener {
                 override fun onSystemBarClicked() {
                 }
             }
