@@ -14,15 +14,13 @@ import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.text.TextUtils
 import android.view.WindowManager
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.app.NotificationCompat
 import com.knocklock.domain.usecase.notification.InsertNotificationUseCase
 import com.knocklock.presentation.MainActivity
-import com.knocklock.presentation.lockscreen.*
-import com.knocklock.presentation.lockscreen.receiver.HomeWatcher
-import com.knocklock.presentation.lockscreen.receiver.OpenLockScreen
-import com.knocklock.presentation.lockscreen.receiver.StartApplicationReceiver
+import com.knocklock.presentation.lockscreen.receiver.OnScreenEventListener
+import com.knocklock.presentation.lockscreen.receiver.ScreenEventReceiver
+import com.knocklock.presentation.lockscreen.receiver.SystemBarEventReceiver
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import javax.inject.Inject
@@ -35,10 +33,7 @@ import com.knocklock.domain.model.Notification as NotificationDomainModel
 
 @AndroidEntryPoint
 class LockScreenNotificationListener :
-    NotificationListenerService(),
-    OpenLockScreen,
-    HomeWatcher.OnSystemBarPressedListener,
-    ControlComposeView {
+    NotificationListenerService() {
 
     private val job by lazy { SupervisorJob() }
     private val scope by lazy { CoroutineScope(Dispatchers.IO + job) }
@@ -46,23 +41,42 @@ class LockScreenNotificationListener :
     private val windowManager by lazy { getSystemService(Context.WINDOW_SERVICE) as WindowManager }
     private val point by lazy { Point() }
 
-    // compose
+    private val notificationManager by lazy { getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager }
+
     private val composeView by lazy { ComposeView(context = this) }
     private val initLockScreenView by lazy {
         InitLockScreenView(
             context = this,
             composeView = composeView,
-            controlView = this,
-            point = point
+            point = point,
+            onComposeViewListener = object : OnComposeViewListener {
+                override fun remove(composeView: ComposeView) {
+                    windowManager.removeView(composeView)
+                }
+            }
         )
     }
 
-    // screenLock Receiver
-    private val startApplicationReceiver by lazy { StartApplicationReceiver(this, this) }
-    private val notificationManager by lazy { getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager }
+    private val screenEventReceiver by lazy {
+        ScreenEventReceiver(
+            context = this,
+            onScreenEventListener = object : OnScreenEventListener {
+                override fun openLockScreenByIntent() {
+                    addLockScreen()
+                }
+            }
+        )
+    }
 
-    // homeKeyWatcher
-    private val homeWatcherReceiver by lazy { HomeWatcher(this, systemBarListener = this) }
+    private val systemBarEventReceiver by lazy {
+        SystemBarEventReceiver(
+            context = this,
+            onSystemBarListener = object : SystemBarEventReceiver.OnSystemBarListener {
+                override fun onSystemBarClicked() {
+                }
+            }
+        )
+    }
 
     @Inject lateinit var insertNotificationUseCase: InsertNotificationUseCase
 
@@ -100,9 +114,14 @@ class LockScreenNotificationListener :
 
     override fun onCreate() {
         super.onCreate()
-        initHomeWatcher()
-        initStartApplicationReceiver()
-        windowManager.defaultDisplay.getRealSize(point)
+        registerSystemBarEventReceiver()
+        registerScreenEventReceiver()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            point.x = windowManager.maximumWindowMetrics.bounds.width()
+            point.y = windowManager.maximumWindowMetrics.bounds.height()
+        } else {
+            windowManager.defaultDisplay.getRealSize(point)
+        }
     }
 
     private fun addLockScreen() {
@@ -117,8 +136,7 @@ class LockScreenNotificationListener :
     private fun requestScreenOverlay() {
         if (!Settings.canDrawOverlays(this)) {
             val builder = StringBuilder()
-            builder.append("package:")
-            builder.append(this.packageName)
+            builder.append("package:$packageName")
             val intent = Intent("android.settings.action.MANAGE_OVERLAY_PERMISSION", Uri.parse(builder.toString()))
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
@@ -132,14 +150,10 @@ class LockScreenNotificationListener :
         return START_REDELIVER_INTENT
     }
 
-    override fun openLockScreenByIntent() {
-        addLockScreen()
-    }
-
     override fun onDestroy() {
         super.onDestroy()
-        removeHomeWatcher()
-        removeStartApplicationReceiver()
+        unregisterSystemBarEventReceiver()
+        unregisterScreenEventReceiver()
     }
 
     private fun createNotificationChannel() {
@@ -171,28 +185,17 @@ class LockScreenNotificationListener :
             .build()
     }
 
-    override fun onSystemBarClicked() {
-        /*
-        todo 만약 잠김 상태라면? Password 스크린으로 이동
-         아니라면 LockScreen해제
-         */
+    private fun registerSystemBarEventReceiver() {
+        systemBarEventReceiver.registerReceiver()
     }
-
-    private fun initHomeWatcher() {
-        homeWatcherReceiver.startWatch()
+    private fun unregisterSystemBarEventReceiver() {
+        systemBarEventReceiver.unregisterReceiver()
     }
-
-    private fun removeHomeWatcher() {
-        homeWatcherReceiver.stopWatch()
+    private fun registerScreenEventReceiver() {
+        screenEventReceiver.registerReceiver()
     }
-    private fun initStartApplicationReceiver() {
-        startApplicationReceiver.start()
-    }
-    private fun removeStartApplicationReceiver() {
-        startApplicationReceiver.stop()
-    }
-    override fun remove(composeView: ComposeView) {
-        windowManager.removeView(composeView)
+    private fun unregisterScreenEventReceiver() {
+        screenEventReceiver.unregisterReceiver()
     }
 
     companion object {
