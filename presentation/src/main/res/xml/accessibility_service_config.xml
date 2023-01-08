@@ -1,7 +1,0 @@
-<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
-    android:description="@string/dismiss_status_bar_service"
-    android:accessibilityEventTypes="typeWindowStateChanged"
-    android:accessibilityFeedbackType="feedbackAllMask"
-    android:accessibilityFlags="flagDefault"
-    android:notificationTimeout="100"
-    />
