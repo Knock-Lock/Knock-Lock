@@ -28,4 +28,10 @@ class UserRepositoryImpl @Inject constructor(
             userPreference.copy(authenticationType = type.toPreferenceType())
         }
     }
+
+    override suspend fun activateLock(isActivated: Boolean) {
+        userDataStore.updateData { userPreference ->
+            userPreference.copy(isLockActivated = isActivated)
+        }
+    }
 }

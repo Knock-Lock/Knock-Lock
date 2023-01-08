@@ -10,4 +10,6 @@ interface UserRepository {
     suspend fun updatedPassword(password: String)
 
     suspend fun changeMode(type: AuthenticationType)
+
+    suspend fun activateLock(isActivated: Boolean)
 }
