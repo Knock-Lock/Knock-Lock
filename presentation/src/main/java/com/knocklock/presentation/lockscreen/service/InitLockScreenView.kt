@@ -50,9 +50,10 @@ class InitLockScreenView(
                 onComposeViewListener.remove(composeView)
             })
         }
-
-        lifecycleOwner.performRestore(null)
-        lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+        lifecycleOwner.apply {
+            performRestore(null)
+            handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+        }
         ViewTreeLifecycleOwner.set(composeView, lifecycleOwner)
         composeView.setViewTreeSavedStateRegistryOwner(lifecycleOwner)
 

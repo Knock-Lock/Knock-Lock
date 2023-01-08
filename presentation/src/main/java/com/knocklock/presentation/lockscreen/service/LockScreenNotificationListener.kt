@@ -19,6 +19,7 @@ import androidx.core.app.NotificationCompat
 import com.knocklock.domain.usecase.notification.InsertNotificationUseCase
 import com.knocklock.presentation.MainActivity
 import com.knocklock.presentation.lockscreen.receiver.OnScreenEventListener
+import com.knocklock.presentation.lockscreen.receiver.OnSystemBarEventListener
 import com.knocklock.presentation.lockscreen.receiver.ScreenEventReceiver
 import com.knocklock.presentation.lockscreen.receiver.SystemBarEventReceiver
 import dagger.hilt.android.AndroidEntryPoint
@@ -71,7 +72,7 @@ class LockScreenNotificationListener :
     private val systemBarEventReceiver by lazy {
         SystemBarEventReceiver(
             context = this,
-            onSystemBarEventListener = object : SystemBarEventReceiver.OnSystemBarEventListener {
+            onSystemBarEventListener = object : OnSystemBarEventListener {
                 override fun onSystemBarClicked() {
                 }
             }
@@ -137,9 +138,10 @@ class LockScreenNotificationListener :
         if (!Settings.canDrawOverlays(this)) {
             val builder = StringBuilder()
             builder.append("package:$packageName")
-            val intent = Intent("android.settings.action.MANAGE_OVERLAY_PERMISSION", Uri.parse(builder.toString()))
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            val intent = Intent("android.settings.action.MANAGE_OVERLAY_PERMISSION", Uri.parse(builder.toString())).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            }
             this.startActivity(intent)
         }
     }
