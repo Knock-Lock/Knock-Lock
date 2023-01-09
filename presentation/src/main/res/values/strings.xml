@@ -22,6 +22,7 @@
     <string name="change_password_route">change_password_route</string>
     <string name="credit">크레딧</string>
     <string name="credit_route">credit_route</string>
+
     <string name="activate_knocklock">KnockLock 활성화</string>
     <!-- PasswordInput -->
     <string name="desc_password_input">잠금 설정을 위한 비밀번호를 입력하세요.</string>
