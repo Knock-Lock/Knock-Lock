@@ -74,6 +74,7 @@ class LockScreenNotificationListener :
             context = this,
             onSystemBarEventListener = object : OnSystemBarEventListener {
                 override fun onSystemBarClicked() {
+                    // Todo 현재 PassWordScreen이 열려있는지
                 }
             }
         )
