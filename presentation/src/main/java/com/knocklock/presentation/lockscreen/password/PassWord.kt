@@ -6,7 +6,7 @@ package com.knocklock.presentation.lockscreen.password
  */
 data class PassWord(
     val number: String,
-    val subText: String
+    val subText: String? = ""
 ) {
     companion object {
         fun getPassWordList(): List<PassWord> {
@@ -20,7 +20,9 @@ data class PassWord(
                 PassWord("7", "PQRS"),
                 PassWord("8", "TUV"),
                 PassWord("9", "WXYZ"),
-                PassWord("0", "")
+                PassWord("", ""),
+                PassWord("0", ""),
+                PassWord("", "")
             )
         }
     }
