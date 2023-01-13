@@ -2,6 +2,7 @@ package com.knocklock.presentation.lockscreen.password
 
 import android.content.res.Configuration
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 
@@ -69,7 +70,7 @@ class PassWordScreenStateHolder(
 fun rememberPassWordScreenState(
     configuration: Configuration = LocalConfiguration.current,
     removePassWordScreen: () -> Unit
-) = remember {
+) = rememberSaveable {
     PassWordScreenStateHolder(
         configuration,
         removePassWordScreen
