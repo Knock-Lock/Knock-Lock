@@ -1,4 +1,4 @@
-package com.knocklock.presentation.password
+package com.knocklock.presentation.setting.password
 
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.animateFloatAsState
