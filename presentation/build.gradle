@@ -88,4 +88,7 @@ dependencies {
 
     implementation("androidx.savedstate:savedstate-ktx:1.2.0")
 
+    // lottie
+    implementation "com.airbnb.android:lottie-compose:5.2.0"
+
 }
