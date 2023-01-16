@@ -21,14 +21,11 @@ class PassWordScreenStateHolder(
     val contentPadding = passWordSpace / 2
     private val screenWidthDp = configuration.screenWidthDp.dp - passWordSpace * 3
     val circlePassWordNumberSize = screenWidthDp / 3
-    val passWordState = mutableStateListOf(
-        PassWord(""),
-        PassWord(""),
-        PassWord(""),
-        PassWord(""),
-        PassWord(""),
-        PassWord("")
-    )
+    val passWordState = mutableStateListOf<PassWord>().apply {
+        repeat(6) {
+            add(PassWord(""))
+        }
+    }
 
     var insertPassWordIndex by mutableStateOf(0)
     var removePassWordIndex by mutableStateOf(0)
