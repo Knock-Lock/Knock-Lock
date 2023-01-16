@@ -88,4 +88,6 @@ dependencies {
 
     implementation("androidx.savedstate:savedstate-ktx:1.2.0")
 
+    implementation("io.coil-kt:coil-compose:2.2.2")
+
 }
