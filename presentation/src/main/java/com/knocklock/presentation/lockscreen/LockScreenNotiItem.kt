@@ -1,9 +1,11 @@
 package com.knocklock.presentation.lockscreen
 
-import android.graphics.Bitmap
+import android.graphics.drawable.Icon
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -11,12 +13,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.rememberAsyncImagePainter
 import com.knocklock.presentation.ui.theme.KnockLockTheme
 
 /**
@@ -27,7 +30,7 @@ import com.knocklock.presentation.ui.theme.KnockLockTheme
 @Immutable
 data class Notification(
     val id: Int = 0,
-    val icon: Bitmap? = null,
+    val icon: Icon? = null,
     val appTitle: String = "",
     val notiTime: String = "",
     val title: String = "",
@@ -55,13 +58,18 @@ fun LockNotiItem(
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         LockNotiTop(
-            modifier = Modifier.padding(horizontal = 10.dp).padding(top = 4.dp),
-            icon = null,
+            modifier = Modifier
+                .padding(horizontal = 10.dp)
+                .padding(top = 4.dp),
+            icon = notification.icon,
             appTitle = notification.appTitle,
             time = notification.notiTime
         )
         LockNotiContent(
-            modifier = Modifier.padding(horizontal = 10.dp).padding(bottom = 4.dp).wrapContentHeight(),
+            modifier = Modifier
+                .padding(horizontal = 10.dp)
+                .padding(bottom = 4.dp)
+                .wrapContentHeight(),
             title = notification.title,
             content = notification.content
         )
@@ -71,22 +79,22 @@ fun LockNotiItem(
 @Composable
 fun LockNotiTop(
     modifier: Modifier = Modifier,
-    icon: Painter?,
+    icon: Icon?,
     appTitle: String,
     time: String
 ) {
     Row(
-        modifier = modifier.fillMaxWidth().wrapContentHeight(),
+        modifier = modifier
+            .fillMaxWidth()
+            .wrapContentHeight(),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Box( // 추후 Image로 변경
-                modifier = Modifier.size(10.dp).background(
-                    color = Color.Green
-                )
-            )
+            if (icon != null) {
+                Image(modifier = Modifier.size(10.dp), painter = rememberAsyncImagePainter(model = icon.loadDrawable(LocalContext.current)), contentDescription = null)
+            }
             Spacer(modifier = Modifier.width(4.dp))
             Text(
                 text = appTitle,
@@ -127,10 +135,13 @@ fun PreviewLockNotiItem() {
     KnockLockTheme {
         val color = Color(red = 0xCC, blue = 0xCC, green = 0xCC)
         LockNotiItem(
-            modifier = Modifier.width(200.dp).height(70.dp).background(
-                color = color,
-                shape = RoundedCornerShape(4.dp)
-            )
+            modifier = Modifier
+                .width(200.dp)
+                .height(70.dp)
+                .background(
+                    color = color,
+                    shape = RoundedCornerShape(4.dp)
+                )
                 .clip(RoundedCornerShape(4.dp)),
             notification = Notification.Test
         )
