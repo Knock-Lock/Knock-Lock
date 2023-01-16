@@ -25,7 +25,6 @@ import com.knocklock.presentation.lockscreen.receiver.SystemBarEventReceiver
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import javax.inject.Inject
-import com.knocklock.domain.model.Notification as NotificationDomainModel
 
 /**
  * @Created by 김현국 2022/12/04
@@ -35,9 +34,6 @@ import com.knocklock.domain.model.Notification as NotificationDomainModel
 @AndroidEntryPoint
 class LockScreenNotificationListener :
     NotificationListenerService() {
-
-    private val job by lazy { SupervisorJob() }
-    private val scope by lazy { CoroutineScope(Dispatchers.IO + job) }
 
     private val windowManager by lazy { getSystemService(Context.WINDOW_SERVICE) as WindowManager }
     private val point by lazy { Point() }
@@ -86,26 +82,7 @@ class LockScreenNotificationListener :
 
         val packageName = sbn?.packageName
         if (sbn != null && !TextUtils.isEmpty(packageName)) {
-            val notification: Notification = sbn.notification
-            val extras = notification.extras
-            val title = extras.getString(Notification.EXTRA_TITLE).toString()
-            val text = extras.getString(Notification.EXTRA_TEXT).toString()
-            val subText = extras.getString(Notification.EXTRA_SUB_TEXT).toString()
-            val smallIcon = notification.smallIcon
-            val largeIcon = notification.getLargeIcon()
-
-            if (title.isNotBlank() && text.isNotBlank()) {
-                scope.launch {
-                    insertNotificationUseCase(
-                        NotificationDomainModel(
-                            id = 0,
-                            title = title,
-                            subText = subText,
-                            text = text
-                        )
-                    )
-                }
-            }
+            initLockScreenView.passActiveNotificationList(activeNotifications)
         }
     }
 
@@ -132,6 +109,7 @@ class LockScreenNotificationListener :
             requestScreenOverlay()
         }
         windowManager.addView(composeView, initLockScreenView.getWindowManagerLayoutParams())
+        initLockScreenView.passActiveNotificationList(activeNotifications)
     }
 
     private fun requestScreenOverlay() {
