@@ -11,7 +11,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -124,10 +123,9 @@ fun InsertPassWordRow(
         contentPadding = PaddingValues(horizontal = 50.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        itemsIndexed(
-            items = inputPassWordState,
-            key = { index: Int, _: PassWord -> index }
-        ) { _: Int, inputPassWord: PassWord ->
+        items(
+            items = inputPassWordState
+        ) { inputPassWord: PassWord ->
             InsertedPassWordCircle(inputPassWord = inputPassWord.number)
         }
     }
