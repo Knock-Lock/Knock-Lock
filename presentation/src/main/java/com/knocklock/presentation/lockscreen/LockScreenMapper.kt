@@ -8,7 +8,7 @@ import com.knocklock.domain.model.Notification as DomainNotification
 
 fun DomainNotification.toModel() = Notification(
     id = this.id,
-    icon = null,
+    drawable = null,
     appTitle = this.subText,
     notiTime = "Now",
     title = this.title,

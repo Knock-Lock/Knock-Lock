@@ -1,11 +1,10 @@
 package com.knocklock.presentation.lockscreen
 
-import android.graphics.drawable.Icon
+import android.graphics.drawable.Drawable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -13,13 +12,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.rememberAsyncImagePainter
+import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import com.knocklock.presentation.ui.theme.KnockLockTheme
 
 /**
@@ -30,7 +28,7 @@ import com.knocklock.presentation.ui.theme.KnockLockTheme
 @Immutable
 data class Notification(
     val id: Int = 0,
-    val icon: Icon? = null,
+    val drawable: Drawable? = null,
     val appTitle: String = "",
     val notiTime: String = "",
     val title: String = "",
@@ -39,7 +37,7 @@ data class Notification(
     companion object {
         val Test = Notification(
             id = 0,
-            icon = null,
+            drawable = null,
             appTitle = "Kakao",
             notiTime = "Now",
             title = "KnockLock app 개발중",
@@ -61,7 +59,7 @@ fun LockNotiItem(
             modifier = Modifier
                 .padding(horizontal = 10.dp)
                 .padding(top = 4.dp),
-            icon = notification.icon,
+            drawable = notification.drawable,
             appTitle = notification.appTitle,
             time = notification.notiTime
         )
@@ -79,7 +77,7 @@ fun LockNotiItem(
 @Composable
 fun LockNotiTop(
     modifier: Modifier = Modifier,
-    icon: Icon?,
+    drawable: Drawable?,
     appTitle: String,
     time: String
 ) {
@@ -92,8 +90,12 @@ fun LockNotiTop(
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (icon != null) {
-                Image(modifier = Modifier.size(10.dp), painter = rememberAsyncImagePainter(model = icon.loadDrawable(LocalContext.current)), contentDescription = null)
+            if (drawable != null) {
+                Image(
+                    modifier = Modifier.size(10.dp),
+                    painter = rememberDrawablePainter(drawable = drawable),
+                    contentDescription = null
+                )
             }
             Spacer(modifier = Modifier.width(4.dp))
             Text(

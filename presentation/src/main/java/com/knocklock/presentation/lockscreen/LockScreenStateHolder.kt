@@ -3,6 +3,7 @@ package com.knocklock.presentation.lockscreen
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
+import android.graphics.drawable.Drawable
 import android.os.Build
 import android.service.notification.StatusBarNotification
 import androidx.compose.runtime.Composable
@@ -37,22 +38,23 @@ class LockScreenStateHolder @Inject constructor(
         val notificationUiState = NotificationUiState.Success(
             notificationList = notificationArray.map { statusBarNotification ->
 
-                var appTitle = ""
-
-                val subText =
-                    statusBarNotification.notification.extras.getString(android.app.Notification.EXTRA_SUB_TEXT)
-                        .toString()
-                val title =
-                    statusBarNotification.notification.extras.getString(android.app.Notification.EXTRA_TITLE)
-                        .toString()
-                val content =
-                    statusBarNotification.notification.extras.getString(android.app.Notification.EXTRA_TEXT)
-                        .toString()
-
                 with(statusBarNotification.notification.extras) {
+                    var appTitle = ""
+
+                    val subText = getString(android.app.Notification.EXTRA_SUB_TEXT).toString() ?: ""
+                    val title = getString(android.app.Notification.EXTRA_TITLE).toString() ?: ""
+                    val content = getString(android.app.Notification.EXTRA_TEXT).toString() ?: ""
                     val packageName = statusBarNotification.packageName
+
+                    val iconId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        statusBarNotification.notification.smallIcon.resId
+                    } else {
+                        getInt(android.app.Notification.EXTRA_SMALL_ICON)
+                    }
+                    val applicationInfo: ApplicationInfo?
+
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        val applicationInfo: ApplicationInfo? = try {
+                        applicationInfo = try {
                             packageManager.getApplicationInfo(
                                 packageName,
                                 PackageManager.ApplicationInfoFlags.of(PackageManager.GET_META_DATA.toLong())
@@ -67,7 +69,7 @@ class LockScreenStateHolder @Inject constructor(
                             appTitle = appName.toString()
                         }
                     } else {
-                        val applicationInfo: ApplicationInfo? = try {
+                        applicationInfo = try {
                             packageManager.getApplicationInfo(packageName, 0)
                         } catch (e: PackageManager.NameNotFoundException) {
                             null
@@ -79,20 +81,20 @@ class LockScreenStateHolder @Inject constructor(
                             appTitle = appName.toString()
                         }
                     }
-                    println(getString(android.app.Notification.EXTRA_TITLE))
-                    println(getString(android.app.Notification.EXTRA_SUB_TEXT))
-                    println(getString(android.app.Notification.EXTRA_TEXT))
-                    println("appName : $appTitle")
-                }
 
-                Notification(
-                    id = statusBarNotification.key.hashCode(),
-                    icon = statusBarNotification.notification.smallIcon,
-                    appTitle = if (subText == "null") appTitle else subText, // Bold title
-                    notiTime = "",
-                    title = title,
-                    content = content
-                )
+                    val icon: Drawable? = if (applicationInfo != null) {
+                        packageManager.getApplicationIcon(applicationInfo)
+                    } else null
+
+                    Notification(
+                        id = statusBarNotification.key.hashCode(),
+                        drawable = icon,
+                        appTitle = if (subText == "null") appTitle else subText, // Bold title
+                        notiTime = "",
+                        title = title,
+                        content = content
+                    )
+                }
             }
         )
         _notificationList.value = notificationUiState
