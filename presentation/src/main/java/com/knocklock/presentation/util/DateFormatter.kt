@@ -25,7 +25,7 @@ fun getKoreanDateFormat(date: Date): String {
 }
 
 fun getEnglishDateFormat(date: Date): String {
-    val dateFormat = SimpleDateFormat(dateFormatEng, Locale.KOREAN)
+    val dateFormat = SimpleDateFormat(dateFormatEng, Locale.ENGLISH)
     return dateFormat.format(date)
 }
 
