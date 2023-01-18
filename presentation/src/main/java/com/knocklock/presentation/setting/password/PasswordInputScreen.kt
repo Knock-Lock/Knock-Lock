@@ -1,5 +1,6 @@
 package com.knocklock.presentation.setting.password
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -89,7 +90,7 @@ fun PasswordInputContent(
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.height(100.dp),
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
@@ -105,18 +106,17 @@ fun PasswordInputConfirmContent(
     state: PasswordInputState.PasswordConfirmState
 ) {
     Column(
-        modifier = modifier.height(100.dp),
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
             style = MaterialTheme.typography.titleMedium,
             text = stringResource(R.string.desc_password_input_confirm)
         )
-        if (state.mismatchPassword) {
+        AnimatedVisibility(visible = state.mismatchPassword) {
             Text(
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(top = 16.dp),
-                color = MaterialTheme.colorScheme.onError,
                 text = stringResource(R.string.desc_forget_password)
             )
         }

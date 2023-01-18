@@ -92,10 +92,11 @@ class PasswordInputViewModel @Inject constructor(
             viewModelScope.launch {
                 _onSuccessUpdatePassword.emit(Unit)
             }
-            state.copy(isLoading = false)
+            state.copy(isLoading = false, mismatchPassword = false)
         } else {
             state.copy(
                 inputPassword = "",
+                mismatchPassword = true,
                 isLoading = false
             )
         }
