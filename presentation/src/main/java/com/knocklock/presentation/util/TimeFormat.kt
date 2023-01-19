@@ -2,15 +2,16 @@ package com.knocklock.presentation.util
 
 abstract class TimeFormat {
     abstract val timeFormat: String
-    val dateFormat: String = "MM월 dd일 E요일"
+    val dateFormatKor: String = "MMM d일 EEEE"
+    val dateFormatEng: String = "E, MMM d"
 }
 
 object TimeWithNoSecondFormat : TimeFormat() {
-    override val timeFormat: String = "h:mm"
+    override val timeFormat: String = "h:m"
 }
 
 object TimeWithSecondFormat : TimeFormat() {
-    override val timeFormat: String = "h:mm:ss"
+    override val timeFormat: String = "h:m:s"
 }
 
 object TimeVerticalFormat : TimeFormat() {

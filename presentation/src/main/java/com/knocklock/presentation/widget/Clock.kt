@@ -12,6 +12,7 @@ import com.knocklock.presentation.util.TimeFormat
 import com.knocklock.presentation.util.TimeVerticalFormat
 import com.knocklock.presentation.util.TimeWithNoSecondFormat
 import com.knocklock.presentation.util.TimeWithSecondFormat
+import java.util.*
 
 
 @Composable
@@ -44,12 +45,22 @@ fun ClockWidget(
         }
         AndroidView(factory = { context ->
             TextClock(context).apply {
-                format12Hour = timeFormat.dateFormat
+                format12Hour =
+                    if (Locale.getDefault().language.equals("ko")) {
+                        timeFormat.dateFormatKor
+                    } else {
+                        timeFormat.dateFormatEng
+                    }
                 textSize = 12F
                 setTextColor(Color.WHITE)
             }
         }, update = { textClock ->
-            textClock.format12Hour = timeFormat.dateFormat
+            textClock.format12Hour =
+                if (Locale.getDefault().language.equals("ko")) {
+                    timeFormat.dateFormatKor
+                } else {
+                    timeFormat.dateFormatEng
+                }
         })
     }
 }
