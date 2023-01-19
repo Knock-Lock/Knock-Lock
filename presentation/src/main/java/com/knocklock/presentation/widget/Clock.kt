@@ -20,17 +20,17 @@ fun ClockWidget(
     timeFormat: TimeFormat,
 ) {
     Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        AndroidView(
-            factory = { context ->
-                TextClock(context).apply {
-                    format12Hour = timeFormat.timeFormat
-                    textSize = 36F
-                    setTextColor(Color.WHITE)
-                }
-            })
+        AndroidView(factory = { context ->
+            TextClock(context).apply {
+                format12Hour = timeFormat.timeFormat
+                textSize = 36F
+                setTextColor(Color.WHITE)
+            }
+        }, update = { textClock ->
+            textClock.format12Hour = timeFormat.timeFormat
+        })
         if (timeFormat is TimeVerticalFormat) {
             AndroidView(factory = { context ->
                 TextClock(context).apply {
@@ -38,6 +38,8 @@ fun ClockWidget(
                     textSize = 36F
                     setTextColor(Color.WHITE)
                 }
+            }, update = { textClock ->
+                textClock.format12Hour = timeFormat.minutesFormat
             })
         }
         AndroidView(factory = { context ->
@@ -46,6 +48,8 @@ fun ClockWidget(
                 textSize = 12F
                 setTextColor(Color.WHITE)
             }
+        }, update = { textClock ->
+            textClock.format12Hour = timeFormat.dateFormat
         })
     }
 }
