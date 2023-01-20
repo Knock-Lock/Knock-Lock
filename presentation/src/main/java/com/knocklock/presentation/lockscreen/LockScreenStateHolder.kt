@@ -6,10 +6,10 @@ import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.service.notification.StatusBarNotification
+import android.text.format.DateFormat
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.util.*
@@ -20,12 +20,10 @@ import javax.inject.Inject
  * @Time 3:26 PM
  */
 
+@Stable
 class LockScreenStateHolder @Inject constructor(
-    context: Context,
-    val coroutineScope: CoroutineScope
+    context: Context
 ) {
-
-    private val date by lazy { Date() }
 
     private val _notificationList: MutableStateFlow<NotificationUiState> = MutableStateFlow(
         NotificationUiState.Empty
@@ -37,19 +35,20 @@ class LockScreenStateHolder @Inject constructor(
     fun updateNotificationArray(notificationArray: Array<StatusBarNotification>) {
         val notificationUiState = NotificationUiState.Success(
             notificationList = notificationArray.map { statusBarNotification ->
-
                 with(statusBarNotification.notification.extras) {
                     var appTitle = ""
-
-                    val subText = getString(android.app.Notification.EXTRA_SUB_TEXT).toString() ?: ""
-                    val title = getString(android.app.Notification.EXTRA_TITLE).toString() ?: ""
-                    val content = getString(android.app.Notification.EXTRA_TEXT).toString() ?: ""
+                    val subText: String = convertString(getCharSequence("android.subText"))
+                    val title: String = convertString(getCharSequence("android.title"))
+                    val content: String = convertString(getCharSequence("android.text"))
                     val packageName = statusBarNotification.packageName
-
-                    val iconId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                        statusBarNotification.notification.smallIcon.resId
+                    val date = Date(statusBarNotification.postTime)
+                    val hour = DateFormat.format("HH", date).toString().toInt()
+                    val stringPostTime = DateFormat.format("HH:mm", date).toString()
+                    val stringPostTimeBuilder = StringBuilder()
+                    if (hour <= 12) {
+                        stringPostTimeBuilder.append("오전 $stringPostTime")
                     } else {
-                        getInt(android.app.Notification.EXTRA_SMALL_ICON)
+                        stringPostTimeBuilder.append("오후 $stringPostTime")
                     }
                     val applicationInfo: ApplicationInfo?
 
@@ -65,8 +64,7 @@ class LockScreenStateHolder @Inject constructor(
                         if (applicationInfo == null) {
                             println("package name : unknown")
                         } else {
-                            val appName = packageManager.getApplicationLabel(applicationInfo)
-                            appTitle = appName.toString()
+                            appTitle = packageManager.getApplicationLabel(applicationInfo).toString()
                         }
                     } else {
                         applicationInfo = try {
@@ -77,8 +75,7 @@ class LockScreenStateHolder @Inject constructor(
                         if (applicationInfo == null) {
                             println("package name : unknown")
                         } else {
-                            val appName = packageManager.getApplicationLabel(applicationInfo)
-                            appTitle = appName.toString()
+                            appTitle = packageManager.getApplicationLabel(applicationInfo).toString()
                         }
                     }
 
@@ -87,10 +84,10 @@ class LockScreenStateHolder @Inject constructor(
                     } else null
 
                     Notification(
-                        id = statusBarNotification.key.hashCode(),
+                        id = statusBarNotification.key,
                         drawable = icon,
-                        appTitle = if (subText == "null") appTitle else subText, // Bold title
-                        notiTime = "",
+                        appTitle = if (subText == "") appTitle else subText,
+                        notiTime = stringPostTimeBuilder.toString(),
                         title = title,
                         content = content
                     )
@@ -99,15 +96,14 @@ class LockScreenStateHolder @Inject constructor(
         )
         _notificationList.value = notificationUiState
     }
+    private fun convertString(var1: Any?): String {
+        return var1?.toString() ?: ""
+    }
 }
 
 @Composable
 fun rememberLockScreenStateHolder(
-    context: Context,
-    coroutineScope: CoroutineScope = rememberCoroutineScope()
-) = remember(
-    context,
-    coroutineScope
-) {
-    LockScreenStateHolder(context = context, coroutineScope)
+    context: Context
+) = remember(context) {
+    LockScreenStateHolder(context = context)
 }
