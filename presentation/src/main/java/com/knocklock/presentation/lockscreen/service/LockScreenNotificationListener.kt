@@ -16,7 +16,6 @@ import android.text.TextUtils
 import android.view.WindowManager
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.app.NotificationCompat
-import com.knocklock.domain.usecase.notification.InsertNotificationUseCase
 import com.knocklock.presentation.MainActivity
 import com.knocklock.presentation.lockscreen.receiver.OnScreenEventListener
 import com.knocklock.presentation.lockscreen.receiver.OnSystemBarEventListener
@@ -24,7 +23,6 @@ import com.knocklock.presentation.lockscreen.receiver.ScreenEventReceiver
 import com.knocklock.presentation.lockscreen.receiver.SystemBarEventReceiver
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
-import javax.inject.Inject
 
 /**
  * @Created by 김현국 2022/12/04
@@ -39,6 +37,9 @@ class LockScreenNotificationListener :
     private val point by lazy { Point() }
 
     private val notificationManager by lazy { getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager }
+
+    private val job by lazy { SupervisorJob() }
+    private val notificationScope by lazy { CoroutineScope(job + Dispatchers.Default) }
 
     private val composeView by lazy { ComposeView(context = this) }
     private val initLockScreenView by lazy {
@@ -75,19 +76,25 @@ class LockScreenNotificationListener :
         )
     }
 
-    @Inject lateinit var insertNotificationUseCase: InsertNotificationUseCase
-
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         super.onNotificationPosted(sbn)
 
         val packageName = sbn?.packageName
         if (sbn != null && !TextUtils.isEmpty(packageName)) {
-            initLockScreenView.passActiveNotificationList(activeNotifications)
+            notificationScope.launch {
+                initLockScreenView.passActiveNotificationList(activeNotifications)
+            }
         }
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification?) {
         super.onNotificationRemoved(sbn)
+        val packageName = sbn?.packageName
+        if (sbn != null && !TextUtils.isEmpty(packageName)) {
+            notificationScope.launch {
+                initLockScreenView.passActiveNotificationList(activeNotifications)
+            }
+        }
     }
 
     override fun onCreate() {
@@ -109,7 +116,9 @@ class LockScreenNotificationListener :
             requestScreenOverlay()
         }
         windowManager.addView(composeView, initLockScreenView.getWindowManagerLayoutParams())
-        initLockScreenView.passActiveNotificationList(activeNotifications)
+        notificationScope.launch {
+            initLockScreenView.passActiveNotificationList(activeNotifications)
+        }
     }
 
     private fun requestScreenOverlay() {
