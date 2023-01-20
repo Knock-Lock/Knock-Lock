@@ -109,9 +109,8 @@ class InitLockScreenView(
         )
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            // window에 ComposeView 등록시 상태바 영역까지 윈도우를 넓힘
             params.layoutInDisplayCutoutMode =
-                WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES // 1
+                WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
         }
 
         params.gravity = Gravity.TOP or Gravity.START
