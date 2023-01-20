@@ -9,6 +9,7 @@ import android.service.notification.StatusBarNotification
 import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -23,10 +24,8 @@ import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.knocklock.presentation.lockscreen.LockScreenRoute
 import com.knocklock.presentation.lockscreen.rememberLockScreenStateHolder
 import com.knocklock.presentation.lockscreen.util.ComposeLifecycleOwner
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 
 /**
  * @Created by 김현국 2023/01/05
@@ -49,12 +48,11 @@ class InitLockScreenView(
 
     private fun createComposeLockScreenView() {
         composeView.setContent {
-            val stateHolder = rememberLockScreenStateHolder(context = context).apply {
-                coroutineScope.launch {
-                    notificationArray.collectLatest { notificationArray ->
-                        updateNotificationArray(notificationArray)
-                    }
-                }
+            val stateHolder = rememberLockScreenStateHolder(context = context)
+            val notificationArrayState by notificationArray.collectAsState()
+
+            LaunchedEffect(key1 = notificationArrayState) {
+                stateHolder.updateNotificationArray(notificationArrayState)
             }
             val notificationUiState by stateHolder.notificationList.collectAsState()
             LockScreenRoute(notificationUiState, userSwipe = {
