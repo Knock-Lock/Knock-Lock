@@ -1,8 +1,6 @@
 package com.knocklock.data.di
 
-import com.knocklock.data.repository.NotificationRepositoryImpl
 import com.knocklock.data.repository.UserRepositoryImpl
-import com.knocklock.domain.repository.NotificationRepository
 import com.knocklock.domain.repository.UserRepository
 import dagger.Binds
 import dagger.Module
@@ -17,8 +15,4 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindUserRepository(userRepositoryImpl: UserRepositoryImpl): UserRepository
-
-    @Binds
-    @Singleton
-    abstract fun provideNotificationRepository(repositoryImpl: NotificationRepositoryImpl): NotificationRepository
 }
