@@ -137,12 +137,6 @@ fun UnLockSwipeBar(
         }
     }
 }
-/*
-todo
-https://proandroiddev.com/how-to-master-swipeable-and-nestedscroll-modifiers-in-compose-bb0635d6a760
-https://www.answertopia.com/jetpack-compose/detecting-swipe-gestures-in-jetpack-compose/
-스크롤 제어
- */
 
 @Composable
 fun LockScreenNotificationListColumn(
@@ -158,10 +152,10 @@ fun LockScreenNotificationListColumn(
     ) {
         items(
             items = notificationList,
-            key = { notification -> notification.id }
+            key = { item: Notification -> item.id }
         ) { notification ->
             LockNotiItem(
-                modifier = Modifier.background(color = Color.Red, shape = RoundedCornerShape(10.dp)),
+                modifier = Modifier.background(color = Color.White, shape = RoundedCornerShape(10.dp)),
                 notification = notification
             )
         }
