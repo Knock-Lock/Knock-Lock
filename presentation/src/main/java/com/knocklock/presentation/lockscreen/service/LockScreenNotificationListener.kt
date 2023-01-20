@@ -55,6 +55,10 @@ class LockScreenNotificationListener :
         )
     }
 
+    private val fullScreenLayoutParams by lazy {
+        initLockScreenView.getWindowManagerLayoutParams()
+    }
+
     private val screenEventReceiver by lazy {
         ScreenEventReceiver(
             context = this,
@@ -115,7 +119,7 @@ class LockScreenNotificationListener :
         if (!canOverlay) {
             requestScreenOverlay()
         }
-        windowManager.addView(composeView, initLockScreenView.getWindowManagerLayoutParams())
+        windowManager.addView(composeView, fullScreenLayoutParams)
         notificationScope.launch {
             initLockScreenView.passActiveNotificationList(activeNotifications)
         }
