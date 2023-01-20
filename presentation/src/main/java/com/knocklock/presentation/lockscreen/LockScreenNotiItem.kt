@@ -1,5 +1,6 @@
 package com.knocklock.presentation.lockscreen
 
+import android.app.PendingIntent
 import android.graphics.drawable.Drawable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -27,16 +28,17 @@ import com.knocklock.presentation.ui.theme.KnockLockTheme
 
 @Immutable
 data class Notification(
-    val id: Int = 0,
+    val id: String = "",
     val drawable: Drawable? = null,
     val appTitle: String = "",
     val notiTime: String = "",
     val title: String = "",
-    val content: String = ""
+    val content: String = "",
+    val intent: PendingIntent? = null
 ) {
     companion object {
         val Test = Notification(
-            id = 0,
+            id = "",
             drawable = null,
             appTitle = "Kakao",
             notiTime = "Now",
