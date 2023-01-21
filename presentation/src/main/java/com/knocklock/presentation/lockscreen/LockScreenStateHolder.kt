@@ -6,12 +6,12 @@ import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.service.notification.StatusBarNotification
-import android.text.format.DateFormat
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
 
@@ -42,13 +42,10 @@ class LockScreenStateHolder @Inject constructor(
                     val content: String = convertString(getCharSequence("android.text"))
                     val packageName = statusBarNotification.packageName
                     val date = Date(statusBarNotification.postTime)
-                    val hour = DateFormat.format("HH", date).toString().toInt()
-                    val stringPostTime = DateFormat.format("HH:mm", date).toString()
-                    val stringPostTimeBuilder = StringBuilder()
-                    if (hour <= 12) {
-                        stringPostTimeBuilder.append("오전 $stringPostTime")
-                    } else {
-                        stringPostTimeBuilder.append("오후 $stringPostTime")
+                    val stringPostTime = try {
+                        SimpleDateFormat("a HH:mm", Locale.KOREA).format(date)
+                    } catch (e: Exception) {
+                        ""
                     }
                     val applicationInfo: ApplicationInfo?
 
@@ -87,7 +84,7 @@ class LockScreenStateHolder @Inject constructor(
                         id = statusBarNotification.key,
                         drawable = icon,
                         appTitle = if (subText == "") appTitle else subText,
-                        notiTime = stringPostTimeBuilder.toString(),
+                        notiTime = stringPostTime,
                         title = title,
                         content = content
                     )
