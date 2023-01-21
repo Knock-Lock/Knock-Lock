@@ -13,6 +13,7 @@ import android.provider.Settings
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.text.TextUtils
+import android.util.Log
 import android.view.WindowManager
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.app.NotificationCompat
@@ -42,18 +43,8 @@ class LockScreenNotificationListener :
     private val notificationScope by lazy { CoroutineScope(job + Dispatchers.Default) }
 
     private val composeView by lazy { ComposeView(context = this) }
-    private val initLockScreenView by lazy {
-        InitLockScreenView(
-            context = this,
-            composeView = composeView,
-            point = point,
-            onComposeViewListener = object : OnComposeViewListener {
-                override fun remove(composeView: ComposeView) {
-                    windowManager.removeView(composeView)
-                }
-            }
-        )
-    }
+
+    private lateinit var initLockScreenView: InitLockScreenView
 
     private val fullScreenLayoutParams by lazy {
         initLockScreenView.getWindowManagerLayoutParams()
@@ -103,6 +94,7 @@ class LockScreenNotificationListener :
 
     override fun onCreate() {
         super.onCreate()
+        initView()
         registerSystemBarEventReceiver()
         registerScreenEventReceiver()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -113,13 +105,31 @@ class LockScreenNotificationListener :
         }
     }
 
+    private fun initView() {
+        initLockScreenView = InitLockScreenView(
+            context = this,
+            composeView = composeView,
+            point = point,
+            onComposeViewListener = object : OnComposeViewListener {
+                override fun remove(composeView: ComposeView) {
+                    windowManager.removeView(composeView)
+                }
+            }
+        )
+    }
+
     private fun addLockScreen() {
         val canOverlay = Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1 && !Settings.canDrawOverlays(this)
 
         if (!canOverlay) {
             requestScreenOverlay()
         }
-        windowManager.addView(composeView, fullScreenLayoutParams)
+        try {
+            windowManager.addView(composeView, fullScreenLayoutParams)
+        } catch (e: IllegalStateException) {
+            Log.e("로그", "view is already added")
+        }
+
         notificationScope.launch {
             initLockScreenView.passActiveNotificationList(activeNotifications)
         }
