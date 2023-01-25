@@ -50,30 +50,20 @@ class LockScreenStateHolder @Inject constructor(
                     val applicationInfo: ApplicationInfo?
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        applicationInfo = try {
+                        applicationInfo = runCatching {
                             packageManager.getApplicationInfo(
                                 packageName,
                                 PackageManager.ApplicationInfoFlags.of(PackageManager.GET_META_DATA.toLong())
                             )
-                        } catch (e: PackageManager.NameNotFoundException) {
-                            null
-                        }
-                        if (applicationInfo == null) {
-                            println("package name : unknown")
-                        } else {
-                            appTitle = packageManager.getApplicationLabel(applicationInfo).toString()
-                        }
+                        }.onSuccess { info ->
+                            appTitle = packageManager.getApplicationLabel(info).toString()
+                        }.getOrNull()
                     } else {
-                        applicationInfo = try {
+                        applicationInfo = runCatching {
                             packageManager.getApplicationInfo(packageName, 0)
-                        } catch (e: PackageManager.NameNotFoundException) {
-                            null
-                        }
-                        if (applicationInfo == null) {
-                            println("package name : unknown")
-                        } else {
-                            appTitle = packageManager.getApplicationLabel(applicationInfo).toString()
-                        }
+                        }.onSuccess { info ->
+                            appTitle = packageManager.getApplicationLabel(info).toString()
+                        }.getOrNull()
                     }
 
                     val icon: Drawable? = if (applicationInfo != null) {
