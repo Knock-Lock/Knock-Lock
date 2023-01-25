@@ -6,6 +6,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -22,11 +23,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
-import com.knocklock.presentation.ui.theme.KnockLockTheme
+import kotlinx.collections.immutable.ImmutableList
 
 /**
  * @Created by 김현국 2022/12/02
@@ -47,7 +47,7 @@ data class Notification(
 @Composable
 fun GroupLockNotiItem(
     modifier: Modifier = Modifier,
-    notificationList: List<Notification>
+    notificationList: ImmutableList<Notification>
 ) {
     val notification = notificationList[0]
     var clickableState by remember { mutableStateOf(false) }
@@ -57,7 +57,11 @@ fun GroupLockNotiItem(
     }
 
     Column(
-        modifier = Modifier.clickable(enabled = clickableState) {
+        modifier = Modifier.clickable(
+            enabled = clickableState,
+            indication = null,
+            interactionSource = remember { MutableInteractionSource() }
+        ) {
             expandState = !expandState
         }
     ) {
@@ -66,21 +70,9 @@ fun GroupLockNotiItem(
                 modifier = modifier,
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                LockNotiTop(
-                    modifier = Modifier
-                        .padding(horizontal = 10.dp)
-                        .padding(top = 4.dp),
-                    drawable = notification.drawable,
-                    appTitle = notification.appTitle,
-                    time = notification.notiTime
-                )
-                LockNotiContent(
-                    modifier = Modifier
-                        .padding(horizontal = 10.dp)
-                        .padding(bottom = 4.dp)
-                        .wrapContentHeight(),
-                    title = notification.title,
-                    content = notification.content
+                LockNotiItem(
+                    modifier = Modifier.background(color = Color(0xFFFAFAFA).copy(alpha = 0.95f), shape = RoundedCornerShape(10.dp)).clip(RoundedCornerShape(10.dp)),
+                    notification = notification
                 )
             }
             if (clickableState) {
@@ -132,28 +124,26 @@ fun LockNotiItem(
     modifier: Modifier = Modifier,
     notification: Notification
 ) {
-    Column {
-        Column(
-            modifier = modifier,
-            verticalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            LockNotiTop(
-                modifier = Modifier
-                    .padding(horizontal = 10.dp)
-                    .padding(top = 4.dp),
-                drawable = notification.drawable,
-                appTitle = notification.appTitle,
-                time = notification.notiTime
-            )
-            LockNotiContent(
-                modifier = Modifier
-                    .padding(horizontal = 10.dp)
-                    .padding(bottom = 4.dp)
-                    .wrapContentHeight(),
-                title = notification.title,
-                content = notification.content
-            )
-        }
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        LockNotiTop(
+            modifier = Modifier
+                .padding(horizontal = 10.dp)
+                .padding(top = 4.dp),
+            drawable = notification.drawable,
+            appTitle = notification.appTitle,
+            time = notification.notiTime
+        )
+        LockNotiContent(
+            modifier = Modifier
+                .padding(horizontal = 10.dp)
+                .padding(bottom = 4.dp)
+                .wrapContentHeight(),
+            title = notification.title,
+            content = notification.content
+        )
     }
 }
 
@@ -213,4 +203,3 @@ fun LockNotiContent(
         )
     }
 }
-
