@@ -6,5 +6,8 @@ package com.knocklock.presentation.lockscreen
 
 sealed class NotificationUiState {
     object Empty : NotificationUiState()
-    data class Success(val notificationList: List<Notification>) : NotificationUiState()
+    data class Success(
+        val notificationList:
+            List<Pair<Pair<String, String>, List<Notification>>>
+    ) : NotificationUiState()
 }
