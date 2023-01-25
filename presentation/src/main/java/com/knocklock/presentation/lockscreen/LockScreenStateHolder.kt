@@ -92,7 +92,7 @@ class LockScreenStateHolder @Inject constructor(
             }.filter {
                 it.title != "" || it.content != ""
             }.groupBy {
-                Pair(it.id.split("|")[1], it.appTitle)
+                Triple(it.id.split("|")[1], it.appTitle, it.title)
             }.toList()
         )
         _notificationList.value = notificationUiState
