@@ -34,7 +34,7 @@ class LockScreenStateHolder @Inject constructor(
 
     fun updateNotificationArray(notificationArray: Array<StatusBarNotification>) {
         val notificationUiState = NotificationUiState.Success(
-            notificationList = notificationArray.map { statusBarNotification ->
+            notificationList = notificationArray.asSequence().map { statusBarNotification ->
                 with(statusBarNotification.notification.extras) {
                     var appTitle = ""
                     val subText: String = convertString(getCharSequence("android.subText"))
@@ -89,7 +89,11 @@ class LockScreenStateHolder @Inject constructor(
                         content = content
                     )
                 }
-            }
+            }.filter {
+                it.title != "" || it.content != ""
+            }.groupBy {
+                Pair(it.id.split("|")[1], it.appTitle)
+            }.toList()
         )
         _notificationList.value = notificationUiState
     }
