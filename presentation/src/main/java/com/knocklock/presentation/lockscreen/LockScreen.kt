@@ -159,7 +159,7 @@ fun LockScreenNotificationListColumn(
                 modifier = Modifier.background(color = Color(0xFFFAFAFA).copy(alpha = 0.95f), shape = RoundedCornerShape(10.dp)).clip(
                     RoundedCornerShape(10.dp)
                 ),
-                notificationList = item.second
+                notificationList = item.second.toImmutableList()
             )
         }
     }
