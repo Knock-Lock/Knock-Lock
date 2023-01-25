@@ -13,6 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
@@ -141,7 +142,7 @@ fun UnLockSwipeBar(
 @Composable
 fun LockScreenNotificationListColumn(
     modifier: Modifier = Modifier,
-    notificationList: ImmutableList<Notification>,
+    notificationList: ImmutableList<Pair<Pair<String, String>, List<Notification>>>,
     scrollableState: Boolean
 ) {
     LazyColumn(
@@ -152,11 +153,13 @@ fun LockScreenNotificationListColumn(
     ) {
         items(
             items = notificationList,
-            key = { item: Notification -> item.id }
-        ) { notification ->
-            LockNotiItem(
-                modifier = Modifier.background(color = Color.White, shape = RoundedCornerShape(10.dp)),
-                notification = notification
+            key = { item: Pair<Pair<String, String>, List<Notification>> -> item.first }
+        ) { item: Pair<Pair<String, String>, List<Notification>> ->
+            GroupLockNotiItem(
+                modifier = Modifier.background(color = Color(0xFFFAFAFA).copy(alpha = 0.95f), shape = RoundedCornerShape(10.dp)).clip(
+                    RoundedCornerShape(10.dp)
+                ),
+                notificationList = item.second
             )
         }
     }
