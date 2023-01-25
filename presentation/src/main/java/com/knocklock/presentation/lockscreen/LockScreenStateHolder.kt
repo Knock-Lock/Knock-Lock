@@ -34,56 +34,61 @@ class LockScreenStateHolder @Inject constructor(
 
     fun updateNotificationArray(notificationArray: Array<StatusBarNotification>) {
         val notificationUiState = NotificationUiState.Success(
-            notificationList = notificationArray.asSequence().map { statusBarNotification ->
-                with(statusBarNotification.notification.extras) {
-                    var appTitle = ""
-                    val subText: String = convertString(getCharSequence("android.subText"))
-                    val title: String = convertString(getCharSequence("android.title"))
-                    val content: String = convertString(getCharSequence("android.text"))
-                    val packageName = statusBarNotification.packageName
-                    val date = Date(statusBarNotification.postTime)
-                    val stringPostTime = try {
-                        SimpleDateFormat("a HH:mm", Locale.KOREA).format(date)
-                    } catch (e: Exception) {
-                        ""
+            notificationList = notificationArray.asSequence()
+                .filter { statusBarNotification ->
+                    with(statusBarNotification.notification.extras) {
+                        val title: String = convertString(getCharSequence("android.title"))
+                        val content: String = convertString(getCharSequence("android.text"))
+                        title != "" || content != ""
                     }
-                    val applicationInfo: ApplicationInfo?
+                }.map { statusBarNotification ->
+                    with(statusBarNotification.notification.extras) {
+                        var appTitle = ""
+                        val subText: String = convertString(getCharSequence("android.subText"))
+                        val title: String = convertString(getCharSequence("android.title"))
+                        val content: String = convertString(getCharSequence("android.text"))
+                        val packageName = statusBarNotification.packageName
+                        val date = Date(statusBarNotification.postTime)
+                        val stringPostTime = try {
+                            SimpleDateFormat("a HH:mm", Locale.KOREA).format(date)
+                        } catch (e: Exception) {
+                            ""
+                        }
+                        val applicationInfo: ApplicationInfo?
 
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        applicationInfo = runCatching {
-                            packageManager.getApplicationInfo(
-                                packageName,
-                                PackageManager.ApplicationInfoFlags.of(PackageManager.GET_META_DATA.toLong())
-                            )
-                        }.onSuccess { info ->
-                            appTitle = packageManager.getApplicationLabel(info).toString()
-                        }.getOrNull()
-                    } else {
-                        applicationInfo = runCatching {
-                            packageManager.getApplicationInfo(packageName, 0)
-                        }.onSuccess { info ->
-                            appTitle = packageManager.getApplicationLabel(info).toString()
-                        }.getOrNull()
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            applicationInfo = runCatching {
+                                packageManager.getApplicationInfo(
+                                    packageName,
+                                    PackageManager.ApplicationInfoFlags.of(PackageManager.GET_META_DATA.toLong())
+                                )
+                            }.onSuccess { info ->
+                                appTitle = packageManager.getApplicationLabel(info).toString()
+                            }.getOrNull()
+                        } else {
+                            applicationInfo = runCatching {
+                                packageManager.getApplicationInfo(packageName, 0)
+                            }.onSuccess { info ->
+                                appTitle = packageManager.getApplicationLabel(info).toString()
+                            }.getOrNull()
+                        }
+
+                        val icon: Drawable? = if (applicationInfo != null) {
+                            packageManager.getApplicationIcon(applicationInfo)
+                        } else null
+
+                        Notification(
+                            id = statusBarNotification.key,
+                            drawable = icon,
+                            appTitle = if (subText == "") appTitle else subText,
+                            notiTime = stringPostTime,
+                            title = title,
+                            content = content
+                        )
                     }
-
-                    val icon: Drawable? = if (applicationInfo != null) {
-                        packageManager.getApplicationIcon(applicationInfo)
-                    } else null
-
-                    Notification(
-                        id = statusBarNotification.key,
-                        drawable = icon,
-                        appTitle = if (subText == "") appTitle else subText,
-                        notiTime = stringPostTime,
-                        title = title,
-                        content = content
-                    )
-                }
-            }.filter {
-                it.title != "" || it.content != ""
-            }.groupBy {
-                Triple(it.id.split("|")[1], it.appTitle, it.title)
-            }.toList()
+                }.groupBy {
+                    Triple(it.id.split("|")[1], it.appTitle, it.title)
+                }.toList()
         )
         _notificationList.value = notificationUiState
     }
