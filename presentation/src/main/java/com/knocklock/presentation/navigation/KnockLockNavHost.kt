@@ -9,6 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import com.knocklock.presentation.R
+import com.knocklock.presentation.home.HomeRoute
 import com.knocklock.presentation.setting.password.PasswordInputRoute
 import com.knocklock.presentation.setting.SettingRoute
 import com.knocklock.presentation.setting.credit.CreditRoute
@@ -21,11 +22,28 @@ fun KnockLockNavHost(
     NavHost(
         modifier = modifier,
         navController = navController,
-        startDestination = NavigationRoute.SettingGraph.route
+        startDestination = NavigationRoute.HomeGraph.route
     ) {
+        homeGraph(
+            modifier, navController
+        )
+
         settingGraph(
             modifier, navController
         )
+    }
+}
+fun NavGraphBuilder.homeGraph(
+    modifier: Modifier = Modifier,
+    navController: NavController
+) {
+    navigation(
+        startDestination = NavigationRoute.HomeGraph.Home.route,
+        route = NavigationRoute.HomeGraph.route
+    ) {
+        composable(route = NavigationRoute.HomeGraph.Home.route) {
+            HomeRoute(modifier = modifier)
+        }
     }
 }
 
