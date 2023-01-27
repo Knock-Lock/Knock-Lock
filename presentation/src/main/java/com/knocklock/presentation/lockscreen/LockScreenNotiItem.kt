@@ -114,8 +114,9 @@ fun GroupLockNotiItem(
 fun MoreNotification(
     modifier: Modifier = Modifier
 ) {
+    val moreNotificationShape = RoundedCornerShape(bottomStart=  5.dp, bottomEnd = 5.dp)
     Row(
-        modifier = modifier.background(color = Color(0xFFFAFAFA).copy(alpha = 0.9f), shape = RoundedCornerShape(bottomStart = 5.dp, bottomEnd = 5.dp)).clip(shape = RoundedCornerShape(bottomStart = 5.dp, bottomEnd = 5.dp))
+        modifier = modifier.background(color = Color(0xFFFAFAFA).copy(alpha = 0.9f), shape = moreNotificationShape).clip(shape = moreNotificationShape)
     ) {}
 }
 
