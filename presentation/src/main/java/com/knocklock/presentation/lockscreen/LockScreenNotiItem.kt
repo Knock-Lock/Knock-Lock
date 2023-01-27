@@ -86,10 +86,10 @@ fun GroupLockNotiItem(
         AnimatedVisibility(visible = !expandState) {
             Column {
                 if (notificationList.size == 2) {
-                    MoreNotifcation(modifier = Modifier.padding(horizontal = 15.dp).fillMaxWidth().height(7.dp))
+                    MoreNotification(modifier = Modifier.padding(horizontal = 15.dp).fillMaxWidth().height(7.dp))
                 } else if (notificationList.size >= 3) {
-                    MoreNotifcation(modifier = Modifier.padding(horizontal = 15.dp).fillMaxWidth().height(7.dp))
-                    MoreNotifcation(modifier = Modifier.padding(horizontal = 35.dp).fillMaxWidth().height(5.dp))
+                    MoreNotification(modifier = Modifier.padding(horizontal = 15.dp).fillMaxWidth().height(7.dp))
+                    MoreNotification(modifier = Modifier.padding(horizontal = 35.dp).fillMaxWidth().height(5.dp))
                 }
             }
         }
@@ -111,7 +111,7 @@ fun GroupLockNotiItem(
 }
 
 @Composable
-fun MoreNotifcation(
+fun MoreNotification(
     modifier: Modifier = Modifier
 ) {
     Row(

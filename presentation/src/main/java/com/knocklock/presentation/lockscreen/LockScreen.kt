@@ -142,7 +142,7 @@ fun UnLockSwipeBar(
 @Composable
 fun LockScreenNotificationListColumn(
     modifier: Modifier = Modifier,
-    notificationList: ImmutableList<Pair<Triple<String, String, String>, List<Notification>>>,
+    notificationList: ImmutableList<GroupNotification>,
     scrollableState: Boolean
 ) {
     LazyColumn(
@@ -153,16 +153,19 @@ fun LockScreenNotificationListColumn(
     ) {
         items(
             items = notificationList,
-            key = { item: Pair<Triple<String, String, String>, List<Notification>> -> item.first }
-        ) { item: Pair<Triple<String, String, String>, List<Notification>> ->
+            key = { item: GroupNotification -> generatedKey(item.notifications.first) }
+        ) { item: GroupNotification ->
             GroupLockNotiItem(
                 modifier = Modifier.background(color = Color(0xFFFAFAFA).copy(alpha = 0.95f), shape = RoundedCornerShape(10.dp)).clip(
                     RoundedCornerShape(10.dp)
                 ),
-                notificationList = item.second.toImmutableList()
+                notificationList = item.notifications.second.toImmutableList()
             )
         }
     }
+}
+fun generatedKey(groupKey: GroupKey): String {
+    return groupKey.packageName + groupKey.appTitle + groupKey.title
 }
 
 @Composable

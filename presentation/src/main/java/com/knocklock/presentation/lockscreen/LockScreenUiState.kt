@@ -8,6 +8,10 @@ sealed class NotificationUiState {
     object Empty : NotificationUiState()
     data class Success(
         val notificationList:
-            List<Pair<Triple<String, String, String>, List<Notification>>>
+            List<GroupNotification>
     ) : NotificationUiState()
 }
+
+data class GroupNotification(
+    val notifications: Pair<GroupKey, List<Notification>>
+)

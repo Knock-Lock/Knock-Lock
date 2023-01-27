@@ -87,8 +87,17 @@ class LockScreenStateHolder @Inject constructor(
                         )
                     }
                 }.groupBy {
-                    Triple(it.id.split("|")[1], it.appTitle, it.title)
-                }.toList()
+                    GroupKey(
+                        packageName = it.id.split("|")[1],
+                        appTitle = it.appTitle,
+                        title = it.title
+                    )
+                }
+                .map {
+                    GroupNotification(
+                        it.toPair()
+                    )
+                }
         )
         _notificationList.value = notificationUiState
     }
@@ -96,6 +105,12 @@ class LockScreenStateHolder @Inject constructor(
         return var1?.toString() ?: ""
     }
 }
+
+data class GroupKey(
+    val packageName: String,
+    val appTitle: String,
+    val title: String
+)
 
 @Composable
 fun rememberLockScreenStateHolder(
