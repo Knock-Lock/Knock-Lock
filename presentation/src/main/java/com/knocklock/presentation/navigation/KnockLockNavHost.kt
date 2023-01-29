@@ -10,9 +10,15 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import com.knocklock.presentation.R
 import com.knocklock.presentation.home.HomeRoute
+import com.knocklock.presentation.home.HomeScreenUiState
+import com.knocklock.presentation.home.menu.HomeMenu
 import com.knocklock.presentation.setting.password.PasswordInputRoute
 import com.knocklock.presentation.setting.SettingRoute
 import com.knocklock.presentation.setting.credit.CreditRoute
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.immutableListOf
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 
 @Composable
 fun KnockLockNavHost(
@@ -42,7 +48,19 @@ fun NavGraphBuilder.homeGraph(
         route = NavigationRoute.HomeGraph.route
     ) {
         composable(route = NavigationRoute.HomeGraph.Home.route) {
-            HomeRoute(modifier = modifier)
+            HomeRoute(
+                modifier = modifier,
+                onClickHomeMenu = { homeMenu ->
+                    when (homeMenu) {
+                        HomeMenu.SETTING -> {
+                            navController.navigate(NavigationRoute.SettingGraph.route)
+                        }
+                        else -> {
+                        }
+                    }
+                },
+                homeScreenUiState = HomeScreenUiState(listOf(HomeMenu.SETTING).toImmutableList())
+            )
         }
     }
 }

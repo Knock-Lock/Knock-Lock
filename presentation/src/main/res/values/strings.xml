@@ -28,4 +28,6 @@
     <string name="desc_password_input">잠금 설정을 위한 비밀번호를 입력하세요.</string>
     <string name="desc_password_input_confirm">비밀번호 확인을 위해 다시 입력해주세요.</string>
     <string name="desc_forget_password">비밀번호를 잊어버리셨다면 뒤로 돌아가주세요.</string>
+    <string name="home_menu_clear">초기화</string>
+    <string name="home_menu_save">저장</string>
 </resources>
