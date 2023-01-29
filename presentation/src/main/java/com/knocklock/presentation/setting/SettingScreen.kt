@@ -47,12 +47,13 @@ fun SettingScreen(
     userSettings: UserSettings
 ) {
     Scaffold(
-        topBar = { SettingHeader(modifier) },
+        modifier = modifier,
+        topBar = { SettingHeader(Modifier.fillMaxWidth()) },
     ) {
         Column(modifier.padding(it)) {
-            Spacer(modifier.padding(20.dp))
+            Spacer(Modifier.fillMaxWidth().padding(20.dp))
             SettingBody(
-                modifier,
+                Modifier.fillMaxWidth(),
                 onMenuSelected,
                 onPasswordActivatedChanged,
                 onLockActivatedChanged,
