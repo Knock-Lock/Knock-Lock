@@ -49,6 +49,9 @@ fun GroupLockNotiItem(
     modifier: Modifier = Modifier,
     notificationList: ImmutableList<Notification>
 ) {
+    if (notificationList.size == 0) {
+        return
+    }
     val notification = notificationList[0]
     var clickableState by remember { mutableStateOf(false) }
     var expandState by rememberSaveable { mutableStateOf(false) }
@@ -114,7 +117,7 @@ fun GroupLockNotiItem(
 fun MoreNotification(
     modifier: Modifier = Modifier
 ) {
-    val moreNotificationShape = RoundedCornerShape(bottomStart=  5.dp, bottomEnd = 5.dp)
+    val moreNotificationShape = RoundedCornerShape(bottomStart = 5.dp, bottomEnd = 5.dp)
     Row(
         modifier = modifier.background(color = Color(0xFFFAFAFA).copy(alpha = 0.9f), shape = moreNotificationShape).clip(shape = moreNotificationShape)
     ) {}
