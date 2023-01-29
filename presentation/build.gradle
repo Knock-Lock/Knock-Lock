@@ -93,5 +93,8 @@ dependencies {
     implementation ("com.google.accompanist:accompanist-drawablepainter:0.28.0")
 
     implementation "androidx.compose.material:material-icons-extended:$compose_ui_version"
+    
+    // lottie
+    implementation "com.airbnb.android:lottie-compose:5.2.0"
 
 }
