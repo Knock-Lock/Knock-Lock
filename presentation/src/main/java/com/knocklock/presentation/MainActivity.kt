@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.systemBarsPadding
@@ -27,7 +28,6 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -36,14 +36,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             KnockLockTheme {
                 val navController = rememberNavController()
-                Scaffold { paddingValues ->
-                    KnockLockNavHost(
-                        modifier = Modifier
-                            .padding(paddingValues)
-                            .systemBarsPadding(),
-                        navController = navController
-                    )
-                }
+                KnockLockNavHost(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    navController = navController
+                )
             }
         }
     }

@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -21,12 +22,16 @@ fun HomeMenuBar(
     onClickHomeMenu: (HomeMenu) -> Unit
 ) {
     Row(
-        modifier = modifier.background(color = Color.Black.copy(alpha = 0.5f)),
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
+        modifier = Modifier
+            .background(color = Color.Black.copy(alpha = 0.5f))
+            .then(modifier),
+        horizontalArrangement = Arrangement.End
     ) {
         menuList.forEach { homeMenu ->
             HomeMenuItem(
-                modifier = Modifier.clickable { onClickHomeMenu(homeMenu) },
+                modifier = Modifier.clickable { onClickHomeMenu(homeMenu) }
+                    .padding(vertical = 16.dp, horizontal = 12.dp)
+                ,
                 homeMenu = homeMenu,
             )
         }

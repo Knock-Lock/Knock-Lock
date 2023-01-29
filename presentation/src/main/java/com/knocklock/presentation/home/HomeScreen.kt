@@ -1,6 +1,9 @@
 package com.knocklock.presentation.home
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -13,9 +16,12 @@ fun HomeScreen(
     homeScreenUiState: HomeScreenUiState,
     onClickHomeMenu: (HomeMenu) -> Unit
 ) {
-    Box(modifier = modifier) {
+    Box(modifier = modifier.navigationBarsPadding()) {
         HomeMenuBar(
-            modifier = Modifier.align(Alignment.TopEnd),
+            modifier = Modifier
+                .fillMaxWidth()
+                .statusBarsPadding()
+                .align(Alignment.TopEnd),
             menuList = homeScreenUiState.menuList,
             onClickHomeMenu = onClickHomeMenu
         )
