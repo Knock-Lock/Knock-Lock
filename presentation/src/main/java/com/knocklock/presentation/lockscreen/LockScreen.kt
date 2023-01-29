@@ -13,6 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
@@ -137,17 +138,11 @@ fun UnLockSwipeBar(
         }
     }
 }
-/*
-todo
-https://proandroiddev.com/how-to-master-swipeable-and-nestedscroll-modifiers-in-compose-bb0635d6a760
-https://www.answertopia.com/jetpack-compose/detecting-swipe-gestures-in-jetpack-compose/
-스크롤 제어
- */
 
 @Composable
 fun LockScreenNotificationListColumn(
     modifier: Modifier = Modifier,
-    notificationList: ImmutableList<Notification>,
+    notificationList: ImmutableList<GroupNotification>,
     scrollableState: Boolean
 ) {
     LazyColumn(
@@ -158,14 +153,19 @@ fun LockScreenNotificationListColumn(
     ) {
         items(
             items = notificationList,
-            key = { notification -> notification.id }
-        ) { notification ->
-            LockNotiItem(
-                modifier = Modifier.background(color = Color.Red, shape = RoundedCornerShape(10.dp)),
-                notification = notification
+            key = { item: GroupNotification -> generatedKey(item.notifications.first) }
+        ) { item: GroupNotification ->
+            GroupLockNotiItem(
+                modifier = Modifier.background(color = Color(0xFFFAFAFA).copy(alpha = 0.95f), shape = RoundedCornerShape(10.dp)).clip(
+                    RoundedCornerShape(10.dp)
+                ),
+                notificationList = item.notifications.second.toImmutableList()
             )
         }
     }
+}
+fun generatedKey(groupKey: GroupKey): String {
+    return groupKey.packageName + groupKey.appTitle + groupKey.title
 }
 
 @Composable

@@ -1,20 +1,18 @@
 package com.knocklock.presentation.lockscreen
 
 import android.content.Context
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
+import android.graphics.drawable.Drawable
+import android.os.Build
+import android.service.notification.StatusBarNotification
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import com.knocklock.domain.usecase.notification.DeleteAllNotificationUseCase
-import com.knocklock.domain.usecase.notification.GetNotificationUseCase
-import dagger.hilt.EntryPoint
-import dagger.hilt.InstallIn
-import dagger.hilt.android.EntryPointAccessors
-import dagger.hilt.components.SingletonComponent
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.*
 import javax.inject.Inject
 
 /**
@@ -22,62 +20,101 @@ import javax.inject.Inject
  * @Time 3:26 PM
  */
 
-@EntryPoint
-@InstallIn(SingletonComponent::class)
-interface UseCaseEntryPoint {
-    fun getNotificationUseCase(): GetNotificationUseCase
-    fun deleteAllNotificationUseCase(): DeleteAllNotificationUseCase
-}
-
+@Stable
 class LockScreenStateHolder @Inject constructor(
-    context: Context,
-    private val coroutineScope: CoroutineScope
+    context: Context
 ) {
 
-    private val _notificationList: MutableStateFlow<NotificationUiState> = MutableStateFlow(NotificationUiState.Empty)
+    private val _notificationList: MutableStateFlow<NotificationUiState> = MutableStateFlow(
+        NotificationUiState.Empty
+    )
     val notificationList = _notificationList.asStateFlow()
 
-    private val useCaseEntryPoint =
-        EntryPointAccessors.fromApplication(
-            context,
-            UseCaseEntryPoint::class.java
-        )
+    private val packageManager by lazy { context.packageManager }
 
-    val getNotificationUseCase = useCaseEntryPoint.getNotificationUseCase()
-    val deleteAllNotificationUseCase = useCaseEntryPoint.deleteAllNotificationUseCase()
+    fun updateNotificationArray(notificationArray: Array<StatusBarNotification>) {
+        val notificationUiState = NotificationUiState.Success(
+            notificationList = notificationArray.asSequence()
+                .filter { statusBarNotification ->
+                    with(statusBarNotification.notification.extras) {
+                        val title: String = convertString(getCharSequence("android.title"))
+                        val content: String = convertString(getCharSequence("android.text"))
+                        title != "" || content != ""
+                    }
+                }.map { statusBarNotification ->
+                    with(statusBarNotification.notification.extras) {
+                        var appTitle = ""
+                        val subText: String = convertString(getCharSequence("android.subText"))
+                        val title: String = convertString(getCharSequence("android.title"))
+                        val content: String = convertString(getCharSequence("android.text"))
+                        val packageName = statusBarNotification.packageName
+                        val date = Date(statusBarNotification.postTime)
+                        val stringPostTime = try {
+                            SimpleDateFormat("a HH:mm", Locale.KOREA).format(date)
+                        } catch (e: Exception) {
+                            ""
+                        }
+                        val applicationInfo: ApplicationInfo?
 
-    init {
-        deleteAllNotification()
-        getNotification()
-    }
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            applicationInfo = runCatching {
+                                packageManager.getApplicationInfo(
+                                    packageName,
+                                    PackageManager.ApplicationInfoFlags.of(PackageManager.GET_META_DATA.toLong())
+                                )
+                            }.onSuccess { info ->
+                                appTitle = packageManager.getApplicationLabel(info).toString()
+                            }.getOrNull()
+                        } else {
+                            applicationInfo = runCatching {
+                                packageManager.getApplicationInfo(packageName, 0)
+                            }.onSuccess { info ->
+                                appTitle = packageManager.getApplicationLabel(info).toString()
+                            }.getOrNull()
+                        }
 
-    private fun getNotification() {
-        coroutineScope.launch {
-            getNotificationUseCase().collect { list ->
-                val notificationList = list.map {
-                    it.toModel()
+                        val icon: Drawable? = if (applicationInfo != null) {
+                            packageManager.getApplicationIcon(applicationInfo)
+                        } else null
+
+                        Notification(
+                            id = statusBarNotification.key,
+                            drawable = icon,
+                            appTitle = if (subText == "") appTitle else subText,
+                            notiTime = stringPostTime,
+                            title = title,
+                            content = content
+                        )
+                    }
+                }.groupBy {
+                    GroupKey(
+                        packageName = it.id.split("|")[1],
+                        appTitle = it.appTitle,
+                        title = it.title
+                    )
                 }
-                _notificationList.value = NotificationUiState.Success(
-                    notificationList = notificationList
-                )
-            }
-        }
+                .map {
+                    GroupNotification(
+                        it.toPair()
+                    )
+                }
+        )
+        _notificationList.value = notificationUiState
     }
-
-    private fun deleteAllNotification() {
-        coroutineScope.launch {
-            deleteAllNotificationUseCase()
-        }
+    private fun convertString(var1: Any?): String {
+        return var1?.toString() ?: ""
     }
 }
+
+data class GroupKey(
+    val packageName: String,
+    val appTitle: String,
+    val title: String
+)
 
 @Composable
 fun rememberLockScreenStateHolder(
-    context: Context,
-    coroutineScope: CoroutineScope = rememberCoroutineScope()
-) = remember(
-    context,
-    coroutineScope
-) {
-    LockScreenStateHolder(context = context, coroutineScope)
+    context: Context
+) = remember(context) {
+    LockScreenStateHolder(context = context)
 }

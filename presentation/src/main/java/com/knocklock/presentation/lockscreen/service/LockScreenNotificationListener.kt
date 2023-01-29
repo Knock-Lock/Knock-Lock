@@ -13,10 +13,10 @@ import android.provider.Settings
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.text.TextUtils
+import android.util.Log
 import android.view.WindowManager
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.app.NotificationCompat
-import com.knocklock.domain.usecase.notification.InsertNotificationUseCase
 import com.knocklock.presentation.MainActivity
 import com.knocklock.presentation.lockscreen.receiver.OnScreenEventListener
 import com.knocklock.presentation.lockscreen.receiver.OnSystemBarEventListener
@@ -24,8 +24,6 @@ import com.knocklock.presentation.lockscreen.receiver.ScreenEventReceiver
 import com.knocklock.presentation.lockscreen.receiver.SystemBarEventReceiver
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
-import javax.inject.Inject
-import com.knocklock.domain.model.Notification as NotificationDomainModel
 
 /**
  * @Created by 김현국 2022/12/04
@@ -36,26 +34,20 @@ import com.knocklock.domain.model.Notification as NotificationDomainModel
 class LockScreenNotificationListener :
     NotificationListenerService() {
 
-    private val job by lazy { SupervisorJob() }
-    private val scope by lazy { CoroutineScope(Dispatchers.IO + job) }
-
     private val windowManager by lazy { getSystemService(Context.WINDOW_SERVICE) as WindowManager }
     private val point by lazy { Point() }
 
     private val notificationManager by lazy { getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager }
 
+    private val job by lazy { SupervisorJob() }
+    private val notificationScope by lazy { CoroutineScope(job + Dispatchers.Default) }
+
     private val composeView by lazy { ComposeView(context = this) }
-    private val initLockScreenView by lazy {
-        InitLockScreenView(
-            context = this,
-            composeView = composeView,
-            point = point,
-            onComposeViewListener = object : OnComposeViewListener {
-                override fun remove(composeView: ComposeView) {
-                    windowManager.removeView(composeView)
-                }
-            }
-        )
+
+    private lateinit var initLockScreenView: InitLockScreenView
+
+    private val fullScreenLayoutParams by lazy {
+        initLockScreenView.getWindowManagerLayoutParams()
     }
 
     private val screenEventReceiver by lazy {
@@ -80,42 +72,30 @@ class LockScreenNotificationListener :
         )
     }
 
-    @Inject lateinit var insertNotificationUseCase: InsertNotificationUseCase
-
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         super.onNotificationPosted(sbn)
 
         val packageName = sbn?.packageName
         if (sbn != null && !TextUtils.isEmpty(packageName)) {
-            val notification: Notification = sbn.notification
-            val extras = notification.extras
-            val title = extras.getString(Notification.EXTRA_TITLE).toString()
-            val text = extras.getString(Notification.EXTRA_TEXT).toString()
-            val subText = extras.getString(Notification.EXTRA_SUB_TEXT).toString()
-            val smallIcon = notification.smallIcon
-            val largeIcon = notification.getLargeIcon()
-
-            if (title.isNotBlank() && text.isNotBlank()) {
-                scope.launch {
-                    insertNotificationUseCase(
-                        NotificationDomainModel(
-                            id = 0,
-                            title = title,
-                            subText = subText,
-                            text = text
-                        )
-                    )
-                }
+            notificationScope.launch {
+                initLockScreenView.passActiveNotificationList(activeNotifications)
             }
         }
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification?) {
         super.onNotificationRemoved(sbn)
+        val packageName = sbn?.packageName
+        if (sbn != null && !TextUtils.isEmpty(packageName)) {
+            notificationScope.launch {
+                initLockScreenView.passActiveNotificationList(activeNotifications)
+            }
+        }
     }
 
     override fun onCreate() {
         super.onCreate()
+        initView()
         registerSystemBarEventReceiver()
         registerScreenEventReceiver()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -126,13 +106,34 @@ class LockScreenNotificationListener :
         }
     }
 
+    private fun initView() {
+        initLockScreenView = InitLockScreenView(
+            context = this,
+            composeView = composeView,
+            point = point,
+            onComposeViewListener = object : OnComposeViewListener {
+                override fun remove(composeView: ComposeView) {
+                    windowManager.removeView(composeView)
+                }
+            }
+        )
+    }
+
     private fun addLockScreen() {
         val canOverlay = Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1 && !Settings.canDrawOverlays(this)
 
         if (!canOverlay) {
             requestScreenOverlay()
         }
-        windowManager.addView(composeView, initLockScreenView.getWindowManagerLayoutParams())
+        try {
+            windowManager.addView(composeView, fullScreenLayoutParams)
+        } catch (e: IllegalStateException) {
+            Log.e("로그", "view is already added")
+        }
+
+        notificationScope.launch {
+            initLockScreenView.passActiveNotificationList(activeNotifications)
+        }
     }
 
     private fun requestScreenOverlay() {

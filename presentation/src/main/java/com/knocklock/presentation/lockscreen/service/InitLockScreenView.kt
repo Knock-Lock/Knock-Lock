@@ -5,9 +5,11 @@ import android.content.pm.ActivityInfo
 import android.graphics.PixelFormat
 import android.graphics.Point
 import android.os.Build
+import android.service.notification.StatusBarNotification
 import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -22,8 +24,8 @@ import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.knocklock.presentation.lockscreen.LockScreenRoute
 import com.knocklock.presentation.lockscreen.rememberLockScreenStateHolder
 import com.knocklock.presentation.lockscreen.util.ComposeLifecycleOwner
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.MutableStateFlow
 
 /**
  * @Created by 김현국 2023/01/05
@@ -38,6 +40,8 @@ class InitLockScreenView(
     private val lifecycleOwner by lazy { ComposeLifecycleOwner() }
     private val composeViewModelStore by lazy { ViewModelStore() }
 
+    private val notificationArray = MutableStateFlow<Array<StatusBarNotification>>(emptyArray())
+
     init {
         createComposeLockScreenView()
     }
@@ -45,6 +49,11 @@ class InitLockScreenView(
     private fun createComposeLockScreenView() {
         composeView.setContent {
             val stateHolder = rememberLockScreenStateHolder(context = context)
+            val notificationArrayState by notificationArray.collectAsState()
+
+            LaunchedEffect(key1 = notificationArrayState) {
+                stateHolder.updateNotificationArray(notificationArrayState)
+            }
             val notificationUiState by stateHolder.notificationList.collectAsState()
             LockScreenRoute(notificationUiState, userSwipe = {
                 onComposeViewListener.remove(composeView)
@@ -100,9 +109,8 @@ class InitLockScreenView(
         )
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            // window에 ComposeView 등록시 상태바 영역까지 윈도우를 넓힘
             params.layoutInDisplayCutoutMode =
-                WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES // 1
+                WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
         }
 
         params.gravity = Gravity.TOP or Gravity.START
@@ -116,6 +124,10 @@ class InitLockScreenView(
                 or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
             )
         return params
+    }
+
+    fun passActiveNotificationList(statusBarNotification: Array<StatusBarNotification>) {
+        notificationArray.value = statusBarNotification
     }
 }
 interface OnComposeViewListener {
