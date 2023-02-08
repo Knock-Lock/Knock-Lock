@@ -9,6 +9,8 @@ import android.service.notification.StatusBarNotification
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.text.SimpleDateFormat
@@ -32,7 +34,7 @@ class LockScreenStateHolder @Inject constructor(
 
     private val packageManager by lazy { context.packageManager }
 
-    fun updateNotificationArray(notificationArray: Array<StatusBarNotification>) {
+    fun updateNotificationArray(notificationArray: List<StatusBarNotification>) {
         val notificationUiState = NotificationUiState.Success(
             notificationList = notificationArray.asSequence()
                 .filter { statusBarNotification ->
@@ -83,6 +85,7 @@ class LockScreenStateHolder @Inject constructor(
                             appTitle = if (subText == "") appTitle else subText,
                             notiTime = stringPostTime,
                             title = title,
+                            isClearable = statusBarNotification.isClearable,
                             content = content
                         )
                     }
@@ -97,6 +100,8 @@ class LockScreenStateHolder @Inject constructor(
                     GroupNotification(
                         it.toPair()
                     )
+                }.sortedByDescending {
+                    it.notifications.second.first().notiTime
                 }
         )
         _notificationList.value = notificationUiState
