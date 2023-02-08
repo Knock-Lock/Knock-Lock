@@ -9,24 +9,29 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
-import kotlinx.collections.immutable.ImmutableList
+import com.knocklock.presentation.lockscreen.util.*
+import com.knocklock.presentation.lockscreen.util.FractionalThreshold
+import com.knocklock.presentation.lockscreen.util.SwipeToDismiss
+import com.knocklock.presentation.lockscreen.util.rememberDismissState
 
 /**
  * @Created by 김현국 2022/12/02
@@ -41,76 +46,140 @@ data class Notification(
     val notiTime: String = "",
     val title: String = "",
     val content: String = "",
+    val isClearable: Boolean = false,
     val intent: PendingIntent? = null
 )
 
 @Composable
 fun GroupLockNotiItem(
     modifier: Modifier = Modifier,
-    notificationList: ImmutableList<Notification>
+    notificationList: List<Notification>,
+    onRemoveNotification: (List<Notification>) -> Unit
 ) {
-    if (notificationList.size == 0) {
+    if (notificationList.isEmpty()) {
         return
     }
-    val notification = notificationList[0]
+    val notification by rememberUpdatedState(notificationList[0])
+
     var clickableState by remember { mutableStateOf(false) }
-    var expandState by rememberSaveable { mutableStateOf(false) }
+    var expandableState by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(notificationList.size) {
         clickableState = notificationList.size >= 2
     }
 
     Column(
-        modifier = Modifier.clickable(
+        modifier = modifier.clickable(
             enabled = clickableState,
             indication = null,
             interactionSource = remember { MutableInteractionSource() }
         ) {
-            expandState = !expandState
+            expandableState = !expandableState
         }
     ) {
-        Box {
+        val lockNotiModifier = modifier.background(color = Color(0xFFFAFAFA).copy(alpha = 0.95f), shape = RoundedCornerShape(10.dp)).clip(RoundedCornerShape(10.dp))
+        SwipeToDismissLockNotiItem(
+            modifier = lockNotiModifier,
+            onRemoveNotification = onRemoveNotification,
+            notification = notification,
+            notificationSize = notificationList.size,
+            clickableState = clickableState,
+            expandableState = expandableState,
+            groupNotification = notificationList
+        )
+
+        AnimatedVisibility(visible = expandableState && notificationList.size != 1) {
             Column(
-                modifier = modifier,
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                LockNotiItem(
-                    modifier = Modifier.background(color = Color(0xFFFAFAFA).copy(alpha = 0.95f), shape = RoundedCornerShape(10.dp)).clip(RoundedCornerShape(10.dp)),
-                    notification = notification
-                )
-            }
-            if (clickableState) {
-                Icon(
-                    modifier = Modifier.align(Alignment.CenterEnd).padding(end = 5.dp),
-                    imageVector = if (expandState)Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                    contentDescription = null
-                )
-            }
-        }
-        AnimatedVisibility(visible = !expandState) {
-            Column {
-                if (notificationList.size == 2) {
-                    MoreNotification(modifier = Modifier.padding(horizontal = 15.dp).fillMaxWidth().height(7.dp))
-                } else if (notificationList.size >= 3) {
-                    MoreNotification(modifier = Modifier.padding(horizontal = 15.dp).fillMaxWidth().height(7.dp))
-                    MoreNotification(modifier = Modifier.padding(horizontal = 35.dp).fillMaxWidth().height(5.dp))
-                }
-            }
-        }
-        AnimatedVisibility(visible = expandState) {
-            Column(
-                modifier = Modifier.padding(top = 4.dp),
+                modifier = modifier.padding(top = 4.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 for (index in 1 until notificationList.size) {
-                    LockNotiItem(
-                        modifier = Modifier.background(color = Color(0xFFFAFAFA).copy(alpha = 0.95f), shape = RoundedCornerShape(10.dp)).clip(RoundedCornerShape(10.dp)),
-                        notification = notificationList[index]
+                    SwipeToDismissLockNotiItem(
+                        modifier = lockNotiModifier,
+                        onRemoveNotification = { list ->
+                            onRemoveNotification(list)
+                        },
+                        notification = notificationList[index],
+                        notificationSize = notificationList.size,
+                        clickableState = false,
+                        expandableState = expandableState
                     )
                 }
             }
-            Spacer(modifier = Modifier.height(4.dp))
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SwipeToDismissLockNotiItem(
+    modifier: Modifier = Modifier,
+    onRemoveNotification: (List<Notification>) -> Unit,
+    notification: Notification,
+    notificationSize: Int,
+    clickableState: Boolean,
+    expandableState: Boolean,
+    groupNotification: List<Notification>? = null
+) {
+    val updateGroupNotification by rememberUpdatedState(newValue = groupNotification)
+    val updateNotification by rememberUpdatedState(newValue = notification)
+    val dismissState = rememberDismissState(confirmStateChange = { dismissValue ->
+        if (updateNotification.isClearable) {
+            when (dismissValue) {
+                DismissValue.Default -> {
+                    false
+                }
+                DismissValue.DismissedToStart -> {
+                    false
+                }
+                DismissValue.DismissedToEnd -> {
+                    if (groupNotification != null) {
+                        updateGroupNotification?.let { childNotificationList ->
+                            onRemoveNotification(
+                                childNotificationList
+                            )
+                        }
+                    } else {
+                        onRemoveNotification(listOf(updateNotification))
+                    }
+                    true
+                }
+            }
+        } else {
+            false
+        }
+    })
+    SwipeToDismiss(
+        state = dismissState,
+        dismissThresholds = { FractionalThreshold(0.25f) },
+        dismissContent = {
+            Column {
+                Box {
+                    LockNotiItem(
+                        modifier = modifier,
+                        notification = updateNotification
+                    )
+                    if (clickableState) {
+                        Icon(
+                            modifier = Modifier.align(Alignment.CenterEnd).padding(end = 5.dp),
+                            imageVector = if (expandableState) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                            contentDescription = null
+                        )
+                    }
+                }
+                AnimatedVisibility(visible = !expandableState) {
+                    Column {
+                        if (notificationSize == 2) {
+                            MoreNotification(modifier = Modifier.padding(horizontal = 15.dp).fillMaxWidth().height(7.dp))
+                        } else if (notificationSize >= 3) {
+                            MoreNotification(modifier = Modifier.padding(horizontal = 15.dp).fillMaxWidth().height(7.dp))
+                            MoreNotification(modifier = Modifier.padding(horizontal = 35.dp).fillMaxWidth().height(5.dp))
+                        }
+                    }
+                }
+            }
+        },
+        background = {}
+    )
 }
 
 @Composable
@@ -119,7 +188,7 @@ fun MoreNotification(
 ) {
     val moreNotificationShape = RoundedCornerShape(bottomStart = 5.dp, bottomEnd = 5.dp)
     Row(
-        modifier = modifier.background(color = Color(0xFFFAFAFA).copy(alpha = 0.9f), shape = moreNotificationShape).clip(shape = moreNotificationShape)
+        modifier = modifier.background(brush = Brush.verticalGradient(listOf(Color(0xFFFAFAFA).copy(alpha = 0.9f), Color.LightGray)), shape = moreNotificationShape).clip(shape = moreNotificationShape)
     ) {}
 }
 
