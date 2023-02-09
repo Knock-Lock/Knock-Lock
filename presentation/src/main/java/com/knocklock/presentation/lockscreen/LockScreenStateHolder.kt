@@ -9,8 +9,6 @@ import android.service.notification.StatusBarNotification
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.text.SimpleDateFormat
@@ -34,9 +32,9 @@ class LockScreenStateHolder @Inject constructor(
 
     private val packageManager by lazy { context.packageManager }
 
-    fun updateNotificationArray(notificationArray: List<StatusBarNotification>) {
+    fun updateNotificationList(notificationList: List<StatusBarNotification>) {
         val notificationUiState = NotificationUiState.Success(
-            notificationList = notificationArray.asSequence()
+            notificationList = notificationList.asSequence()
                 .filter { statusBarNotification ->
                     with(statusBarNotification.notification.extras) {
                         val title: String = convertString(getCharSequence("android.title"))
@@ -89,19 +87,19 @@ class LockScreenStateHolder @Inject constructor(
                             content = content
                         )
                     }
-                }.groupBy {
+                }.groupBy { notification ->
                     GroupKey(
-                        packageName = it.id.split("|")[1],
-                        appTitle = it.appTitle,
-                        title = it.title
+                        packageName = notification.id.split("|")[1],
+                        appTitle = notification.appTitle,
+                        title = notification.title
                     )
                 }
-                .map {
+                .map { entry ->
                     GroupNotification(
-                        it.toPair()
+                        entry.toPair()
                     )
-                }.sortedByDescending {
-                    it.notifications.second.first().notiTime
+                }.sortedByDescending { groupNotification ->
+                    groupNotification.notifications.second.first().notiTime
                 }
         )
         _notificationList.value = notificationUiState
