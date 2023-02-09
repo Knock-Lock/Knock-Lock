@@ -24,7 +24,6 @@ import com.knocklock.presentation.lockscreen.receiver.ScreenEventReceiver
 import com.knocklock.presentation.lockscreen.receiver.SystemBarEventReceiver
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
-import com.knocklock.presentation.lockscreen.Notification as LockNotification
 
 /**
  * @Created by 김현국 2022/12/04
@@ -116,11 +115,9 @@ class LockScreenNotificationListener :
                     windowManager.removeView(composeView)
                 }
 
-                override fun removeNotifications(keys: List<LockNotification>) {
+                override fun removeNotifications(keys: List<String>) {
                     notificationScope.launch {
-                        keys.forEach { key ->
-                            cancelNotification(key.id)
-                        }
+                        cancelNotifications(keys.toTypedArray())
                     }
                 }
             }
