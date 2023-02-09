@@ -17,7 +17,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,6 +31,8 @@ import com.knocklock.presentation.lockscreen.util.*
 import com.knocklock.presentation.lockscreen.util.FractionalThreshold
 import com.knocklock.presentation.lockscreen.util.SwipeToDismiss
 import com.knocklock.presentation.lockscreen.util.rememberDismissState
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 
 /**
  * @Created by 김현국 2022/12/02
@@ -53,20 +54,21 @@ data class Notification(
 @Composable
 fun GroupLockNotiItem(
     modifier: Modifier = Modifier,
-    notificationList: List<Notification>,
-    onRemoveNotification: (List<Notification>) -> Unit
+    notificationList: ImmutableList<Notification>,
+    onRemoveNotification: (List<String>) -> Unit
 ) {
     if (notificationList.isEmpty()) {
         return
     }
     val notification by rememberUpdatedState(notificationList[0])
-
     var clickableState by remember { mutableStateOf(false) }
-    var expandableState by rememberSaveable { mutableStateOf(false) }
+    var expandableState by remember { mutableStateOf(false) }
     LaunchedEffect(notificationList.size) {
         clickableState = notificationList.size >= 2
+        if (notificationList.isEmpty()) {
+            expandableState = false
+        }
     }
-
     Column(
         modifier = modifier.clickable(
             enabled = clickableState,
@@ -77,15 +79,17 @@ fun GroupLockNotiItem(
         }
     ) {
         val lockNotiModifier = modifier.background(color = Color(0xFFFAFAFA).copy(alpha = 0.95f), shape = RoundedCornerShape(10.dp)).clip(RoundedCornerShape(10.dp))
-        SwipeToDismissLockNotiItem(
-            modifier = lockNotiModifier,
-            onRemoveNotification = onRemoveNotification,
-            notification = notification,
-            notificationSize = notificationList.size,
-            clickableState = clickableState,
-            expandableState = expandableState,
-            groupNotification = notificationList
-        )
+        key(notification) {
+            SwipeToDismissLockNotiItem(
+                modifier = lockNotiModifier,
+                onRemoveNotification = onRemoveNotification,
+                notification = notification,
+                notificationSize = notificationList.size,
+                clickableState = clickableState,
+                expandableState = expandableState,
+                groupNotification = notificationList.toImmutableList()
+            )
+        }
 
         AnimatedVisibility(visible = expandableState && notificationList.size != 1) {
             Column(
@@ -93,16 +97,18 @@ fun GroupLockNotiItem(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 for (index in 1 until notificationList.size) {
-                    SwipeToDismissLockNotiItem(
-                        modifier = lockNotiModifier,
-                        onRemoveNotification = { list ->
-                            onRemoveNotification(list)
-                        },
-                        notification = notificationList[index],
-                        notificationSize = notificationList.size,
-                        clickableState = false,
-                        expandableState = expandableState
-                    )
+                    key(notificationList[index]) {
+                        SwipeToDismissLockNotiItem(
+                            modifier = lockNotiModifier,
+                            onRemoveNotification = { list ->
+                                onRemoveNotification(list)
+                            },
+                            notification = notificationList[index],
+                            notificationSize = notificationList.size,
+                            clickableState = false,
+                            expandableState = expandableState
+                        )
+                    }
                 }
             }
         }
@@ -113,15 +119,16 @@ fun GroupLockNotiItem(
 @Composable
 fun SwipeToDismissLockNotiItem(
     modifier: Modifier = Modifier,
-    onRemoveNotification: (List<Notification>) -> Unit,
+    onRemoveNotification: (List<String>) -> Unit,
     notification: Notification,
     notificationSize: Int,
     clickableState: Boolean,
     expandableState: Boolean,
-    groupNotification: List<Notification>? = null
+    groupNotification: ImmutableList<Notification>? = null
 ) {
     val updateGroupNotification by rememberUpdatedState(newValue = groupNotification)
     val updateNotification by rememberUpdatedState(newValue = notification)
+    val updateExpandableState by rememberUpdatedState(newValue = expandableState)
     val dismissState = rememberDismissState(confirmStateChange = { dismissValue ->
         if (updateNotification.isClearable) {
             when (dismissValue) {
@@ -132,14 +139,16 @@ fun SwipeToDismissLockNotiItem(
                     false
                 }
                 DismissValue.DismissedToEnd -> {
-                    if (groupNotification != null) {
+                    if (updateExpandableState) {
+                        onRemoveNotification(listOf(updateNotification.id))
+                    } else {
                         updateGroupNotification?.let { childNotificationList ->
                             onRemoveNotification(
-                                childNotificationList
+                                childNotificationList.map { notification ->
+                                    notification.id
+                                }
                             )
                         }
-                    } else {
-                        onRemoveNotification(listOf(updateNotification))
                     }
                     true
                 }
