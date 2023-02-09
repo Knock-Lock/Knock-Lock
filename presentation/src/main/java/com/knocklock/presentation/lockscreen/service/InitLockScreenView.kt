@@ -19,7 +19,6 @@ import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.lifecycle.ViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.knocklock.presentation.lockscreen.LockScreenRoute
-import com.knocklock.presentation.lockscreen.Notification
 import com.knocklock.presentation.lockscreen.rememberLockScreenStateHolder
 import com.knocklock.presentation.lockscreen.util.ComposeLifecycleOwner
 import kotlinx.coroutines.*
@@ -38,7 +37,7 @@ class InitLockScreenView(
     private val lifecycleOwner by lazy { ComposeLifecycleOwner() }
     private val composeViewModelStore by lazy { ViewModelStore() }
 
-    private val notificationListUiState = MutableStateFlow<WrapperNotificationUiState>(WrapperNotificationUiState.Empty)
+    private val notificationList = MutableStateFlow(emptyList<StatusBarNotification>())
 
     init {
         createComposeLockScreenView()
@@ -47,12 +46,10 @@ class InitLockScreenView(
     private fun createComposeLockScreenView() {
         composeView.setContent {
             val stateHolder = rememberLockScreenStateHolder(context = context)
-            val notificationListState by notificationListUiState.collectAsState()
+            val notificationListState by notificationList.collectAsState()
 
             LaunchedEffect(key1 = notificationListState) {
-                if (notificationListState is WrapperNotificationUiState.Success) {
-                    stateHolder.updateNotificationArray((notificationListState as WrapperNotificationUiState.Success).statusBarNotification)
-                }
+                stateHolder.updateNotificationList(notificationListState)
             }
             val notificationUiState by stateHolder.notificationList.collectAsState()
 
@@ -134,16 +131,10 @@ class InitLockScreenView(
     }
 
     fun passActiveNotificationList(statusBarNotification: Array<StatusBarNotification>) {
-        notificationListUiState.value = WrapperNotificationUiState.Success(statusBarNotification.copyOf().toList())
+        notificationList.value = statusBarNotification.toList()
     }
 }
 interface OnComposeViewListener {
     fun remove(composeView: ComposeView)
-    fun removeNotifications(keys: List<Notification>)
-}
-
-sealed class WrapperNotificationUiState {
-    data class Success(val statusBarNotification: List<StatusBarNotification>) :
-        WrapperNotificationUiState()
-    object Empty : WrapperNotificationUiState()
+    fun removeNotifications(keys: List<String>)
 }
