@@ -22,8 +22,6 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.knocklock.presentation.lockscreen.util.FractionalThreshold
 import com.knocklock.presentation.lockscreen.util.rememberSwipeableState
 import com.knocklock.presentation.lockscreen.util.swipeable
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.toImmutableList
 import kotlin.math.roundToInt
 
 /**
@@ -35,7 +33,7 @@ import kotlin.math.roundToInt
 fun LockScreenRoute(
     notificationUiState: NotificationUiState,
     userSwipe: () -> Unit,
-    onRemoveNotification: (List<Notification>) -> Unit
+    onRemoveNotification: (List<String>) -> Unit
 ) {
     LockScreen(
         notificationUiState = notificationUiState,
@@ -49,7 +47,7 @@ fun LockScreen(
     modifier: Modifier = Modifier,
     notificationUiState: NotificationUiState,
     userSwipe: () -> Unit,
-    onRemoveNotification: (List<Notification>) -> Unit
+    onRemoveNotification: (List<String>) -> Unit
 ) {
     var startTransitionState by remember { mutableStateOf(false) }
 
@@ -63,7 +61,7 @@ fun LockScreen(
             when (notificationUiState) {
                 is NotificationUiState.Success -> {
                     LockScreenNotificationListColumn(
-                        notificationList = notificationUiState.notificationList,
+                        groupNotificationList = notificationUiState.notificationList,
                         scrollableState = startTransitionState,
                         onRemoveNotification = onRemoveNotification
                     )
@@ -149,9 +147,9 @@ fun UnLockSwipeBar(
 @Composable
 fun LockScreenNotificationListColumn(
     modifier: Modifier = Modifier,
-    notificationList: List<GroupNotification>,
+    groupNotificationList: List<GroupNotification>,
     scrollableState: Boolean,
-    onRemoveNotification: (List<Notification>) -> Unit
+    onRemoveNotification: (List<String>) -> Unit
 ) {
     LazyColumn(
         modifier = modifier,
@@ -160,7 +158,7 @@ fun LockScreenNotificationListColumn(
         userScrollEnabled = scrollableState
     ) {
         items(
-            items = notificationList,
+            items = groupNotificationList,
             key = { item: GroupNotification -> generatedKey(item.notifications.first) } // size를 키로 둘경우 위치가 변경됨  item.notifications.second.size
         ) { item: GroupNotification ->
             GroupLockNotiItem(
