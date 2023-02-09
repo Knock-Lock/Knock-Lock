@@ -22,6 +22,8 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.knocklock.presentation.lockscreen.util.FractionalThreshold
 import com.knocklock.presentation.lockscreen.util.rememberSwipeableState
 import com.knocklock.presentation.lockscreen.util.swipeable
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 import kotlin.math.roundToInt
 
 /**
@@ -61,7 +63,7 @@ fun LockScreen(
             when (notificationUiState) {
                 is NotificationUiState.Success -> {
                     LockScreenNotificationListColumn(
-                        groupNotificationList = notificationUiState.notificationList,
+                        groupNotificationList = notificationUiState.notificationList.toImmutableList(),
                         scrollableState = startTransitionState,
                         onRemoveNotification = onRemoveNotification
                     )
@@ -147,7 +149,7 @@ fun UnLockSwipeBar(
 @Composable
 fun LockScreenNotificationListColumn(
     modifier: Modifier = Modifier,
-    groupNotificationList: List<GroupNotification>,
+    groupNotificationList: ImmutableList<GroupNotification>,
     scrollableState: Boolean,
     onRemoveNotification: (List<String>) -> Unit
 ) {
@@ -163,7 +165,7 @@ fun LockScreenNotificationListColumn(
         ) { item: GroupNotification ->
             GroupLockNotiItem(
                 modifier = Modifier.animateItemPlacement(),
-                notificationList = item.notifications.second,
+                notificationList = item.notifications.second.toImmutableList(),
                 onRemoveNotification = onRemoveNotification
             )
         }
