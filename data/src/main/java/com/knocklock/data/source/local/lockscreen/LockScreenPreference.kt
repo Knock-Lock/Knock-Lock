@@ -7,6 +7,7 @@ data class LockScreenPreference(
     val background: LockScreenBackground
 ) {
     companion object {
+        const val localPath = "lockscreen.preferences_pb"
         fun getDefaultInstance() = LockScreenPreference(
             background = LockScreenBackground.ColorRes(colorRes = 0)
         )
