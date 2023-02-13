@@ -2,18 +2,17 @@ package com.knocklock.presentation.lockscreen
 
 import android.widget.TextClock
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
@@ -35,16 +34,22 @@ import kotlin.math.roundToInt
 @Composable
 fun LockScreenRoute(
     notificationUiState: NotificationUiState,
-    userSwipe: () -> Unit
+    userSwipe: () -> Unit,
+    onRemoveNotification: (List<String>) -> Unit
 ) {
-    LockScreen(notificationUiState = notificationUiState, userSwipe = userSwipe)
+    LockScreen(
+        notificationUiState = notificationUiState,
+        userSwipe = userSwipe,
+        onRemoveNotification = onRemoveNotification
+    )
 }
 
 @Composable
 fun LockScreen(
     modifier: Modifier = Modifier,
     notificationUiState: NotificationUiState,
-    userSwipe: () -> Unit
+    userSwipe: () -> Unit,
+    onRemoveNotification: (List<String>) -> Unit
 ) {
     var startTransitionState by remember { mutableStateOf(false) }
 
@@ -58,8 +63,9 @@ fun LockScreen(
             when (notificationUiState) {
                 is NotificationUiState.Success -> {
                     LockScreenNotificationListColumn(
-                        notificationList = notificationUiState.notificationList.toImmutableList(),
-                        scrollableState = startTransitionState
+                        groupNotificationList = notificationUiState.notificationList.toImmutableList(),
+                        scrollableState = startTransitionState,
+                        onRemoveNotification = onRemoveNotification
                     )
                 }
                 is NotificationUiState.Empty -> {
@@ -139,11 +145,13 @@ fun UnLockSwipeBar(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LockScreenNotificationListColumn(
     modifier: Modifier = Modifier,
-    notificationList: ImmutableList<GroupNotification>,
-    scrollableState: Boolean
+    groupNotificationList: ImmutableList<GroupNotification>,
+    scrollableState: Boolean,
+    onRemoveNotification: (List<String>) -> Unit
 ) {
     LazyColumn(
         modifier = modifier,
@@ -152,14 +160,13 @@ fun LockScreenNotificationListColumn(
         userScrollEnabled = scrollableState
     ) {
         items(
-            items = notificationList,
-            key = { item: GroupNotification -> generatedKey(item.notifications.first) }
+            items = groupNotificationList,
+            key = { item: GroupNotification -> generatedKey(item.notifications.first) } // size를 키로 둘경우 위치가 변경됨  item.notifications.second.size
         ) { item: GroupNotification ->
             GroupLockNotiItem(
-                modifier = Modifier.background(color = Color(0xFFFAFAFA).copy(alpha = 0.95f), shape = RoundedCornerShape(10.dp)).clip(
-                    RoundedCornerShape(10.dp)
-                ),
-                notificationList = item.notifications.second.toImmutableList()
+                modifier = Modifier.animateItemPlacement(),
+                notificationList = item.notifications.second.toImmutableList(),
+                onRemoveNotification = onRemoveNotification
             )
         }
     }

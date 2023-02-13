@@ -32,9 +32,9 @@ class LockScreenStateHolder @Inject constructor(
 
     private val packageManager by lazy { context.packageManager }
 
-    fun updateNotificationArray(notificationArray: Array<StatusBarNotification>) {
+    fun updateNotificationList(notificationList: List<StatusBarNotification>) {
         val notificationUiState = NotificationUiState.Success(
-            notificationList = notificationArray.asSequence()
+            notificationList = notificationList.asSequence()
                 .filter { statusBarNotification ->
                     with(statusBarNotification.notification.extras) {
                         val title: String = convertString(getCharSequence("android.title"))
@@ -83,20 +83,23 @@ class LockScreenStateHolder @Inject constructor(
                             appTitle = if (subText == "") appTitle else subText,
                             notiTime = stringPostTime,
                             title = title,
+                            isClearable = statusBarNotification.isClearable,
                             content = content
                         )
                     }
-                }.groupBy {
+                }.groupBy { notification ->
                     GroupKey(
-                        packageName = it.id.split("|")[1],
-                        appTitle = it.appTitle,
-                        title = it.title
+                        packageName = notification.id.split("|")[1],
+                        appTitle = notification.appTitle,
+                        title = notification.title
                     )
                 }
-                .map {
+                .map { entry ->
                     GroupNotification(
-                        it.toPair()
+                        entry.toPair()
                     )
+                }.sortedByDescending { groupNotification ->
+                    groupNotification.notifications.second.first().notiTime
                 }
         )
         _notificationList.value = notificationUiState

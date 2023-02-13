@@ -9,10 +9,7 @@ import android.service.notification.StatusBarNotification
 import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.Recomposer
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.platform.AndroidUiDispatcher
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.compositionContext
@@ -40,7 +37,7 @@ class InitLockScreenView(
     private val lifecycleOwner by lazy { ComposeLifecycleOwner() }
     private val composeViewModelStore by lazy { ViewModelStore() }
 
-    private val notificationArray = MutableStateFlow<Array<StatusBarNotification>>(emptyArray())
+    private val notificationList = MutableStateFlow(emptyList<StatusBarNotification>())
 
     init {
         createComposeLockScreenView()
@@ -49,15 +46,22 @@ class InitLockScreenView(
     private fun createComposeLockScreenView() {
         composeView.setContent {
             val stateHolder = rememberLockScreenStateHolder(context = context)
-            val notificationArrayState by notificationArray.collectAsState()
+            val notificationListState by notificationList.collectAsState()
 
-            LaunchedEffect(key1 = notificationArrayState) {
-                stateHolder.updateNotificationArray(notificationArrayState)
+            LaunchedEffect(key1 = notificationListState) {
+                stateHolder.updateNotificationList(notificationListState)
             }
             val notificationUiState by stateHolder.notificationList.collectAsState()
-            LockScreenRoute(notificationUiState, userSwipe = {
-                onComposeViewListener.remove(composeView)
-            })
+
+            LockScreenRoute(
+                notificationUiState,
+                userSwipe = {
+                    onComposeViewListener.remove(composeView)
+                },
+                onRemoveNotification = { notifications ->
+                    onComposeViewListener.removeNotifications(notifications)
+                }
+            )
         }
         lifecycleOwner.apply {
             performRestore(null)
@@ -127,9 +131,10 @@ class InitLockScreenView(
     }
 
     fun passActiveNotificationList(statusBarNotification: Array<StatusBarNotification>) {
-        notificationArray.value = statusBarNotification
+        notificationList.value = statusBarNotification.toList()
     }
 }
 interface OnComposeViewListener {
     fun remove(composeView: ComposeView)
+    fun removeNotifications(keys: List<String>)
 }

@@ -74,7 +74,6 @@ class LockScreenNotificationListener :
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         super.onNotificationPosted(sbn)
-
         val packageName = sbn?.packageName
         if (sbn != null && !TextUtils.isEmpty(packageName)) {
             notificationScope.launch {
@@ -115,12 +114,19 @@ class LockScreenNotificationListener :
                 override fun remove(composeView: ComposeView) {
                     windowManager.removeView(composeView)
                 }
+
+                override fun removeNotifications(keys: List<String>) {
+                    notificationScope.launch {
+                        cancelNotifications(keys.toTypedArray())
+                    }
+                }
             }
         )
     }
 
     private fun addLockScreen() {
-        val canOverlay = Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1 && !Settings.canDrawOverlays(this)
+        val canOverlay =
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1 && !Settings.canDrawOverlays(this)
 
         if (!canOverlay) {
             requestScreenOverlay()
@@ -140,7 +146,10 @@ class LockScreenNotificationListener :
         if (!Settings.canDrawOverlays(this)) {
             val builder = StringBuilder()
             builder.append("package:$packageName")
-            val intent = Intent("android.settings.action.MANAGE_OVERLAY_PERMISSION", Uri.parse(builder.toString())).apply {
+            val intent = Intent(
+                "android.settings.action.MANAGE_OVERLAY_PERMISSION",
+                Uri.parse(builder.toString())
+            ).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
             }
@@ -192,12 +201,15 @@ class LockScreenNotificationListener :
     private fun registerSystemBarEventReceiver() {
         systemBarEventReceiver.registerReceiver()
     }
+
     private fun unregisterSystemBarEventReceiver() {
         systemBarEventReceiver.unregisterReceiver()
     }
+
     private fun registerScreenEventReceiver() {
         screenEventReceiver.registerReceiver()
     }
+
     private fun unregisterScreenEventReceiver() {
         screenEventReceiver.unregisterReceiver()
     }
