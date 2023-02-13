@@ -58,8 +58,7 @@ fun NavGraphBuilder.homeGraph(
                         else -> {
                         }
                     }
-                },
-                homeScreenUiState = HomeScreenUiState(listOf(HomeMenu.SETTING).toImmutableList())
+                }
             )
         }
     }

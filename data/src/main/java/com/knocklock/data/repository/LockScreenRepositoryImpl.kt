@@ -12,7 +12,7 @@ import javax.inject.Inject
 class LockScreenRepositoryImpl @Inject constructor(
     private val lockScreenDataStore: DataStore<LockScreenPreference>
 ) : LockScreenRepository {
-    override fun getLockScreenInfo(): Flow<LockScreen> =
+    override fun getLockScreen(): Flow<LockScreen> =
         lockScreenDataStore.data.map { it.toDomain() }
 
     override suspend fun clear() {
