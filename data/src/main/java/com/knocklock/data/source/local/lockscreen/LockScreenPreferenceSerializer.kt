@@ -22,7 +22,7 @@ class LockScreenPreferenceSerializer @Inject constructor() : Serializer<LockScre
                 LockScreenPreference.serializer(), input.readBytes().decodeToString()
             )
         } catch (serialization: SerializationException) {
-            throw CorruptionException("Unable to read UserPreference", serialization)
+            throw CorruptionException("Unable to read LockScreenPreference", serialization)
         }
 
     override suspend fun writeTo(t: LockScreenPreference, output: OutputStream) {
