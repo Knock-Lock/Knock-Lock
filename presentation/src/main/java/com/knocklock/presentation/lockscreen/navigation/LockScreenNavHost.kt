@@ -32,7 +32,6 @@ fun LockScreenNavHost(
     notificationList: ImmutableList<StatusBarNotification>,
     onComposeViewListener: OnComposeViewListener
 ) {
-    println("로그2 :" + notificationList.joinToString("") { it.toString() })
     NavHost(
         navController = navController,
         startDestination = LockScreenNavigationRoute.LockScreenGraph.route
@@ -57,17 +56,13 @@ fun NavGraphBuilder.lockScreenGraph(
         startDestination = LockScreenNavigationRoute.LockScreenGraph.LockScreen.route,
         route = LockScreenNavigationRoute.LockScreenGraph.route
     ) {
-        println("로그2-2 :" + notificationList.joinToString("") { it.toString() })
-
         composable(
             route = LockScreenNavigationRoute.LockScreenGraph.LockScreen.route
         ) {
-            println("로그3 :" + notificationList.joinToString("") { it.toString() })
             val stateHolder = rememberLockScreenStateHolder(context = LocalContext.current)
             val currentLockState by stateHolder.currentLockState.collectAsState()
 
             val updatedNotificationList by rememberUpdatedState(newValue = notificationList)
-            println("로그4 :" + updatedNotificationList.joinToString("") { it.toString() })
             LaunchedEffect(key1 = updatedNotificationList) {
                 stateHolder.updateNotificationList(updatedNotificationList)
             }
