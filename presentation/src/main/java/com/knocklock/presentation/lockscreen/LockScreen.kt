@@ -33,11 +33,13 @@ import kotlin.math.roundToInt
 
 @Composable
 fun LockScreenRoute(
+    modifier: Modifier = Modifier,
     notificationUiState: NotificationUiState,
     userSwipe: () -> Unit,
     onRemoveNotification: (List<String>) -> Unit
 ) {
     LockScreen(
+        modifier = modifier,
         notificationUiState = notificationUiState,
         userSwipe = userSwipe,
         onRemoveNotification = onRemoveNotification
