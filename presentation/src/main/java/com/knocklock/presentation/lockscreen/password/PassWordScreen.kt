@@ -38,9 +38,22 @@ import kotlinx.collections.immutable.toImmutableList
  * @Created by 김현국 2023/01/09
  * @Time 11:58 AM
  */
+
+@Composable
+fun PassWordRoute(
+    unLockPassWordScreen: () -> Unit,
+    returnLockScreen: () -> Unit
+) {
+    PassWordScreen(
+        unLockPassWordScreen = unLockPassWordScreen,
+        returnLockScreen = returnLockScreen
+    )
+}
+
 @Composable
 fun PassWordScreen(
-    removePassWordScreen: () -> Unit
+    unLockPassWordScreen: () -> Unit,
+    returnLockScreen: () -> Unit
 ) {
     val passWordSpace = 50.dp
     val contentPadding = passWordSpace / 2
@@ -48,7 +61,8 @@ fun PassWordScreen(
     val circlePassWordNumberSize = screenWidthDp / 3
 
     val passWordScreenState = rememberPassWordScreenState(
-        removePassWordScreen = removePassWordScreen
+        returnLockScreen = returnLockScreen,
+        unLockPassWordScreen = unLockPassWordScreen
     )
 
     Column(
@@ -202,15 +216,6 @@ fun PreviewLocker() {
     }
 }
 
-@Preview
-@Composable
-fun PreviewPassWordScreen() {
-    KnockLockTheme {
-        PassWordScreen {
-            Log.e("로그", "remove ", null)
-        }
-    }
-}
 
 @Preview
 @Composable
