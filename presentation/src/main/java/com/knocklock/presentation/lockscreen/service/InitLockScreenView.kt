@@ -8,8 +8,15 @@ import android.service.notification.StatusBarNotification
 import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.AndroidUiDispatcher
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
@@ -50,9 +57,15 @@ class InitLockScreenView(
     private fun createComposeLockScreenView() {
         composeView.setContent {
             val screenState by composeScreenState.collectAsState()
-            
-            when (screenState) {
-                ComposeScreenState.LockScreen -> {
+            var startTransitionState by remember { mutableStateOf(false) }
+            Box(
+                modifier = Modifier.fillMaxSize().background(color = Color.Blue)
+            ) {
+                AnimatedVisibility(
+                    visible = screenState == ComposeScreenState.LockScreen,
+                    enter = fadeIn(),
+                    exit = fadeOut()
+                ) {
                     val stateHolder = rememberLockScreenStateHolder(LocalContext.current)
                     val notificationListState by notificationList.collectAsState()
                     val currentUserState by stateHolder.currentLockState.collectAsState()
@@ -79,10 +92,19 @@ class InitLockScreenView(
                         },
                         onRemoveNotification = { notifications ->
                             onComposeViewListener.removeNotifications(notifications)
+                        },
+                        startTransitionState = startTransitionState,
+                        updateTransitionState = { state ->
+                            startTransitionState = state
                         }
                     )
                 }
-                ComposeScreenState.PassWordScreen -> {
+
+                AnimatedVisibility(
+                    visible = screenState == ComposeScreenState.PassWordScreen,
+                    enter = fadeIn(),
+                    exit = fadeOut()
+                ) {
                     PassWordRoute(
                         unLockPassWordScreen = {
                             onComposeViewListener.remove()
