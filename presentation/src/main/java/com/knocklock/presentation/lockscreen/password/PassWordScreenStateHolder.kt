@@ -1,18 +1,41 @@
 package com.knocklock.presentation.lockscreen.password
 
+import android.content.Context
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.platform.LocalContext
+import com.knocklock.domain.usecase.setting.GetUserUseCase
+import com.knocklock.presentation.lockscreen.UseCaseEntryPoint
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.android.EntryPointAccessors
+import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 /**
  * @Created by 김현국 2023/01/11
  * @Time 5:24 PM
  */
+@EntryPoint
+@InstallIn(SingletonComponent::class)
+interface UseCaseEntryPoint {
+    fun getUserUseCase(): GetUserUseCase
+}
 
 @Stable
 class PassWordScreenStateHolder(
-    private val removePassWordScreen: () -> Unit
+    context: Context,
+    private val returnLockScreen: () -> Unit,
+    private val unLockPassWordScreen: () -> Unit,
+    private val scope: CoroutineScope
 ) {
+    private val useCaseEntryPoint = EntryPointAccessors.fromApplication(
+        context,
+        UseCaseEntryPoint::class.java
+    )
+
     val passWordState = mutableStateListOf<PassWord>().apply {
         repeat(6) {
             add(PassWord(""))
@@ -35,6 +58,19 @@ class PassWordScreenStateHolder(
             } else {
                 insertPassWordIndex - 1
             }
+            if (insertPassWordIndex == 6) {
+                scope.launch {
+                    useCaseEntryPoint.getUserUseCase().invoke().collect { user ->
+                        val savedPassWord = user.password
+                        val inputPassWord = passWordState.map {
+                            it.number
+                        }.joinToString("") { it }
+                        if (savedPassWord == inputPassWord) {
+                            unLockPassWordScreen()
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -45,7 +81,11 @@ class PassWordScreenStateHolder(
             if (removePassWordIndex != 0) {
                 removePassWordIndex -= 1
             } else {
-                removePassWordScreen()
+                returnLockScreen()
+            }
+        } else {
+            if (removePassWordIndex == 0) {
+                returnLockScreen()
             }
         }
     }
@@ -55,23 +95,35 @@ class PassWordScreenStateHolder(
     }
     companion object {
         fun Saver(
-            removePassWordScreen: () -> Unit
+            context: Context,
+            returnLockScreen: () -> Unit,
+            unLockPassWordScreen: () -> Unit,
+            coroutineScope: CoroutineScope
         ) = Saver<PassWordScreenStateHolder, Any>(
             save = { listOf(it.passWordState, it.insertPassWordIndex, it.removePassWordIndex) },
-            restore = { PassWordScreenStateHolder(removePassWordScreen) }
+            restore = { PassWordScreenStateHolder(returnLockScreen = returnLockScreen, unLockPassWordScreen = unLockPassWordScreen, context = context, scope = coroutineScope) }
         )
     }
 }
 
 @Composable
 fun rememberPassWordScreenState(
-    removePassWordScreen: () -> Unit
+    context: Context = LocalContext.current,
+    returnLockScreen: () -> Unit,
+    unLockPassWordScreen: () -> Unit,
+    coroutineScope: CoroutineScope = rememberCoroutineScope()
 ) = rememberSaveable(
     saver = PassWordScreenStateHolder.Saver(
-        removePassWordScreen = removePassWordScreen
+        context = context,
+        returnLockScreen = returnLockScreen,
+        unLockPassWordScreen = unLockPassWordScreen,
+        coroutineScope = coroutineScope
     )
 ) {
     PassWordScreenStateHolder(
-        removePassWordScreen = removePassWordScreen
+        context = context,
+        returnLockScreen = returnLockScreen,
+        unLockPassWordScreen = unLockPassWordScreen,
+        scope = coroutineScope
     )
 }
