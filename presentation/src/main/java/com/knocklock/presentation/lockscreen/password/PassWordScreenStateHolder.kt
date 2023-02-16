@@ -1,10 +1,8 @@
 package com.knocklock.presentation.lockscreen.password
 
-import android.content.res.Configuration
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.unit.dp
 
 /**
  * @Created by 김현국 2023/01/11
@@ -13,14 +11,8 @@ import androidx.compose.ui.unit.dp
 
 @Stable
 class PassWordScreenStateHolder(
-    configuration: Configuration,
     private val removePassWordScreen: () -> Unit
 ) {
-
-    val passWordSpace = 50.dp
-    val contentPadding = passWordSpace / 2
-    private val screenWidthDp = configuration.screenWidthDp.dp - passWordSpace * 3
-    val circlePassWordNumberSize = screenWidthDp / 3
     val passWordState = mutableStateListOf<PassWord>().apply {
         repeat(6) {
             add(PassWord(""))
@@ -61,15 +53,25 @@ class PassWordScreenStateHolder(
     fun getPassWordList(): List<PassWord> {
         return PassWord.getPassWordList()
     }
+    companion object {
+        fun Saver(
+            removePassWordScreen: () -> Unit
+        ) = Saver<PassWordScreenStateHolder, Any>(
+            save = { listOf(it.passWordState, it.insertPassWordIndex, it.removePassWordIndex) },
+            restore = { PassWordScreenStateHolder(removePassWordScreen) }
+        )
+    }
 }
 
 @Composable
 fun rememberPassWordScreenState(
-    configuration: Configuration = LocalConfiguration.current,
     removePassWordScreen: () -> Unit
-) = rememberSaveable {
+) = rememberSaveable(
+    saver = PassWordScreenStateHolder.Saver(
+        removePassWordScreen = removePassWordScreen
+    )
+) {
     PassWordScreenStateHolder(
-        configuration,
-        removePassWordScreen
+        removePassWordScreen = removePassWordScreen
     )
 }
