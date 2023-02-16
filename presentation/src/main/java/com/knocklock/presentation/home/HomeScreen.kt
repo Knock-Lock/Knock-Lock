@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.knocklock.domain.model.LockScreen
 import com.knocklock.presentation.home.menu.HomeMenu
 import com.knocklock.presentation.home.menu.HomeMenuBar
 
@@ -16,14 +17,30 @@ fun HomeScreen(
     homeScreenUiState: HomeScreenUiState,
     onClickHomeMenu: (HomeMenu) -> Unit
 ) {
-    Box(modifier = modifier.navigationBarsPadding()) {
-        HomeMenuBar(
-            modifier = Modifier
-                .fillMaxWidth()
-                .statusBarsPadding()
-                .align(Alignment.TopEnd),
-            menuList = homeScreenUiState.menuList,
-            onClickHomeMenu = onClickHomeMenu
-        )
+    when (homeScreenUiState) {
+        HomeScreenUiState.Loading,
+        -> Unit
+        is HomeScreenUiState.Success -> {
+            Box(modifier = modifier.navigationBarsPadding()) {
+                HomeMenuBar(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .statusBarsPadding()
+                        .align(Alignment.TopEnd),
+                    menuList = homeScreenUiState.menuList,
+                    onClickHomeMenu = onClickHomeMenu
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun HomeContent(
+    modifier: Modifier = Modifier,
+    lockScreen: LockScreen
+) {
+    Box(modifier = modifier) {
+        // implement LockScreen
     }
 }
