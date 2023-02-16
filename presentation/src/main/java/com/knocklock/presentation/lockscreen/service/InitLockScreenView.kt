@@ -1,6 +1,5 @@
 package com.knocklock.presentation.lockscreen.service
 
-import android.content.Context
 import android.content.pm.ActivityInfo
 import android.graphics.PixelFormat
 import android.graphics.Point
@@ -17,11 +16,12 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.lifecycle.ViewTreeViewModelStoreOwner
+import androidx.navigation.compose.rememberNavController
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
-import com.knocklock.domain.model.AuthenticationType
-import com.knocklock.presentation.lockscreen.LockScreenRoute
-import com.knocklock.presentation.lockscreen.rememberLockScreenStateHolder
+import com.knocklock.presentation.lockscreen.navigation.LockScreenNavHost
+import com.knocklock.presentation.lockscreen.navigation.OnComposeViewListener
 import com.knocklock.presentation.lockscreen.util.ComposeLifecycleOwner
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -30,7 +30,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
  * @Time 3:47 PM
  */
 class InitLockScreenView(
-    private val context: Context,
     private val composeView: ComposeView,
     private val onComposeViewListener: OnComposeViewListener,
     private val point: Point
@@ -46,32 +45,12 @@ class InitLockScreenView(
 
     private fun createComposeLockScreenView() {
         composeView.setContent {
-            val stateHolder = rememberLockScreenStateHolder(context = context)
+            val navController = rememberNavController()
             val notificationListState by notificationList.collectAsState()
-            val currentLockState by stateHolder.currentLockState.collectAsState()
-
-            LaunchedEffect(key1 = notificationListState) {
-                stateHolder.updateNotificationList(notificationListState)
-            }
-            val notificationUiState by stateHolder.notificationList.collectAsState()
-
-            LockScreenRoute(
-                notificationUiState,
-                userSwipe = {
-                    currentLockState?.let { user ->
-                        when (user.authenticationType) {
-                            AuthenticationType.GESTURE -> {
-                                onComposeViewListener.remove(composeView = composeView)
-                            }
-                            AuthenticationType.PASSWORD -> {
-                                onComposeViewListener.navigateToPassWordScreen(composeView = composeView)
-                            }
-                        }
-                    }
-                },
-                onRemoveNotification = { notifications ->
-                    onComposeViewListener.removeNotifications(notifications)
-                }
+            LockScreenNavHost(
+                navController = navController,
+                notificationList = notificationListState.toImmutableList(),
+                onComposeViewListener = onComposeViewListener
             )
         }
         lifecycleOwner.apply {
@@ -144,10 +123,4 @@ class InitLockScreenView(
     fun passActiveNotificationList(statusBarNotification: Array<StatusBarNotification>) {
         notificationList.value = statusBarNotification.toList()
     }
-}
-interface OnComposeViewListener {
-
-    fun navigateToPassWordScreen(composeView: ComposeView)
-    fun remove(composeView: ComposeView)
-    fun removeNotifications(keys: List<String>)
 }
