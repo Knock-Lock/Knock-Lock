@@ -18,6 +18,7 @@ import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.lifecycle.ViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import com.knocklock.domain.model.AuthenticationType
 import com.knocklock.presentation.lockscreen.LockScreenRoute
 import com.knocklock.presentation.lockscreen.rememberLockScreenStateHolder
 import com.knocklock.presentation.lockscreen.util.ComposeLifecycleOwner
@@ -47,6 +48,7 @@ class InitLockScreenView(
         composeView.setContent {
             val stateHolder = rememberLockScreenStateHolder(context = context)
             val notificationListState by notificationList.collectAsState()
+            val currentLockState by stateHolder.currentLockState.collectAsState()
 
             LaunchedEffect(key1 = notificationListState) {
                 stateHolder.updateNotificationList(notificationListState)
@@ -56,7 +58,16 @@ class InitLockScreenView(
             LockScreenRoute(
                 notificationUiState,
                 userSwipe = {
-                    onComposeViewListener.remove(composeView)
+                    currentLockState?.let { user ->
+                        when (user.authenticationType) {
+                            AuthenticationType.GESTURE -> {
+                                onComposeViewListener.remove(composeView = composeView)
+                            }
+                            AuthenticationType.PASSWORD -> {
+                                onComposeViewListener.navigateToPassWordScreen(composeView = composeView)
+                            }
+                        }
+                    }
                 },
                 onRemoveNotification = { notifications ->
                     onComposeViewListener.removeNotifications(notifications)
@@ -135,6 +146,8 @@ class InitLockScreenView(
     }
 }
 interface OnComposeViewListener {
+
+    fun navigateToPassWordScreen(composeView: ComposeView)
     fun remove(composeView: ComposeView)
     fun removeNotifications(keys: List<String>)
 }
