@@ -66,7 +66,7 @@ fun PassWordScreen(
     )
 
     Column(
-        modifier = Modifier.background(color = Color.Blue).fillMaxSize(),
+        modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.height(50.dp))
