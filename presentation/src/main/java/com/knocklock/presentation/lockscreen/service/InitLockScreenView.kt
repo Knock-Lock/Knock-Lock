@@ -9,19 +9,21 @@ import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.AndroidUiDispatcher
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.compositionContext
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.lifecycle.ViewTreeViewModelStoreOwner
-import androidx.navigation.compose.rememberNavController
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
-import com.knocklock.presentation.lockscreen.navigation.LockScreenNavHost
-import com.knocklock.presentation.lockscreen.navigation.OnComposeViewListener
+import com.knocklock.domain.model.AuthenticationType
+import com.knocklock.presentation.lockscreen.LockScreenRoute
+import com.knocklock.presentation.lockscreen.password.PassWordRoute
+import com.knocklock.presentation.lockscreen.rememberLockScreenStateHolder
 import com.knocklock.presentation.lockscreen.util.ComposeLifecycleOwner
-import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -39,19 +41,58 @@ class InitLockScreenView(
 
     private val notificationList = MutableStateFlow(emptyList<StatusBarNotification>())
 
+    private val composeScreenState = MutableStateFlow<ComposeScreenState>(ComposeScreenState.LockScreen)
+
     init {
         createComposeLockScreenView()
     }
 
     private fun createComposeLockScreenView() {
         composeView.setContent {
-            val navController = rememberNavController()
-            val notificationListState by notificationList.collectAsState()
-            LockScreenNavHost(
-                navController = navController,
-                notificationList = notificationListState.toImmutableList(),
-                onComposeViewListener = onComposeViewListener
-            )
+            val screenState by composeScreenState.collectAsState()
+            
+            when (screenState) {
+                ComposeScreenState.LockScreen -> {
+                    val stateHolder = rememberLockScreenStateHolder(LocalContext.current)
+                    val notificationListState by notificationList.collectAsState()
+                    val currentUserState by stateHolder.currentLockState.collectAsState()
+
+                    LaunchedEffect(key1 = notificationListState) {
+                        stateHolder.updateNotificationList(notificationListState)
+                    }
+                    val notificationUiState by stateHolder.notificationList.collectAsState()
+
+                    LockScreenRoute(
+                        modifier = Modifier,
+                        notificationUiState,
+                        userSwipe = {
+                            currentUserState?.let { user ->
+                                when (user.authenticationType) {
+                                    AuthenticationType.GESTURE -> {
+                                        onComposeViewListener.remove()
+                                    }
+                                    AuthenticationType.PASSWORD -> {
+                                        composeScreenState.value = ComposeScreenState.PassWordScreen
+                                    }
+                                }
+                            }
+                        },
+                        onRemoveNotification = { notifications ->
+                            onComposeViewListener.removeNotifications(notifications)
+                        }
+                    )
+                }
+                ComposeScreenState.PassWordScreen -> {
+                    PassWordRoute(
+                        unLockPassWordScreen = {
+                            onComposeViewListener.remove()
+                        },
+                        returnLockScreen = {
+                            composeScreenState.value = ComposeScreenState.LockScreen
+                        }
+                    )
+                }
+            }
         }
         lifecycleOwner.apply {
             performRestore(null)
@@ -123,4 +164,14 @@ class InitLockScreenView(
     fun passActiveNotificationList(statusBarNotification: Array<StatusBarNotification>) {
         notificationList.value = statusBarNotification.toList()
     }
+}
+
+interface OnComposeViewListener {
+    fun remove()
+    fun removeNotifications(keys: List<String>)
+}
+
+sealed class ComposeScreenState {
+    object LockScreen : ComposeScreenState()
+    object PassWordScreen : ComposeScreenState()
 }

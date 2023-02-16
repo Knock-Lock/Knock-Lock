@@ -18,8 +18,6 @@ import android.view.WindowManager
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.app.NotificationCompat
 import com.knocklock.presentation.MainActivity
-import com.knocklock.presentation.lockscreen.navigation.OnComposeViewListener
-import com.knocklock.presentation.lockscreen.password.PassWordScreen
 import com.knocklock.presentation.lockscreen.receiver.OnScreenEventListener
 import com.knocklock.presentation.lockscreen.receiver.OnSystemBarEventListener
 import com.knocklock.presentation.lockscreen.receiver.ScreenEventReceiver
