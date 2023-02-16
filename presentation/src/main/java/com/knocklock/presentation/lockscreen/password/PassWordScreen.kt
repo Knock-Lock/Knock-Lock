@@ -21,6 +21,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -41,11 +42,20 @@ import kotlinx.collections.immutable.toImmutableList
 fun PassWordScreen(
     removePassWordScreen: () -> Unit
 ) {
-    val passWordScreenState = rememberPassWordScreenState(removePassWordScreen = removePassWordScreen)
+    val passWordSpace = 50.dp
+    val contentPadding = passWordSpace / 2
+    val screenWidthDp = LocalConfiguration.current.screenWidthDp.dp - passWordSpace * 3
+    val circlePassWordNumberSize = screenWidthDp / 3
+
+    val passWordScreenState = rememberPassWordScreenState(
+        removePassWordScreen = removePassWordScreen
+    )
+
     Column(
         modifier = Modifier.background(color = Color.Blue).fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Spacer(modifier = Modifier.height(50.dp))
         Locker(
             modifier = Modifier.size(50.dp),
             isPlaying = passWordScreenState.isPlaying
@@ -59,20 +69,20 @@ fun PassWordScreen(
         Spacer(modifier = Modifier.height(100.dp))
         LazyVerticalGrid(
             columns = GridCells.Fixed(3),
-            contentPadding = PaddingValues(passWordScreenState.contentPadding),
-            verticalArrangement = Arrangement.spacedBy(passWordScreenState.passWordSpace),
-            horizontalArrangement = Arrangement.spacedBy(passWordScreenState.passWordSpace)
+            contentPadding = PaddingValues(contentPadding),
+            verticalArrangement = Arrangement.spacedBy(passWordSpace),
+            horizontalArrangement = Arrangement.spacedBy(passWordSpace)
         ) {
             items(items = passWordScreenState.getPassWordList()) { passWord: PassWord ->
                 if (passWord.number.isEmpty()) {
                     CirclePassWordNumber(
-                        modifier = Modifier.size(passWordScreenState.circlePassWordNumberSize),
+                        modifier = Modifier.size(circlePassWordNumberSize),
                         passWord = passWord,
                         onPassWordClick = { }
                     )
                 } else {
                     CirclePassWordNumber(
-                        modifier = Modifier.size(passWordScreenState.circlePassWordNumberSize).background(
+                        modifier = Modifier.size(circlePassWordNumberSize).background(
                             color = Color.LightGray.copy(alpha = 0.3f),
                             shape = CircleShape
                         ).clip(
@@ -85,7 +95,7 @@ fun PassWordScreen(
             }
         }
         BackButton(
-            modifier = Modifier.align(Alignment.End).padding(end = passWordScreenState.contentPadding).size(passWordScreenState.circlePassWordNumberSize).clickable(
+            modifier = Modifier.align(Alignment.End).padding(end = contentPadding).size(circlePassWordNumberSize).clickable(
                 interactionSource = MutableInteractionSource(),
                 indication = null
             ) {
