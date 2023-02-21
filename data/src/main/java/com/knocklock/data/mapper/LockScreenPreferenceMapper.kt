@@ -11,11 +11,11 @@ fun LockScreenPreference.toDomain() = LockScreen(
 
 fun DataLockScreenBackground.toDomain(): LockScreenBackground {
     return when (this) {
-        is DataLockScreenBackground.ColorRes -> {
-            LockScreenBackground.ColorRes(colorRes)
+        is DataLockScreenBackground.DefaultWallPaper -> {
+            LockScreenBackground.DefaultWallPaper
         }
         is DataLockScreenBackground.LocalImage -> {
-            LockScreenBackground.LocalImage(imageUri)
+            LockScreenBackground.LocalImage(imageRes)
         }
     }
 }

@@ -6,6 +6,6 @@ data class LockScreen(
 
 
 sealed interface LockScreenBackground {
-    data class ColorRes(val colorRes: Int) : LockScreenBackground
-    data class LocalImage(val imageUri: String) : LockScreenBackground
+    object DefaultWallPaper : LockScreenBackground
+    data class LocalImage(val imageRes: Int) : LockScreenBackground
 }

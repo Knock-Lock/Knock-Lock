@@ -22,24 +22,38 @@ class HomeViewModel @Inject constructor(
 
     private val homeMenuList = MutableStateFlow(initHomeMenuList)
 
-    val homeScreenUiState = getLockScreenUseCase()
-        .combine(homeMenuList) { lockScreen, menuList ->
-            HomeScreenUiState.Success(
-                lockScreen = lockScreen,
-                menuList = menuList.toImmutableList()
-            )
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = HomeScreenUiState.Loading,
+    private val tmpHomeScreen: MutableStateFlow<TmpScreenState> =
+        MutableStateFlow(TmpScreenState.None)
+
+    private val savedHomeScreenState = getLockScreenUseCase()
+
+    val homeScreenUiState = combine(
+        homeMenuList,
+        tmpHomeScreen,
+        savedHomeScreenState
+    ) { menuList, tmpScreen, savedScreen ->
+        HomeScreenUiState.Success(
+            menuList = menuList.toImmutableList(),
+            lockScreen = if (tmpScreen is TmpScreenState.Custom) tmpScreen.screen else savedScreen
         )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = HomeScreenUiState.Loading
+    )
 }
 
 sealed interface HomeScreenUiState {
-    object Loading: HomeScreenUiState
+    object Loading : HomeScreenUiState
 
     data class Success(
         val lockScreen: LockScreen,
         val menuList: ImmutableList<HomeMenu>
-    ): HomeScreenUiState
+    ) : HomeScreenUiState
+}
+
+sealed interface TmpScreenState {
+    object None : TmpScreenState
+
+    data class Custom(val screen: LockScreen) : TmpScreenState
 }

@@ -9,7 +9,7 @@ data class LockScreenPreference(
     companion object {
         const val localPath = "lockscreen.preferences_pb"
         fun getDefaultInstance() = LockScreenPreference(
-            background = LockScreenBackground.ColorRes(colorRes = 0)
+            background = LockScreenBackground.DefaultWallPaper
         )
     }
 }
@@ -18,7 +18,8 @@ data class LockScreenPreference(
 @Serializable
 sealed interface LockScreenBackground {
     @Serializable
-    data class ColorRes(val colorRes: Int) : LockScreenBackground
+    object DefaultWallPaper : LockScreenBackground
+
     @Serializable
-    data class LocalImage(val imageUri: String) : LockScreenBackground
+    data class LocalImage(val imageRes: Int) : LockScreenBackground
 }
