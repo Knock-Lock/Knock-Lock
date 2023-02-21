@@ -55,6 +55,9 @@ fun NavGraphBuilder.homeGraph(
                         HomeMenu.SETTING -> {
                             navController.navigate(NavigationRoute.SettingGraph.route)
                         }
+                        HomeMenu.TMP -> {
+
+                        }
                         else -> {
                         }
                     }

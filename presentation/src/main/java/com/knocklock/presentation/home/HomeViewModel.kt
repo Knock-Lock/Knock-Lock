@@ -18,7 +18,7 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     getLockScreenUseCase: GetLockScreenUseCase
 ) : ViewModel() {
-    private val initHomeMenuList = listOf(HomeMenu.SETTING)
+    private val initHomeMenuList = listOf(HomeMenu.SETTING, HomeMenu.TMP)
 
     private val homeMenuList = MutableStateFlow(initHomeMenuList)
 
