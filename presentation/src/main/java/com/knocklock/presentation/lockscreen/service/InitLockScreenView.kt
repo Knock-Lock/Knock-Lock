@@ -151,8 +151,9 @@ class InitLockScreenView(
                 WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
                 WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD or
                 WindowManager.LayoutParams.FLAG_LAYOUT_IN_OVERSCAN or
-                WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS or
-                WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION
+                WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS // or
+//                WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS or
+//                WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION
             )
 
         val params = WindowManager.LayoutParams(

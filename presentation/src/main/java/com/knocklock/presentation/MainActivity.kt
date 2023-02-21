@@ -96,8 +96,10 @@ class MainActivity : ComponentActivity() {
 
     private fun startService() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            println("in on startService")
             startForegroundService(Intent(this, LockScreenNotificationListener::class.java))
         } else {
+            println("in on startService")
             startService(Intent(this, LockScreenNotificationListener::class.java))
         }
     }

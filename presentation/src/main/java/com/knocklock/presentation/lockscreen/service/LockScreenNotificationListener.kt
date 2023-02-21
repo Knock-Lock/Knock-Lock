@@ -8,7 +8,9 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Point
 import android.net.Uri
+import android.os.Binder
 import android.os.Build
+import android.os.IBinder
 import android.provider.Settings
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
@@ -18,12 +20,14 @@ import android.view.WindowManager
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.app.NotificationCompat
 import com.knocklock.presentation.MainActivity
+import com.knocklock.presentation.lockscreen.LockScreenActivity
 import com.knocklock.presentation.lockscreen.receiver.OnScreenEventListener
 import com.knocklock.presentation.lockscreen.receiver.OnSystemBarEventListener
 import com.knocklock.presentation.lockscreen.receiver.ScreenEventReceiver
 import com.knocklock.presentation.lockscreen.receiver.SystemBarEventReceiver
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
+import org.greenrobot.eventbus.EventBus
 
 /**
  * @Created by 김현국 2022/12/04
@@ -33,6 +37,8 @@ import kotlinx.coroutines.*
 @AndroidEntryPoint
 class LockScreenNotificationListener :
     NotificationListenerService() {
+
+    private val TAG = "로그2"
 
     private val windowManager by lazy { getSystemService(Context.WINDOW_SERVICE) as WindowManager }
     private val point by lazy { Point() }
@@ -44,11 +50,16 @@ class LockScreenNotificationListener :
 
     private val composeView by lazy { ComposeView(context = this) }
 
-    private lateinit var initLockScreenView: InitLockScreenView
-
-    private val fullScreenLayoutParams by lazy {
-        initLockScreenView.getWindowManagerLayoutParams()
+    private val intent by lazy {
+        Intent(this, LockScreenActivity::class.java)
+            .apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
     }
+
+    private val binder = NotificationListenerBinder()
+
+    private lateinit var initLockScreenView: InitLockScreenView
 
     private val screenEventReceiver by lazy {
         ScreenEventReceiver(
@@ -77,7 +88,9 @@ class LockScreenNotificationListener :
         val packageName = sbn?.packageName
         if (sbn != null && !TextUtils.isEmpty(packageName)) {
             notificationScope.launch {
-                initLockScreenView.passActiveNotificationList(activeNotifications)
+                Log.d(TAG, "onNotificationPosted: posted")
+                EventBus.getDefault().post(activeNotifications)
+//                initLockScreenView.passActiveNotificationList(activeNotifications)
             }
         }
     }
@@ -87,22 +100,19 @@ class LockScreenNotificationListener :
         val packageName = sbn?.packageName
         if (sbn != null && !TextUtils.isEmpty(packageName)) {
             notificationScope.launch {
-                initLockScreenView.passActiveNotificationList(activeNotifications)
+                Log.d(TAG, "onNotificationRemoved: removed")
+                EventBus.getDefault().post(activeNotifications)
+//                initLockScreenView.passActiveNotificationList(activeNotifications)
             }
         }
     }
 
     override fun onCreate() {
         super.onCreate()
-        initView()
+
+        Log.d(TAG, "onCreate: ")
         registerSystemBarEventReceiver()
         registerScreenEventReceiver()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            point.x = windowManager.maximumWindowMetrics.bounds.width()
-            point.y = windowManager.maximumWindowMetrics.bounds.height()
-        } else {
-            windowManager.defaultDisplay.getRealSize(point)
-        }
     }
 
     private fun initView() {
@@ -115,12 +125,22 @@ class LockScreenNotificationListener :
                 }
 
                 override fun removeNotifications(keys: List<String>) {
-                    notificationScope.launch {
-                        cancelNotifications(keys.toTypedArray())
-                    }
+                    removeNotificationsWithScope(keys)
                 }
             }
         )
+    }
+
+    fun passNotificationWithEventBus() {
+        notificationScope.launch {
+            EventBus.getDefault().post(activeNotifications)
+        }
+    }
+
+    fun removeNotificationsWithScope(keys: List<String>) {
+        notificationScope.launch {
+            cancelNotifications(keys.toTypedArray())
+        }
     }
 
     private fun addLockScreen() {
@@ -131,13 +151,10 @@ class LockScreenNotificationListener :
             requestScreenOverlay()
         }
         try {
-            windowManager.addView(composeView, fullScreenLayoutParams)
+            Log.d(TAG, "addLockScreen: startactivty")
+            startActivity(intent)
         } catch (e: IllegalStateException) {
             Log.e("로그", "view is already added")
-        }
-
-        notificationScope.launch {
-            initLockScreenView.passActiveNotificationList(activeNotifications)
         }
     }
 
@@ -156,6 +173,10 @@ class LockScreenNotificationListener :
         }
     }
 
+    override fun onBind(intent: Intent): IBinder {
+        return binder
+    }
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         createNotificationChannel()
         startForeground(9999, createNotification())
@@ -164,6 +185,7 @@ class LockScreenNotificationListener :
 
     override fun onDestroy() {
         super.onDestroy()
+        Log.d(TAG, "onDestroy: ")
         unregisterSystemBarEventReceiver()
         unregisterScreenEventReceiver()
     }
@@ -211,6 +233,10 @@ class LockScreenNotificationListener :
 
     private fun unregisterScreenEventReceiver() {
         screenEventReceiver.unregisterReceiver()
+    }
+
+    inner class NotificationListenerBinder : Binder() {
+        fun getService(): LockScreenNotificationListener = this@LockScreenNotificationListener
     }
 
     companion object {

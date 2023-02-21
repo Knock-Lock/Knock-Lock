@@ -97,4 +97,8 @@ dependencies {
     // lottie
     implementation "com.airbnb.android:lottie-compose:5.2.0"
 
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1"
+
+    implementation("org.greenrobot:eventbus:3.3.1")
+
 }
