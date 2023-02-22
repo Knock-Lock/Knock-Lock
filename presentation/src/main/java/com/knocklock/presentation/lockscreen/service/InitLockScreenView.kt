@@ -108,6 +108,7 @@ class InitLockScreenView(
                     PassWordRoute(
                         unLockPassWordScreen = {
                             onComposeViewListener.remove()
+                            composeScreenState.value = ComposeScreenState.LockScreen
                         },
                         returnLockScreen = {
                             composeScreenState.value = ComposeScreenState.LockScreen
