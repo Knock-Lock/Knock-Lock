@@ -6,5 +6,5 @@ import javax.inject.Inject
 class SaveWallPaperUseCase @Inject constructor(
     private val lockScreenRepository: LockScreenRepository
 ) {
-    suspend operator fun invoke(imageUri: String) = lockScreenRepository.saveWallPaperImage(imageUri)
+    suspend operator fun invoke(imageUri: String?) = lockScreenRepository.saveWallPaperImage(imageUri)
 }

@@ -20,10 +20,12 @@ class LockScreenRepositoryImpl @Inject constructor(
         lockScreenDataStore.updateData { LockScreenPreference.getDefaultInstance() }
     }
 
-    override suspend fun saveWallPaperImage(imageUri: String) {
+    override suspend fun saveWallPaperImage(imageUri: String?) {
         lockScreenDataStore.updateData { lockScreenDataStore ->
+            val background =
+                if (imageUri.isNullOrBlank()) LockScreenBackground.DefaultWallPaper else LockScreenBackground.LocalImage(imageUri)
             lockScreenDataStore.copy(
-                background = LockScreenBackground.LocalImage(imageUri)
+                background = background
             )
         }
     }

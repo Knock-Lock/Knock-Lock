@@ -8,5 +8,5 @@ interface LockScreenRepository {
 
     suspend fun clear()
 
-    suspend fun saveWallPaperImage(imageUri: String)
+    suspend fun saveWallPaperImage(imageUri: String?)
 }

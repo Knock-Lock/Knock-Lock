@@ -53,7 +53,7 @@ fun NavGraphBuilder.homeGraph(
             val galleryLauncher =
                 rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) {
                     it?.let {
-                        vm.saveWallPaper(it.toString())
+                        vm.saveTmpWallPaper(it.toString())
                     }
                 }
             HomeRoute(

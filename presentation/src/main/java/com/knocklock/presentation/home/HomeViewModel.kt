@@ -3,6 +3,7 @@ package com.knocklock.presentation.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.knocklock.domain.model.LockScreen
+import com.knocklock.domain.model.LockScreenBackground
 import com.knocklock.domain.usecase.lockscreen.GetLockScreenUseCase
 import com.knocklock.domain.usecase.lockscreen.SaveWallPaperUseCase
 import com.knocklock.presentation.home.menu.HomeMenu
@@ -45,9 +46,23 @@ class HomeViewModel @Inject constructor(
         initialValue = HomeScreenUiState.Loading
     )
 
-    fun saveWallPaper(uri: String) {
+    fun saveWallPaper() {
         viewModelScope.launch {
-            saveWallPaperUseCase(uri)
+            when (val value = tmpHomeScreen.value) {
+                is TmpScreenState.None -> {
+                    saveWallPaperUseCase(null)
+                }
+                is TmpScreenState.Custom -> {
+                    saveWallPaperUseCase((value.screen.background as LockScreenBackground.LocalImage).imageUri)
+                }
+            }
+        }
+    }
+
+    fun saveTmpWallPaper(uri: String) {
+        viewModelScope.launch {
+            tmpHomeScreen.value =
+                TmpScreenState.Custom(LockScreen(LockScreenBackground.LocalImage(uri)))
         }
     }
 }
