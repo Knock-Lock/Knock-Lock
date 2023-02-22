@@ -90,6 +90,7 @@ class PasswordInputViewModel @Inject constructor(
 
         passwordInputState = if (state.inputPassword == state.savedPassword) {
             viewModelScope.launch {
+                updatePasswordUseCase(state.savedPassword)
                 _onSuccessUpdatePassword.emit(Unit)
             }
             state.copy(isLoading = false, mismatchPassword = false)
