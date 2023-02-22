@@ -1,5 +1,6 @@
 package com.knocklock.presentation.lockscreen.service
 
+import android.app.PendingIntent
 import android.content.pm.ActivityInfo
 import android.graphics.PixelFormat
 import android.graphics.Point
@@ -50,6 +51,8 @@ class InitLockScreenView(
 
     private val composeScreenState = MutableStateFlow<ComposeScreenState>(ComposeScreenState.LockScreen)
 
+    private var currentPendingIntent: PendingIntent? = null
+
     init {
         createComposeLockScreenView()
     }
@@ -96,6 +99,20 @@ class InitLockScreenView(
                         startTransitionState = startTransitionState,
                         updateTransitionState = { state ->
                             startTransitionState = state
+                        },
+                        onNotificationClicked = { intent ->
+                            currentUserState?.let { user ->
+                                when (user.authenticationType) {
+                                    AuthenticationType.GESTURE -> {
+                                        onComposeViewListener.remove()
+                                        onComposeViewListener.startIntentApplication(pendingIntent = intent)
+                                    }
+                                    AuthenticationType.PASSWORD -> {
+                                        composeScreenState.value = ComposeScreenState.PassWordScreen
+                                        currentPendingIntent = intent
+                                    }
+                                }
+                            }
                         }
                     )
                 }
@@ -108,9 +125,16 @@ class InitLockScreenView(
                     PassWordRoute(
                         unLockPassWordScreen = {
                             onComposeViewListener.remove()
+                            currentPendingIntent?.let { intent ->
+                                onComposeViewListener.startIntentApplication(intent)
+                                currentPendingIntent = null
+                            }
                         },
                         returnLockScreen = {
                             composeScreenState.value = ComposeScreenState.LockScreen
+                            currentPendingIntent?.let {
+                                currentPendingIntent = null
+                            }
                         }
                     )
                 }
@@ -191,6 +215,7 @@ class InitLockScreenView(
 interface OnComposeViewListener {
     fun remove()
     fun removeNotifications(keys: List<String>)
+    fun startIntentApplication(pendingIntent: PendingIntent)
 }
 
 sealed class ComposeScreenState {
