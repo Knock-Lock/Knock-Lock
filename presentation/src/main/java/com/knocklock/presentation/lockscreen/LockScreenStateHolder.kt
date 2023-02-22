@@ -1,5 +1,6 @@
 package com.knocklock.presentation.lockscreen
 
+import android.app.PendingIntent
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
@@ -76,6 +77,7 @@ class LockScreenStateHolder @Inject constructor(
                         val content: String = convertString(getCharSequence("android.text"))
                         val packageName = statusBarNotification.packageName
                         val date = Date(statusBarNotification.postTime)
+                        val intent: PendingIntent? = statusBarNotification.notification.contentIntent
                         val stringPostTime = try {
                             SimpleDateFormat("a HH:mm", Locale.KOREA).format(date)
                         } catch (e: Exception) {
@@ -111,7 +113,8 @@ class LockScreenStateHolder @Inject constructor(
                             notiTime = stringPostTime,
                             title = title,
                             isClearable = statusBarNotification.isClearable,
-                            content = content
+                            content = content,
+                            intent = intent
                         )
                     }
                 }.groupBy { notification ->
