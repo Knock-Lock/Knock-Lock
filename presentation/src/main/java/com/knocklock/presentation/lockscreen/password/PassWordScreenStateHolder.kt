@@ -6,7 +6,6 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalContext
 import com.knocklock.domain.usecase.setting.GetUserUseCase
-import com.knocklock.presentation.lockscreen.UseCaseEntryPoint
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
@@ -18,11 +17,6 @@ import kotlinx.coroutines.launch
  * @Created by 김현국 2023/01/11
  * @Time 5:24 PM
  */
-@EntryPoint
-@InstallIn(SingletonComponent::class)
-interface UseCaseEntryPoint {
-    fun getUserUseCase(): GetUserUseCase
-}
 
 @Stable
 class PassWordScreenStateHolder(
@@ -31,6 +25,13 @@ class PassWordScreenStateHolder(
     private val unLockPassWordScreen: () -> Unit,
     private val scope: CoroutineScope
 ) {
+
+    @EntryPoint
+    @InstallIn(SingletonComponent::class)
+    interface UseCaseEntryPoint {
+        fun getUserUseCase(): GetUserUseCase
+    }
+
     private val useCaseEntryPoint = EntryPointAccessors.fromApplication(
         context,
         UseCaseEntryPoint::class.java

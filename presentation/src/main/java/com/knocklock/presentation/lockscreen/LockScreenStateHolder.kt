@@ -29,17 +29,18 @@ import javax.inject.Inject
  * @Time 3:26 PM
  */
 
-@EntryPoint
-@InstallIn(SingletonComponent::class)
-interface UseCaseEntryPoint {
-    fun getUserUseCase(): GetUserUseCase
-}
-
 @Stable
 class LockScreenStateHolder @Inject constructor(
     context: Context,
     private val scope: CoroutineScope
 ) {
+
+    @EntryPoint
+    @InstallIn(SingletonComponent::class)
+    interface UseCaseEntryPoint {
+        fun getUserUseCase(): GetUserUseCase
+    }
+
     private val useCaseEntryPoint = EntryPointAccessors.fromApplication(
         context,
         UseCaseEntryPoint::class.java
