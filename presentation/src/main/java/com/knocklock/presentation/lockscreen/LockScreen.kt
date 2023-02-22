@@ -33,14 +33,20 @@ import kotlin.math.roundToInt
 
 @Composable
 fun LockScreenRoute(
+    modifier: Modifier = Modifier,
     notificationUiState: NotificationUiState,
     userSwipe: () -> Unit,
-    onRemoveNotification: (List<String>) -> Unit
+    onRemoveNotification: (List<String>) -> Unit,
+    startTransitionState: Boolean,
+    updateTransitionState: (Boolean) -> Unit
 ) {
     LockScreen(
+        modifier = modifier,
         notificationUiState = notificationUiState,
         userSwipe = userSwipe,
-        onRemoveNotification = onRemoveNotification
+        onRemoveNotification = onRemoveNotification,
+        startTransitionState = startTransitionState,
+        updateTransitionState = updateTransitionState
     )
 }
 
@@ -49,12 +55,12 @@ fun LockScreen(
     modifier: Modifier = Modifier,
     notificationUiState: NotificationUiState,
     userSwipe: () -> Unit,
-    onRemoveNotification: (List<String>) -> Unit
+    onRemoveNotification: (List<String>) -> Unit,
+    startTransitionState: Boolean,
+    updateTransitionState: (Boolean) -> Unit
 ) {
-    var startTransitionState by remember { mutableStateOf(false) }
-
     Column(
-        modifier = modifier.fillMaxSize().background(color = Color(0xFF3629AF))
+        modifier = modifier.fillMaxSize()
     ) {
         Box(modifier = Modifier.background(color = MaterialTheme.colorScheme.primary)) // Image로 추후 변경
         Spacer(modifier = Modifier.height(50.dp))
@@ -80,9 +86,7 @@ fun LockScreen(
                     height = 100.dp,
                     userSwipe = userSwipe,
                     startTransitionState = startTransitionState,
-                    updateTransitionState = { state ->
-                        startTransitionState = state
-                    }
+                    updateTransitionState = updateTransitionState
                 )
             }
         }

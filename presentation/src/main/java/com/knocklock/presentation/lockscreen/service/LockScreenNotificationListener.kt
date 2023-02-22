@@ -107,11 +107,10 @@ class LockScreenNotificationListener :
 
     private fun initView() {
         initLockScreenView = InitLockScreenView(
-            context = this,
             composeView = composeView,
             point = point,
             onComposeViewListener = object : OnComposeViewListener {
-                override fun remove(composeView: ComposeView) {
+                override fun remove() {
                     windowManager.removeView(composeView)
                 }
 

@@ -9,11 +9,19 @@ import android.service.notification.StatusBarNotification
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import com.knocklock.domain.model.User
+import com.knocklock.domain.usecase.setting.GetUserUseCase
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.android.EntryPointAccessors
+import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
-import javax.inject.Inject
 
 /**
  * @Created by 김현국 2023/01/03
@@ -21,16 +29,35 @@ import javax.inject.Inject
  */
 
 @Stable
-class LockScreenStateHolder @Inject constructor(
-    context: Context
+class LockScreenStateHolder(
+    context: Context,
+    private val scope: CoroutineScope
 ) {
+
+    @EntryPoint
+    @InstallIn(SingletonComponent::class)
+    interface UseCaseEntryPoint {
+        fun getUserUseCase(): GetUserUseCase
+    }
+
+    private val useCaseEntryPoint = EntryPointAccessors.fromApplication(
+        context,
+        UseCaseEntryPoint::class.java
+    )
 
     private val _notificationList: MutableStateFlow<NotificationUiState> = MutableStateFlow(
         NotificationUiState.Empty
     )
     val notificationList = _notificationList.asStateFlow()
 
+    private val _currentLockState: MutableStateFlow<User?> = MutableStateFlow(null)
+    val currentLockState = _currentLockState.asStateFlow()
+
     private val packageManager by lazy { context.packageManager }
+
+    init {
+        getCurrentLockState()
+    }
 
     fun updateNotificationList(notificationList: List<StatusBarNotification>) {
         val notificationUiState = NotificationUiState.Success(
@@ -107,6 +134,14 @@ class LockScreenStateHolder @Inject constructor(
     private fun convertString(var1: Any?): String {
         return var1?.toString() ?: ""
     }
+
+    private fun getCurrentLockState() {
+        scope.launch {
+            useCaseEntryPoint.getUserUseCase().invoke().collect { user ->
+                _currentLockState.value = user
+            }
+        }
+    }
 }
 
 data class GroupKey(
@@ -117,7 +152,8 @@ data class GroupKey(
 
 @Composable
 fun rememberLockScreenStateHolder(
-    context: Context
-) = remember(context) {
-    LockScreenStateHolder(context = context)
+    context: Context,
+    scope: CoroutineScope = rememberCoroutineScope()
+) = remember(context, scope) {
+    LockScreenStateHolder(context = context, scope)
 }
