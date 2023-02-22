@@ -22,7 +22,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
-import javax.inject.Inject
 
 /**
  * @Created by 김현국 2023/01/03
@@ -30,7 +29,7 @@ import javax.inject.Inject
  */
 
 @Stable
-class LockScreenStateHolder @Inject constructor(
+class LockScreenStateHolder(
     context: Context,
     private val scope: CoroutineScope
 ) {
