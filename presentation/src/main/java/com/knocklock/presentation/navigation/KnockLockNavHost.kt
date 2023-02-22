@@ -66,7 +66,10 @@ fun NavGraphBuilder.homeGraph(
                         HomeMenu.TMP -> {
                             galleryLauncher.launch("image/*")
                         }
-                        else -> {
+                        HomeMenu.SAVE -> {
+                            vm.saveWallPaper()
+                        }
+                        HomeMenu.CLEAR -> {
                         }
                     }
                 },
