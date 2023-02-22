@@ -59,7 +59,7 @@ class PassWordScreenStateHolder(
             } else {
                 insertPassWordIndex - 1
             }
-            if (insertPassWordIndex == 6) {
+            if (insertPassWordIndex == 5) {
                 scope.launch {
                     useCaseEntryPoint.getUserUseCase().invoke().collect { user ->
                         val savedPassWord = user.password
