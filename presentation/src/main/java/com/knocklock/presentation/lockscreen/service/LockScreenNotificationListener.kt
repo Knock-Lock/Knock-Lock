@@ -119,6 +119,10 @@ class LockScreenNotificationListener :
                         cancelNotifications(keys.toTypedArray())
                     }
                 }
+
+                override fun startIntentApplication(pendingIntent: PendingIntent) {
+                    pendingIntent.send()
+                }
             }
         )
     }
