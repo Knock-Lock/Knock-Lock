@@ -7,7 +7,11 @@ data class UserPreference(
     val authenticationType: AuthenticationType,
     val password: String,
     val isLockActivated: Boolean
-)
+) {
+    companion object {
+        const val localPath = "user.preferences_pb"
+    }
+}
 
 enum class AuthenticationType {
     GESTURE, PASSWORD;

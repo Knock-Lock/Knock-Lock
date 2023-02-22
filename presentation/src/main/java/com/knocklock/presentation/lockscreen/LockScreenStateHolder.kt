@@ -23,24 +23,24 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
-import javax.inject.Inject
 
 /**
  * @Created by 김현국 2023/01/03
  * @Time 3:26 PM
  */
 
-@EntryPoint
-@InstallIn(SingletonComponent::class)
-interface UseCaseEntryPoint {
-    fun getUserUseCase(): GetUserUseCase
-}
-
 @Stable
-class LockScreenStateHolder @Inject constructor(
+class LockScreenStateHolder(
     context: Context,
     private val scope: CoroutineScope
 ) {
+
+    @EntryPoint
+    @InstallIn(SingletonComponent::class)
+    interface UseCaseEntryPoint {
+        fun getUserUseCase(): GetUserUseCase
+    }
+
     private val useCaseEntryPoint = EntryPointAccessors.fromApplication(
         context,
         UseCaseEntryPoint::class.java
