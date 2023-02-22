@@ -8,13 +8,18 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.core.net.toUri
 import com.knocklock.domain.model.LockScreen
 import com.knocklock.domain.model.LockScreenBackground
 import com.knocklock.presentation.R
 import com.knocklock.presentation.home.menu.HomeMenu
 import com.knocklock.presentation.home.menu.HomeMenuBar
+import com.knocklock.presentation.util.parseBitmap
 
 @Composable
 fun HomeScreen(
@@ -36,19 +41,29 @@ fun HomeScreen(
                     onClickHomeMenu = onClickHomeMenu
                 )
             }
-            val painter =
-                if (homeScreenUiState.lockScreen.background is LockScreenBackground.DefaultWallPaper) {
-                    painterResource(id = R.drawable.default_wallpaper)
-                } else {
-                    painterResource(id = (homeScreenUiState.lockScreen.background as LockScreenBackground.LocalImage).imageRes)
-                }
-            Image(
-                modifier = modifier,
-                painter = painter,
-                contentDescription = null,
-                contentScale = ContentScale.FillBounds,
-                alpha = 0.4f
-            )
+            if (homeScreenUiState.lockScreen.background is LockScreenBackground.DefaultWallPaper) {
+                Image(
+                    modifier = modifier,
+                    painter = painterResource(id = R.drawable.default_wallpaper),
+                    contentDescription = null,
+                    contentScale = ContentScale.FillBounds,
+                    alpha = 0.4f
+                )
+            } else {
+                val bitmap =
+                    (homeScreenUiState.lockScreen.background as LockScreenBackground.LocalImage)
+                        .imageUri
+                        .toUri()
+                        .parseBitmap(LocalContext.current)
+                        .asImageBitmap()
+                Image(
+                    modifier = modifier,
+                    bitmap = bitmap,
+                    contentDescription = null,
+                    contentScale = ContentScale.FillBounds,
+                    alpha = 0.4f
+                )
+            }
         }
     }
 }

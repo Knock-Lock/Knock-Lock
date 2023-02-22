@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.knocklock.domain.model.LockScreen
 import com.knocklock.domain.usecase.lockscreen.GetLockScreenUseCase
+import com.knocklock.domain.usecase.lockscreen.SaveWallPaperUseCase
 import com.knocklock.presentation.home.menu.HomeMenu
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
@@ -12,11 +13,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    getLockScreenUseCase: GetLockScreenUseCase
+    getLockScreenUseCase: GetLockScreenUseCase,
+    private val saveWallPaperUseCase: SaveWallPaperUseCase
 ) : ViewModel() {
     private val initHomeMenuList = listOf(HomeMenu.SETTING, HomeMenu.TMP)
 
@@ -43,7 +46,9 @@ class HomeViewModel @Inject constructor(
     )
 
     fun saveWallPaper(uri: String) {
-
+        viewModelScope.launch {
+            saveWallPaperUseCase(uri)
+        }
     }
 }
 
