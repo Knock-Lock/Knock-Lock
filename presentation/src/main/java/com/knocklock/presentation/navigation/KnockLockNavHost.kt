@@ -1,7 +1,10 @@
 package com.knocklock.presentation.navigation
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -10,15 +13,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import com.knocklock.presentation.R
 import com.knocklock.presentation.home.HomeRoute
-import com.knocklock.presentation.home.HomeScreenUiState
+import com.knocklock.presentation.home.HomeViewModel
 import com.knocklock.presentation.home.menu.HomeMenu
-import com.knocklock.presentation.setting.password.PasswordInputRoute
 import com.knocklock.presentation.setting.SettingRoute
 import com.knocklock.presentation.setting.credit.CreditRoute
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.immutableListOf
-import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.toImmutableList
+import com.knocklock.presentation.setting.password.PasswordInputRoute
 
 @Composable
 fun KnockLockNavHost(
@@ -39,15 +38,24 @@ fun KnockLockNavHost(
         )
     }
 }
+
 fun NavGraphBuilder.homeGraph(
     modifier: Modifier = Modifier,
-    navController: NavController
+    navController: NavController,
 ) {
     navigation(
         startDestination = NavigationRoute.HomeGraph.Home.route,
         route = NavigationRoute.HomeGraph.route
     ) {
+
         composable(route = NavigationRoute.HomeGraph.Home.route) {
+            val vm: HomeViewModel = hiltViewModel()
+            val galleryLauncher =
+                rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) {
+                    it?.let {
+                        vm.saveWallPaper(it.toString())
+                    }
+                }
             HomeRoute(
                 modifier = modifier,
                 onClickHomeMenu = { homeMenu ->
@@ -56,16 +64,18 @@ fun NavGraphBuilder.homeGraph(
                             navController.navigate(NavigationRoute.SettingGraph.route)
                         }
                         HomeMenu.TMP -> {
-
+                            galleryLauncher.launch("image/*")
                         }
                         else -> {
                         }
                     }
-                }
+                },
+                viewModel = vm
             )
         }
     }
 }
+
 
 fun NavGraphBuilder.settingGraph(
     modifier: Modifier = Modifier,

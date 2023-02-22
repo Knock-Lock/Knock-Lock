@@ -41,6 +41,10 @@ class HomeViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = HomeScreenUiState.Loading
     )
+
+    fun saveWallPaper(uri: String) {
+
+    }
 }
 
 sealed interface HomeScreenUiState {
