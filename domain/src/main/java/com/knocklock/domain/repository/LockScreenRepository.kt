@@ -7,4 +7,6 @@ interface LockScreenRepository {
     fun getLockScreen(): Flow<LockScreen>
 
     suspend fun clear()
+
+    suspend fun saveWallPaperImage(imageUri: String)
 }
