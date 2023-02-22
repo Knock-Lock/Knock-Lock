@@ -21,5 +21,5 @@ sealed interface LockScreenBackground {
     object DefaultWallPaper : LockScreenBackground
 
     @Serializable
-    data class LocalImage(val imageRes: Int) : LockScreenBackground
+    data class LocalImage(val imageUri: String) : LockScreenBackground
 }

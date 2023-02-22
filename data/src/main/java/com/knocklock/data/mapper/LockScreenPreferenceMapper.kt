@@ -15,7 +15,7 @@ fun DataLockScreenBackground.toDomain(): LockScreenBackground {
             LockScreenBackground.DefaultWallPaper
         }
         is DataLockScreenBackground.LocalImage -> {
-            LockScreenBackground.LocalImage(imageRes)
+            LockScreenBackground.LocalImage(imageUri)
         }
     }
 }

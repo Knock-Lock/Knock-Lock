@@ -2,6 +2,7 @@ package com.knocklock.data.repository
 
 import androidx.datastore.core.DataStore
 import com.knocklock.data.mapper.toDomain
+import com.knocklock.data.source.local.lockscreen.LockScreenBackground
 import com.knocklock.data.source.local.lockscreen.LockScreenPreference
 import com.knocklock.domain.model.LockScreen
 import com.knocklock.domain.repository.LockScreenRepository
@@ -17,5 +18,13 @@ class LockScreenRepositoryImpl @Inject constructor(
 
     override suspend fun clear() {
         lockScreenDataStore.updateData { LockScreenPreference.getDefaultInstance() }
+    }
+
+    override suspend fun saveWallPaperImage(imageUri: String) {
+        lockScreenDataStore.updateData { lockScreenDataStore ->
+            lockScreenDataStore.copy(
+                background = LockScreenBackground.LocalImage(imageUri)
+            )
+        }
     }
 }
