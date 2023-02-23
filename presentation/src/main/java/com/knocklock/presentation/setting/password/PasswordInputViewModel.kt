@@ -52,7 +52,7 @@ class PasswordInputViewModel @Inject constructor(
             }
         }
 
-        if (state.inputPassword.length + 1 >= MAX_PASSWORD_LENGTH) {
+        if (passwordInputState.inputPassword.length >= MAX_PASSWORD_LENGTH) {
             when (passwordInputState) {
                 is PasswordInputState.PasswordNoneState -> {
                     checkPasswordNoneState(passwordInputState as PasswordInputState.PasswordNoneState)
