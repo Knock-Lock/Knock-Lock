@@ -48,17 +48,13 @@ class HomeViewModel @Inject constructor(
 
     fun saveWallPaper() {
         viewModelScope.launch {
-            when (val value = tmpHomeScreen.value) {
-                is TmpScreenState.None -> {
-                    saveWallPaperUseCase(null)
-                }
-                is TmpScreenState.Custom -> {
-                    saveWallPaperUseCase((value.screen.background as LockScreenBackground.LocalImage).imageUri)
-                }
+            val value = tmpHomeScreen.value
+            if (value is TmpScreenState.Custom) {
+                saveWallPaperUseCase((value.screen.background as LockScreenBackground.LocalImage).imageUri)
             }
         }
     }
-
+    
     fun saveTmpWallPaper(uri: String) {
         viewModelScope.launch {
             tmpHomeScreen.value =
