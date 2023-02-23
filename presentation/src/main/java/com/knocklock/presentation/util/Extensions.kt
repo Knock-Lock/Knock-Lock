@@ -1,6 +1,7 @@
 package com.knocklock.presentation.util
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.net.Uri
@@ -10,14 +11,14 @@ import android.provider.MediaStore
 
 @Suppress("DEPRECATION", "NewApi")
 fun Uri.parseBitmap(context: Context): Bitmap {
-    val resolver = context.contentResolver
+    context.grantUriPermission(context.packageName, this, Intent.FLAG_GRANT_READ_URI_PERMISSION)
     return when (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) { // 28
         true -> {
-            val source = ImageDecoder.createSource(resolver, this)
+            val source = ImageDecoder.createSource(context.contentResolver, this)
             ImageDecoder.decodeBitmap(source)
         }
         else -> {
-            MediaStore.Images.Media.getBitmap(resolver, this)
+            MediaStore.Images.Media.getBitmap(context.contentResolver, this)
         }
     }
 }

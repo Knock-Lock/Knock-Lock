@@ -1,5 +1,8 @@
 package com.knocklock.presentation.navigation
 
+import android.app.Activity
+import android.content.Intent
+import android.provider.MediaStore
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
@@ -51,11 +54,22 @@ fun NavGraphBuilder.homeGraph(
         composable(route = NavigationRoute.HomeGraph.Home.route) {
             val vm: HomeViewModel = hiltViewModel()
             val galleryLauncher =
-                rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) {
-                    it?.let {
-                        vm.saveTmpWallPaper(it.toString())
+                rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                    if (result.resultCode == Activity.RESULT_OK) {
+                        result.data?.data?.let { uri ->
+                            vm.saveTmpWallPaper(uri.toString())
+                        }
                     }
                 }
+            val launcherIntent = Intent(
+                Intent.ACTION_GET_CONTENT,
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+            ).apply {
+                type = "image/*"
+                action = Intent.ACTION_OPEN_DOCUMENT
+                putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false)
+
+            }
             HomeRoute(
                 modifier = modifier,
                 onClickHomeMenu = { homeMenu ->
@@ -64,7 +78,7 @@ fun NavGraphBuilder.homeGraph(
                             navController.navigate(NavigationRoute.SettingGraph.route)
                         }
                         HomeMenu.TMP -> {
-                            galleryLauncher.launch("image/*")
+                            galleryLauncher.launch(launcherIntent)
                         }
                         HomeMenu.SAVE -> {
                             vm.saveWallPaper()
