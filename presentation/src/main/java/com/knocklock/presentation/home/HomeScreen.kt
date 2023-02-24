@@ -43,7 +43,12 @@ fun HomeScreen(
                 is LockScreenBackground.DefaultWallPaper -> {
                     Image(
                         modifier = modifier,
-                        painter = painterResource(id = R.drawable.default_wallpaper),
+                        painter = rememberAsyncImagePainter(
+                            ImageRequest
+                                .Builder(LocalContext.current)
+                                .data(R.drawable.default_wallpaper)
+                                .build()
+                        ),
                         contentDescription = null,
                         contentScale = ContentScale.FillBounds,
                         alpha = 0.4f
