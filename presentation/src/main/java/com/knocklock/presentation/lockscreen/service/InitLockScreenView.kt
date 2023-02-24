@@ -125,6 +125,7 @@ class InitLockScreenView(
                     PassWordRoute(
                         unLockPassWordScreen = {
                             onComposeViewListener.remove()
+                            composeScreenState.value = ComposeScreenState.LockScreen
                             currentPendingIntent?.let { intent ->
                                 onComposeViewListener.startIntentApplication(intent)
                                 currentPendingIntent = null
