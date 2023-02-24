@@ -8,17 +8,16 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.core.net.toUri
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import com.knocklock.domain.model.LockScreen
 import com.knocklock.domain.model.LockScreenBackground
 import com.knocklock.presentation.R
 import com.knocklock.presentation.home.menu.HomeMenu
 import com.knocklock.presentation.home.menu.HomeMenuBar
-import com.knocklock.presentation.util.parseBitmap
 
 @Composable
 fun HomeScreen(
@@ -40,7 +39,7 @@ fun HomeScreen(
                     onClickHomeMenu = onClickHomeMenu
                 )
             }
-            when(homeScreenUiState.lockScreen.background){
+            when (homeScreenUiState.lockScreen.background) {
                 is LockScreenBackground.DefaultWallPaper -> {
                     Image(
                         modifier = modifier,
@@ -51,16 +50,16 @@ fun HomeScreen(
                     )
                 }
                 is LockScreenBackground.LocalImage -> {
-                    val bitmap = (homeScreenUiState.lockScreen.background as LockScreenBackground.LocalImage)
-                            .imageUri
-                            .toUri()
-                            .parseBitmap(LocalContext.current)
-                            .asImageBitmap()
                     Image(
                         modifier = modifier,
-                        bitmap = bitmap,
-                        contentDescription = null,
+                        painter = rememberAsyncImagePainter(
+                            ImageRequest
+                                .Builder(LocalContext.current)
+                                .data((homeScreenUiState.lockScreen.background as LockScreenBackground.LocalImage).imageUri)
+                                .build()
+                        ),
                         contentScale = ContentScale.FillBounds,
+                        contentDescription = null,
                         alpha = 0.4f
                     )
                 }
