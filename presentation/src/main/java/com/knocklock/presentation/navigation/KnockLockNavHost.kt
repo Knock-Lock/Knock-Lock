@@ -1,7 +1,13 @@
 package com.knocklock.presentation.navigation
 
+import android.app.Activity
+import android.content.Intent
+import android.provider.MediaStore
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -10,15 +16,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import com.knocklock.presentation.R
 import com.knocklock.presentation.home.HomeRoute
-import com.knocklock.presentation.home.HomeScreenUiState
+import com.knocklock.presentation.home.HomeViewModel
 import com.knocklock.presentation.home.menu.HomeMenu
-import com.knocklock.presentation.setting.password.PasswordInputRoute
 import com.knocklock.presentation.setting.SettingRoute
 import com.knocklock.presentation.setting.credit.CreditRoute
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.immutableListOf
-import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.toImmutableList
+import com.knocklock.presentation.setting.password.PasswordInputRoute
 
 @Composable
 fun KnockLockNavHost(
@@ -39,15 +41,35 @@ fun KnockLockNavHost(
         )
     }
 }
+
 fun NavGraphBuilder.homeGraph(
     modifier: Modifier = Modifier,
-    navController: NavController
+    navController: NavController,
 ) {
     navigation(
         startDestination = NavigationRoute.HomeGraph.Home.route,
         route = NavigationRoute.HomeGraph.route
     ) {
+
         composable(route = NavigationRoute.HomeGraph.Home.route) {
+            val vm: HomeViewModel = hiltViewModel()
+            val galleryLauncher =
+                rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                    if (result.resultCode == Activity.RESULT_OK) {
+                        result.data?.data?.let { uri ->
+                            vm.saveTmpWallPaper(uri.toString())
+                        }
+                    }
+                }
+            val launcherIntent = Intent(
+                Intent.ACTION_GET_CONTENT,
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+            ).apply {
+                type = "image/*"
+                action = Intent.ACTION_OPEN_DOCUMENT
+                putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false)
+
+            }
             HomeRoute(
                 modifier = modifier,
                 onClickHomeMenu = { homeMenu ->
@@ -55,14 +77,22 @@ fun NavGraphBuilder.homeGraph(
                         HomeMenu.SETTING -> {
                             navController.navigate(NavigationRoute.SettingGraph.route)
                         }
-                        else -> {
+                        HomeMenu.TMP -> {
+                            galleryLauncher.launch(launcherIntent)
+                        }
+                        HomeMenu.SAVE -> {
+                            vm.saveWallPaper()
+                        }
+                        HomeMenu.CLEAR -> {
                         }
                     }
-                }
+                },
+                viewModel = vm
             )
         }
     }
 }
+
 
 fun NavGraphBuilder.settingGraph(
     modifier: Modifier = Modifier,

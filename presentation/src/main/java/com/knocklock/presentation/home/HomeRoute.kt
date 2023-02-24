@@ -13,7 +13,8 @@ fun HomeRoute(
     onClickHomeMenu: (HomeMenu) -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
-    val homeScreenUiState by viewModel.homeScreenUiState.collectAsState()
+    val homeScreenUiState by viewModel.homeScreenUiState.collectAsState(HomeScreenUiState.Loading)
+
     HomeScreen(
         modifier = modifier,
         homeScreenUiState = homeScreenUiState,
