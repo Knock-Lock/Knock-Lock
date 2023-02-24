@@ -1,5 +1,6 @@
 package com.knocklock.presentation.lockscreen
 
+import android.app.PendingIntent
 import android.widget.TextClock
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -38,7 +39,8 @@ fun LockScreenRoute(
     userSwipe: () -> Unit,
     onRemoveNotification: (List<String>) -> Unit,
     startTransitionState: Boolean,
-    updateTransitionState: (Boolean) -> Unit
+    updateTransitionState: (Boolean) -> Unit,
+    onNotificationClicked: (PendingIntent) -> Unit
 ) {
     LockScreen(
         modifier = modifier,
@@ -46,7 +48,8 @@ fun LockScreenRoute(
         userSwipe = userSwipe,
         onRemoveNotification = onRemoveNotification,
         startTransitionState = startTransitionState,
-        updateTransitionState = updateTransitionState
+        updateTransitionState = updateTransitionState,
+        onNotificationClicked = onNotificationClicked
     )
 }
 
@@ -57,7 +60,8 @@ fun LockScreen(
     userSwipe: () -> Unit,
     onRemoveNotification: (List<String>) -> Unit,
     startTransitionState: Boolean,
-    updateTransitionState: (Boolean) -> Unit
+    updateTransitionState: (Boolean) -> Unit,
+    onNotificationClicked: (PendingIntent) -> Unit
 ) {
     Column(
         modifier = modifier.fillMaxSize()
@@ -71,7 +75,8 @@ fun LockScreen(
                     LockScreenNotificationListColumn(
                         groupNotificationList = notificationUiState.notificationList.toImmutableList(),
                         scrollableState = startTransitionState,
-                        onRemoveNotification = onRemoveNotification
+                        onRemoveNotification = onRemoveNotification,
+                        onNotificationClicked = onNotificationClicked
                     )
                 }
                 is NotificationUiState.Empty -> {
@@ -155,7 +160,8 @@ fun LockScreenNotificationListColumn(
     modifier: Modifier = Modifier,
     groupNotificationList: ImmutableList<GroupNotification>,
     scrollableState: Boolean,
-    onRemoveNotification: (List<String>) -> Unit
+    onRemoveNotification: (List<String>) -> Unit,
+    onNotificationClicked: (PendingIntent) -> Unit
 ) {
     LazyColumn(
         modifier = modifier,
@@ -170,7 +176,8 @@ fun LockScreenNotificationListColumn(
             GroupLockNotiItem(
                 modifier = Modifier.animateItemPlacement(),
                 notificationList = item.notifications.second.toImmutableList(),
-                onRemoveNotification = onRemoveNotification
+                onRemoveNotification = onRemoveNotification,
+                onNotificationClicked = onNotificationClicked
             )
         }
     }

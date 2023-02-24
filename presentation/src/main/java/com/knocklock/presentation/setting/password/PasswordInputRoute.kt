@@ -3,6 +3,8 @@ package com.knocklock.presentation.setting.password
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -30,6 +32,6 @@ fun PasswordInputRoute(
         modifier = modifier.fillMaxSize(),
         state = viewModel.passwordInputState,
         onClickTextButton = viewModel::onClickTextButton,
-        onClickAction = viewModel::onClickKeyboardAction,
+        onClickAction = viewModel::onClickKeyboardAction
     )
 }

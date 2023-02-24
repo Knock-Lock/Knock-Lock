@@ -52,13 +52,13 @@ class PasswordInputViewModel @Inject constructor(
             }
         }
 
-        if (state.inputPassword.length + 1 >= MAX_PASSWORD_LENGTH) {
-            when (state) {
+        if (passwordInputState.inputPassword.length >= MAX_PASSWORD_LENGTH) {
+            when (passwordInputState) {
                 is PasswordInputState.PasswordNoneState -> {
-                    checkPasswordNoneState(state)
+                    checkPasswordNoneState(passwordInputState as PasswordInputState.PasswordNoneState)
                 }
                 is PasswordInputState.PasswordConfirmState -> {
-                    checkPasswordConfirmState(state)
+                    checkPasswordConfirmState(passwordInputState as PasswordInputState.PasswordConfirmState)
                 }
             }
         }
@@ -90,6 +90,7 @@ class PasswordInputViewModel @Inject constructor(
 
         passwordInputState = if (state.inputPassword == state.savedPassword) {
             viewModelScope.launch {
+                updatePasswordUseCase(state.savedPassword)
                 _onSuccessUpdatePassword.emit(Unit)
             }
             state.copy(isLoading = false, mismatchPassword = false)
