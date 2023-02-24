@@ -55,7 +55,8 @@ data class Notification(
 fun GroupLockNotiItem(
     modifier: Modifier = Modifier,
     notificationList: ImmutableList<Notification>,
-    onRemoveNotification: (List<String>) -> Unit
+    onRemoveNotification: (List<String>) -> Unit,
+    onNotificationClicked: (PendingIntent) -> Unit,
 ) {
     if (notificationList.isEmpty()) {
         return
@@ -87,7 +88,8 @@ fun GroupLockNotiItem(
                 notificationSize = notificationList.size,
                 clickableState = clickableState,
                 expandableState = expandableState,
-                groupNotification = notificationList.toImmutableList()
+                groupNotification = notificationList.toImmutableList(),
+                onNotificationClicked = onNotificationClicked
             )
         }
 
@@ -106,7 +108,8 @@ fun GroupLockNotiItem(
                             notification = notificationList[index],
                             notificationSize = notificationList.size,
                             clickableState = false,
-                            expandableState = expandableState
+                            expandableState = expandableState,
+                            onNotificationClicked = onNotificationClicked
                         )
                     }
                 }
@@ -119,6 +122,7 @@ fun GroupLockNotiItem(
 @Composable
 fun SwipeToDismissLockNotiItem(
     modifier: Modifier = Modifier,
+    onNotificationClicked: (PendingIntent) -> Unit,
     onRemoveNotification: (List<String>) -> Unit,
     notification: Notification,
     notificationSize: Int,
@@ -158,6 +162,12 @@ fun SwipeToDismissLockNotiItem(
         }
     })
     SwipeToDismiss(
+        modifier = Modifier.clickable
+        {
+            updateNotification.intent?.let { intent ->
+                onNotificationClicked(intent)
+            }
+        },
         state = dismissState,
         dismissThresholds = { FractionalThreshold(0.25f) },
         dismissContent = {
