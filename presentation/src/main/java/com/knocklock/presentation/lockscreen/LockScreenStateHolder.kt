@@ -11,7 +11,9 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import com.knocklock.domain.model.User
+import com.knocklock.domain.usecase.notification.InsertNotificationUseCase
 import com.knocklock.domain.usecase.setting.GetUserUseCase
+import com.knocklock.presentation.lockscreen.mapper.toModel
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
@@ -38,6 +40,7 @@ class LockScreenStateHolder(
     @InstallIn(SingletonComponent::class)
     interface UseCaseEntryPoint {
         fun getUserUseCase(): GetUserUseCase
+        fun insertNotification(): InsertNotificationUseCase
     }
 
     private val useCaseEntryPoint = EntryPointAccessors.fromApplication(
@@ -141,6 +144,9 @@ class LockScreenStateHolder(
                 _currentLockState.value = user
             }
         }
+    }
+    suspend fun insertNotification(notification: Notification) {
+        useCaseEntryPoint.insertNotification().invoke(notification.toModel())
     }
 }
 
