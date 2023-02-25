@@ -1,8 +1,10 @@
 package com.knocklock.data.di
 
 import com.knocklock.data.repository.LockScreenRepositoryImpl
+import com.knocklock.data.repository.NotificationRepositoryImpl
 import com.knocklock.data.repository.UserRepositoryImpl
 import com.knocklock.domain.repository.LockScreenRepository
+import com.knocklock.domain.repository.NotificationRepository
 import com.knocklock.domain.repository.UserRepository
 import dagger.Binds
 import dagger.Module
@@ -23,4 +25,10 @@ abstract class RepositoryModule {
     abstract fun bindLockScreenRepository(
         lockScreenRepositoryImpl: LockScreenRepositoryImpl
     ): LockScreenRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindNotificationRepository(
+        notificationRepositoryImpl: NotificationRepositoryImpl
+    ): NotificationRepository
 }
