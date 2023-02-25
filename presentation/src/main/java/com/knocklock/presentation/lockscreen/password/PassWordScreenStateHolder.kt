@@ -5,6 +5,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalContext
+import com.knocklock.constant.MAX_PASSWORD_LENGTH
 import com.knocklock.domain.usecase.setting.GetUserUseCase
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
@@ -38,7 +39,7 @@ class PassWordScreenStateHolder(
     )
 
     val passWordState = mutableStateListOf<PassWord>().apply {
-        repeat(6) {
+        repeat(MAX_PASSWORD_LENGTH) {
             add(PassWord(""))
         }
     }
@@ -49,17 +50,17 @@ class PassWordScreenStateHolder(
     var isPlaying by mutableStateOf(false)
 
     fun updatePassWordState(passWord: String) {
-        if (insertPassWordIndex <= 5) {
+        if (insertPassWordIndex <= MAX_PASSWORD_LENGTH - 1) {
             passWordState[insertPassWordIndex] = passWordState[insertPassWordIndex].copy(number = passWord)
-            if (insertPassWordIndex != 5) {
+            if (insertPassWordIndex != MAX_PASSWORD_LENGTH-1) {
                 insertPassWordIndex += 1
             }
-            removePassWordIndex = if (insertPassWordIndex == 5) {
+            removePassWordIndex = if (insertPassWordIndex == MAX_PASSWORD_LENGTH - 1) {
                 insertPassWordIndex
             } else {
                 insertPassWordIndex - 1
             }
-            if (insertPassWordIndex == 5) {
+            if (insertPassWordIndex == MAX_PASSWORD_LENGTH - 1) {
                 scope.launch {
                     useCaseEntryPoint.getUserUseCase().invoke().collect { user ->
                         val savedPassWord = user.password
