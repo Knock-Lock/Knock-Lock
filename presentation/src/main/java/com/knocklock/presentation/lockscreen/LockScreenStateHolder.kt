@@ -11,7 +11,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import com.knocklock.domain.model.LockScreenBackground
 import com.knocklock.domain.model.User
+import com.knocklock.domain.usecase.lockscreen.GetLockScreenUseCase
 import com.knocklock.domain.usecase.setting.GetUserUseCase
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
@@ -31,7 +33,7 @@ import java.util.*
 
 @Stable
 class LockScreenStateHolder(
-    context: Context,
+    val context: Context,
     private val scope: CoroutineScope
 ) {
 
@@ -39,6 +41,7 @@ class LockScreenStateHolder(
     @InstallIn(SingletonComponent::class)
     interface UseCaseEntryPoint {
         fun getUserUseCase(): GetUserUseCase
+        fun getLockScreenUseCase(): GetLockScreenUseCase
     }
 
     private val useCaseEntryPoint = EntryPointAccessors.fromApplication(
@@ -56,8 +59,12 @@ class LockScreenStateHolder(
 
     private val packageManager by lazy { context.packageManager }
 
+    private val _currentBackground: MutableStateFlow<LockScreenBackground> = MutableStateFlow(LockScreenBackground.DefaultWallPaper)
+    val currentBackground = _currentBackground.asStateFlow()
+
     init {
         getCurrentLockState()
+        getCurrentLockScreenBackground()
     }
 
     fun updateNotificationList(notificationList: List<StatusBarNotification>) {
@@ -142,6 +149,14 @@ class LockScreenStateHolder(
         scope.launch {
             useCaseEntryPoint.getUserUseCase().invoke().collect { user ->
                 _currentLockState.value = user
+            }
+        }
+    }
+
+    fun getCurrentLockScreenBackground() {
+        scope.launch {
+            useCaseEntryPoint.getLockScreenUseCase().invoke().collect { lockscreen ->
+                _currentBackground.value = lockscreen.background
             }
         }
     }
