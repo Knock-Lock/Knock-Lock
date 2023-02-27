@@ -4,7 +4,6 @@ import android.app.PendingIntent
 import android.content.pm.ActivityInfo
 import android.graphics.PixelFormat
 import android.graphics.Point
-import android.net.Uri
 import android.os.Build
 import android.service.notification.StatusBarNotification
 import android.view.Gravity
@@ -37,7 +36,6 @@ import com.knocklock.presentation.lockscreen.LockScreenRoute
 import com.knocklock.presentation.lockscreen.password.PassWordRoute
 import com.knocklock.presentation.lockscreen.rememberLockScreenStateHolder
 import com.knocklock.presentation.lockscreen.util.ComposeLifecycleOwner
-import com.knocklock.presentation.lockscreen.util.toBitmap
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -70,18 +68,18 @@ class InitLockScreenView(
             val stateHolder = rememberLockScreenStateHolder(LocalContext.current)
             val backgroundState by stateHolder.currentBackground.collectAsState()
 
-            val request = ImageRequest.Builder(LocalContext.current).data(
-                data = when (backgroundState) {
-                    is LockScreenBackground.LocalImage -> {
-                        Uri.parse((backgroundState as LockScreenBackground.LocalImage).imageUri)
+            val request = ImageRequest.Builder(LocalContext.current)
+                .allowHardware(false)
+                .data(
+                    data = when (backgroundState) {
+                        is LockScreenBackground.DefaultWallPaper -> {
+                            R.drawable.default_wallpaper
+                        }
+                        is LockScreenBackground.LocalImage -> {
+                            (backgroundState as LockScreenBackground.LocalImage).imageUri
+                        }
                     }
-                    else -> {
-                        null
-                    }
-                }?.toBitmap(LocalContext.current) ?: R.drawable.default_wallpaper.toBitmap(
-                    LocalContext.current
-                )
-            ).build()
+                ).build()
 
             val imagePainter = rememberAsyncImagePainter(
                 model = request
