@@ -78,7 +78,9 @@ class InitLockScreenView(
                     else -> {
                         null
                     }
-                }?.toBitmap(LocalContext.current) ?: R.drawable.default_wallpaper
+                }?.toBitmap(LocalContext.current) ?: R.drawable.default_wallpaper.toBitmap(
+                    LocalContext.current
+                )
             ).build()
 
             val imagePainter = rememberAsyncImagePainter(
