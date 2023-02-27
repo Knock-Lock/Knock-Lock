@@ -1,4 +1,4 @@
-package com.knocklock.constant
+package com.knocklock.presentation.constant
 
 /**
  * @Created by 김현국 2023/02/25
