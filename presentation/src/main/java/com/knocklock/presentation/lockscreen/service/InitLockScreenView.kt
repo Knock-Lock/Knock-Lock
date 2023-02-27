@@ -4,6 +4,7 @@ import android.app.PendingIntent
 import android.content.pm.ActivityInfo
 import android.graphics.PixelFormat
 import android.graphics.Point
+import android.net.Uri
 import android.os.Build
 import android.service.notification.StatusBarNotification
 import android.view.Gravity
@@ -12,12 +13,12 @@ import android.view.WindowManager
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.AndroidUiDispatcher
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
@@ -27,11 +28,17 @@ import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.lifecycle.ViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import coil.ImageLoader
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import com.knocklock.domain.model.AuthenticationType
+import com.knocklock.domain.model.LockScreenBackground
+import com.knocklock.presentation.R
 import com.knocklock.presentation.lockscreen.LockScreenRoute
 import com.knocklock.presentation.lockscreen.password.PassWordRoute
 import com.knocklock.presentation.lockscreen.rememberLockScreenStateHolder
 import com.knocklock.presentation.lockscreen.util.ComposeLifecycleOwner
+import com.knocklock.presentation.lockscreen.util.toBitmap
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -61,15 +68,38 @@ class InitLockScreenView(
         composeView.setContent {
             val screenState by composeScreenState.collectAsState()
             var startTransitionState by remember { mutableStateOf(false) }
+            val stateHolder = rememberLockScreenStateHolder(LocalContext.current)
+            val backgroundState by stateHolder.currentBackground.collectAsState()
+
+            val request = ImageRequest.Builder(LocalContext.current).data(
+                data = when (backgroundState) {
+                    is LockScreenBackground.LocalImage -> {
+                        Uri.parse((backgroundState as LockScreenBackground.LocalImage).imageUri)
+                    }
+                    else -> {
+                        null
+                    }
+                }?.toBitmap(LocalContext.current) ?: LockScreenBackground.DefaultWallPaper
+            ).build()
+
+            val imagePainter = rememberAsyncImagePainter(
+                model = request
+            )
+
             Box(
-                modifier = Modifier.fillMaxSize().background(color = Color.Blue)
+                modifier = Modifier.fillMaxSize()
             ) {
+                Image(
+                    modifier = Modifier.fillMaxSize(),
+                    painter = imagePainter,
+                    contentScale = ContentScale.FillBounds,
+                    contentDescription = null
+                )
                 AnimatedVisibility(
                     visible = screenState == ComposeScreenState.LockScreen,
                     enter = fadeIn(),
                     exit = fadeOut()
                 ) {
-                    val stateHolder = rememberLockScreenStateHolder(LocalContext.current)
                     val notificationListState by notificationList.collectAsState()
                     val currentUserState by stateHolder.currentLockState.collectAsState()
 
@@ -141,6 +171,7 @@ class InitLockScreenView(
                 }
             }
         }
+
         lifecycleOwner.apply {
             performRestore(null)
             handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
