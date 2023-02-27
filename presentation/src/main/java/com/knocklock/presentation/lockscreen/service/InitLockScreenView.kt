@@ -28,7 +28,6 @@ import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.lifecycle.ViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
-import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.knocklock.domain.model.AuthenticationType
@@ -79,7 +78,7 @@ class InitLockScreenView(
                     else -> {
                         null
                     }
-                }?.toBitmap(LocalContext.current) ?: LockScreenBackground.DefaultWallPaper
+                }?.toBitmap(LocalContext.current) ?: R.drawable.default_wallpaper
             ).build()
 
             val imagePainter = rememberAsyncImagePainter(
