@@ -33,7 +33,7 @@ import java.util.*
 
 @Stable
 class LockScreenStateHolder(
-    val context: Context,
+    context: Context,
     private val scope: CoroutineScope
 ) {
 
@@ -153,7 +153,7 @@ class LockScreenStateHolder(
         }
     }
 
-    fun getCurrentLockScreenBackground() {
+    private fun getCurrentLockScreenBackground() {
         scope.launch {
             useCaseEntryPoint.getLockScreenUseCase().invoke().collect { lockscreen ->
                 _currentBackground.value = lockscreen.background
