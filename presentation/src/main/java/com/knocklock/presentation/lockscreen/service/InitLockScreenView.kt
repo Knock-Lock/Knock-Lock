@@ -76,7 +76,7 @@ class InitLockScreenView(
                             R.drawable.default_wallpaper
                         }
                         is LockScreenBackground.LocalImage -> {
-                            (backgroundState as LockScreenBackground.LocalImage).imageUri
+                            (backgroundState.background as LockScreenBackground.LocalImage).imageUri
                         }
                     }
                 ).build()
