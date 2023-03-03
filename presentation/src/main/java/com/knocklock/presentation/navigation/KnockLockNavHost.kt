@@ -7,6 +7,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
@@ -53,10 +54,12 @@ fun NavGraphBuilder.homeGraph(
 
         composable(route = NavigationRoute.HomeGraph.Home.route) {
             val vm: HomeViewModel = hiltViewModel()
+            val context = LocalContext.current
             val galleryLauncher =
                 rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                     if (result.resultCode == Activity.RESULT_OK) {
                         result.data?.data?.let { uri ->
+                            context.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
                             vm.saveTmpWallPaper(uri.toString())
                         }
                     }
