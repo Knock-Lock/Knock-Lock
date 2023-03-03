@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import com.knocklock.domain.model.LockScreen
 import com.knocklock.domain.model.LockScreenBackground
 import com.knocklock.domain.model.User
 import com.knocklock.domain.usecase.lockscreen.GetLockScreenUseCase
@@ -59,7 +60,7 @@ class LockScreenStateHolder(
 
     private val packageManager by lazy { context.packageManager }
 
-    private val _currentBackground: MutableStateFlow<LockScreenBackground> = MutableStateFlow(LockScreenBackground.DefaultWallPaper)
+    private val _currentBackground: MutableStateFlow<LockScreen> = MutableStateFlow(LockScreen(LockScreenBackground.DefaultWallPaper))
     val currentBackground = _currentBackground.asStateFlow()
 
     init {
@@ -156,7 +157,7 @@ class LockScreenStateHolder(
     private fun getCurrentLockScreenBackground() {
         scope.launch {
             useCaseEntryPoint.getLockScreenUseCase().invoke().collect { lockscreen ->
-                _currentBackground.value = lockscreen.background
+                _currentBackground.value = lockscreen
             }
         }
     }

@@ -71,7 +71,7 @@ class InitLockScreenView(
             val request = ImageRequest.Builder(LocalContext.current)
                 .allowHardware(false)
                 .data(
-                    data = when (backgroundState) {
+                    data = when (backgroundState.background) {
                         is LockScreenBackground.DefaultWallPaper -> {
                             R.drawable.default_wallpaper
                         }
