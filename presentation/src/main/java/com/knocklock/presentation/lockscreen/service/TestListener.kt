@@ -8,22 +8,29 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Point
 import android.net.Uri
+import android.os.Binder
 import android.os.Build
+import android.os.IBinder
 import android.provider.Settings
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.text.TextUtils
-import android.util.Log
 import android.view.WindowManager
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import com.knocklock.presentation.MainActivity
+import com.knocklock.presentation.lockscreen.LockScreenActivity
 import com.knocklock.presentation.lockscreen.receiver.OnScreenEventListener
 import com.knocklock.presentation.lockscreen.receiver.OnSystemBarEventListener
 import com.knocklock.presentation.lockscreen.receiver.ScreenEventReceiver
 import com.knocklock.presentation.lockscreen.receiver.SystemBarEventReceiver
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 
 /**
  * @Created by 김현국 2022/12/04
@@ -31,8 +38,19 @@ import kotlinx.coroutines.*
  */
 
 @AndroidEntryPoint
-class LockScreenNotificationListener :
+class TestListener :
     NotificationListenerService() {
+
+    lateinit var bindServiceCallBack: BindServiceCallBack
+
+    private val binder = LockScreenServiceBinder()
+
+    var isListenerConnected = MutableStateFlow(false)
+    inner class LockScreenServiceBinder : Binder() {
+        fun getService(): TestListener {
+            return this@TestListener
+        }
+    }
 
     private val windowManager by lazy { getSystemService(Context.WINDOW_SERVICE) as WindowManager }
     private val point by lazy { Point() }
@@ -66,7 +84,7 @@ class LockScreenNotificationListener :
             context = this,
             onSystemBarEventListener = object : OnSystemBarEventListener {
                 override fun onSystemBarClicked() {
-                    // Todo 현재 PassWordScreen이 열려있는지
+//                    addLockScreen()
                 }
             }
         )
@@ -77,7 +95,10 @@ class LockScreenNotificationListener :
         val packageName = sbn?.packageName
         if (sbn != null && !TextUtils.isEmpty(packageName)) {
             notificationScope.launch {
-                initLockScreenView.passActiveNotificationList(activeNotifications)
+//                initLockScreenView.passActiveNotificationList(activeNotifications)
+                println("로그 posted")
+
+//                bindServiceCallBack.passActiveNotificationList(activeNotifications)
             }
         }
     }
@@ -87,22 +108,42 @@ class LockScreenNotificationListener :
         val packageName = sbn?.packageName
         if (sbn != null && !TextUtils.isEmpty(packageName)) {
             notificationScope.launch {
-                initLockScreenView.passActiveNotificationList(activeNotifications)
+//                initLockScreenView.passActiveNotificationList(activeNotifications)
+//                bindServiceCallBack.passActiveNotificationList(activeNotifications)
             }
         }
     }
 
+    override fun onListenerConnected() {
+        super.onListenerConnected()
+
+        println("로그 isListenerConnected")
+        bindServiceCallBack.passActiveNotificationList(activeNotifications)
+    }
+
+    override fun onListenerDisconnected() {
+        super.onListenerDisconnected()
+        isListenerConnected.value = false
+    }
+
+    override fun onBind(intent: Intent): IBinder {
+        println("로그 onBind")
+        super.onBind(intent)
+        onListenerConnected()
+        return binder
+    }
+
     override fun onCreate() {
         super.onCreate()
-        initView()
+//        initView()
         registerSystemBarEventReceiver()
         registerScreenEventReceiver()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            point.x = windowManager.maximumWindowMetrics.bounds.width()
-            point.y = windowManager.maximumWindowMetrics.bounds.height()
-        } else {
-            windowManager.defaultDisplay.getRealSize(point)
-        }
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+//            point.x = windowManager.maximumWindowMetrics.bounds.width()
+//            point.y = windowManager.maximumWindowMetrics.bounds.height()
+//        } else {
+//            windowManager.defaultDisplay.getRealSize(point)
+//        }
     }
 
     private fun initView() {
@@ -134,15 +175,45 @@ class LockScreenNotificationListener :
         if (!canOverlay) {
             requestScreenOverlay()
         }
-        try {
-            windowManager.addView(composeView, fullScreenLayoutParams)
-        } catch (e: IllegalStateException) {
-            Log.e("로그", "view is already added")
-        }
+//        try {
+//            windowManager.addView(composeView, fullScreenLayoutParams)
+//        } catch (e: IllegalStateException) {
+//            Log.e("로그", "view is already added")
+//        }
 
-        notificationScope.launch {
-            initLockScreenView.passActiveNotificationList(activeNotifications)
+//        notificationScope.launch {
+//            initLockScreenView.passActiveNotificationList(activeNotifications)
+//        }
+        val intent = Intent(this, LockScreenActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
+        startActivity(intent)
+//        notificationScope.launch {
+// //                initLockScreenView.passActiveNotificationList(activeNotifications)
+//            bindServiceCallBack.passActiveNotificationList(activeNotifications)
+//        }
+    }
+
+//    fun initNotifications() {
+//        notificationScope.launch {
+//            println(isListenerConnected)
+//            println("로그 connected Listener")
+//            bindServiceCallBack.passActiveNotificationList(activeNotifications)
+//        }
+//    }
+
+    fun checkNotificationPermission(): Boolean {
+        // Todo : Notification 권한 체크 로직 추가예정
+        val sets: Set<String> = NotificationManagerCompat.getEnabledListenerPackages(this)
+        if (!sets.contains(packageName)) {
+            val intent = Intent(
+                Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS
+            ).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            }
+            startActivity(intent)
+        }
+        return sets.contains(packageName)
     }
 
     private fun requestScreenOverlay() {
@@ -220,5 +291,13 @@ class LockScreenNotificationListener :
     companion object {
         private const val ANDROID_CHANNEL_ID = "KnockLockScreenNotification"
         private const val ANDROID_CHANNEL_NAME = "KnockLockScreen"
+    }
+
+    fun setBindServiceCallback(bindServiceCallBack: BindServiceCallBack) {
+        this.bindServiceCallBack = bindServiceCallBack
+    }
+
+    interface BindServiceCallBack {
+        fun passActiveNotificationList(statusBarNotification: Array<StatusBarNotification>)
     }
 }

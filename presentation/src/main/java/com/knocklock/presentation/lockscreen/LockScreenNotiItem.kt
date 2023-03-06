@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import com.knocklock.presentation.lockscreen.util.*
+import com.knocklock.presentation.lockscreen.util.DismissValue
 import com.knocklock.presentation.lockscreen.util.FractionalThreshold
 import com.knocklock.presentation.lockscreen.util.SwipeToDismiss
 import com.knocklock.presentation.lockscreen.util.rememberDismissState
@@ -43,6 +44,7 @@ import kotlinx.collections.immutable.toImmutableList
 data class Notification(
     val id: String = "",
     val drawable: Drawable? = null,
+    val packageName: String? = null,
     val appTitle: String = "",
     val notiTime: String = "",
     val title: String = "",
@@ -56,7 +58,7 @@ fun GroupLockNotiItem(
     modifier: Modifier = Modifier,
     notificationList: ImmutableList<Notification>,
     onRemoveNotification: (List<String>) -> Unit,
-    onNotificationClicked: (PendingIntent) -> Unit,
+    onNotificationClicked: (PendingIntent) -> Unit
 ) {
     if (notificationList.isEmpty()) {
         return

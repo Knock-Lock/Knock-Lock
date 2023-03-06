@@ -8,6 +8,31 @@
         tools:ignore="QueryAllPackagesPermission" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <application>
+        <service
+            android:name=".lockscreen.service.TestListener"
+            android:exported="true"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.service.notification.default_filter_types"
+                android:value="conversations|alerting" />
+            <meta-data
+                android:name="android.service.notification.disabled_filter_types"
+                android:value="ongoing|silent" />
+        </service>
+        <activity
+            android:name=".lockscreen.LockScreenActivity"
+            android:exported="false"
+            android:label="@string/title_activity_lock_screen"
+            android:theme="@style/Theme.MainActivity">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -18,24 +43,8 @@
             </intent-filter>
         </activity>
 
-        <service
-            android:name="com.knocklock.presentation.lockscreen.service.LockScreenNotificationListener"
-            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.service.notification.NotificationListenerService" />
-            </intent-filter>
-            <meta-data
-                android:name="android.service.notification.default_filter_types"
-                android:value="conversations|alerting">
-            </meta-data>
-            <meta-data
-                android:name="android.service.notification.disabled_filter_types"
-                android:value="ongoing|silent">
-            </meta-data>
-        </service>
-    </application>
 
+    </application>
 
 
 </manifest>

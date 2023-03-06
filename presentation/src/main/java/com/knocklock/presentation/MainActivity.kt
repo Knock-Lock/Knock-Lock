@@ -8,15 +8,13 @@ import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.view.WindowCompat
 import androidx.navigation.compose.rememberNavController
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.normal.TedPermission
-import com.knocklock.presentation.lockscreen.service.LockScreenNotificationListener
+import com.knocklock.presentation.lockscreen.service.TestListener
 import com.knocklock.presentation.navigation.KnockLockNavHost
 import com.knocklock.presentation.ui.theme.KnockLockTheme
 import com.knocklock.presentation.util.showShortToastMessage
@@ -96,9 +94,9 @@ class MainActivity : ComponentActivity() {
 
     private fun startService() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(Intent(this, LockScreenNotificationListener::class.java))
+            startForegroundService(Intent(this, TestListener::class.java))
         } else {
-            startService(Intent(this, LockScreenNotificationListener::class.java))
+            startService(Intent(this, TestListener::class.java))
         }
     }
 }
