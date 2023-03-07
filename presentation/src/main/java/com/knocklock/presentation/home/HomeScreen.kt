@@ -13,6 +13,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.zIndex
 import androidx.core.graphics.drawable.toBitmap
 import androidx.palette.graphics.Palette
 import coil.compose.AsyncImagePainter
@@ -42,15 +43,16 @@ fun HomeScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .statusBarsPadding()
-                        .align(Alignment.TopEnd),
+                        .align(Alignment.TopEnd)
+                        .zIndex(1f),
                     menuList = homeScreenUiState.menuList,
                     onClickHomeMenu = onClickHomeMenu
                 )
+                HomeContent(
+                    modifier = Modifier.fillMaxSize(),
+                    homeScreenUiState = homeScreenUiState
+                )
             }
-            HomeContent(
-                modifier = Modifier.fillMaxSize(),
-                homeScreenUiState = homeScreenUiState
-            )
         }
     }
 }
