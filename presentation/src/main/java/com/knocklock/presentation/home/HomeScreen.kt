@@ -5,20 +5,18 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.zIndex
 import androidx.core.graphics.drawable.toBitmap
 import androidx.palette.graphics.Palette
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
 import com.knocklock.domain.model.LockScreen
 import com.knocklock.domain.model.LockScreenBackground
@@ -26,6 +24,9 @@ import com.knocklock.presentation.R
 import com.knocklock.presentation.home.menu.HomeMenu
 import com.knocklock.presentation.home.menu.HomeMenuBar
 import com.knocklock.presentation.ui.theme.KnockLockTheme
+import com.knocklock.presentation.util.defaultGradientColors
+import com.knocklock.presentation.util.getGradientColors
+import com.knocklock.presentation.util.getPalette
 import kotlinx.collections.immutable.toImmutableList
 
 @Composable
@@ -84,15 +85,24 @@ fun HomeContent(
     }
 
     val palette = (imagePainter.state as? AsyncImagePainter.State.Success)?.let {
-        Palette.from((it.result.drawable.toBitmap())).generate()
+        getPalette(it.result.drawable.toBitmap())
     }
 
-    val backgroundColor = palette?.mutedSwatch?.let { Color(it.rgb) } ?: Color.Transparent
+    val backgroundGradientBrush = Brush.linearGradient(
+        colors = palette?.let { getGradientColors(palette) } ?: defaultGradientColors,
+        start = Offset.Zero,
+        end = Offset.Infinite,
+    )
 
     Box(
         modifier = modifier
-            .background(color = backgroundColor)
     ) {
+        Box(
+            modifier = modifier.background(
+                brush = backgroundGradientBrush,
+                alpha = 0.6f
+            )
+        )
         Image(
             modifier = Modifier
                 .fillMaxSize(0.6f)
@@ -100,7 +110,6 @@ fun HomeContent(
             painter = imagePainter,
             contentDescription = null,
             contentScale = ContentScale.FillBounds,
-            alpha = 0.4f
         )
     }
 }
