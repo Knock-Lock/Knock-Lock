@@ -27,7 +27,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
-import com.knocklock.presentation.lockscreen.util.*
+import com.knocklock.presentation.lockscreen.model.Notification
+import com.knocklock.presentation.lockscreen.util.DismissValue
 import com.knocklock.presentation.lockscreen.util.FractionalThreshold
 import com.knocklock.presentation.lockscreen.util.SwipeToDismiss
 import com.knocklock.presentation.lockscreen.util.rememberDismissState
@@ -39,24 +40,12 @@ import kotlinx.collections.immutable.toImmutableList
  * @Time 3:06 PM
  */
 
-@Immutable
-data class Notification(
-    val id: String = "",
-    val drawable: Drawable? = null,
-    val appTitle: String = "",
-    val notiTime: String = "",
-    val title: String = "",
-    val content: String = "",
-    val isClearable: Boolean = false,
-    val intent: PendingIntent? = null
-)
-
 @Composable
 fun GroupLockNotiItem(
     modifier: Modifier = Modifier,
     notificationList: ImmutableList<Notification>,
     onRemoveNotification: (List<String>) -> Unit,
-    onNotificationClicked: (PendingIntent) -> Unit,
+    onNotificationClicked: (PendingIntent) -> Unit
 ) {
     if (notificationList.isEmpty()) {
         return
@@ -80,7 +69,7 @@ fun GroupLockNotiItem(
         }
     ) {
         val lockNotiModifier = modifier.background(color = Color(0xFFFAFAFA).copy(alpha = 0.95f), shape = RoundedCornerShape(10.dp)).clip(RoundedCornerShape(10.dp))
-        key(notification) {
+        key(notification.id) {
             SwipeToDismissLockNotiItem(
                 modifier = lockNotiModifier,
                 onRemoveNotification = onRemoveNotification,
@@ -162,12 +151,14 @@ fun SwipeToDismissLockNotiItem(
         }
     })
     SwipeToDismiss(
-        modifier = Modifier.clickable
-        {
-            updateNotification.intent?.let { intent ->
-                onNotificationClicked(intent)
-            }
-        },
+        modifier = Modifier
+//            .clickable   TODO 클릭이벤트와 Pending Intent와 click event가 겹치는 이슈
+//        {
+//            updateNotification.intent?.let { intent ->
+//                onNotificationClicked(intent)
+//            }
+//        }
+,
         state = dismissState,
         dismissThresholds = { FractionalThreshold(0.25f) },
         dismissContent = {
