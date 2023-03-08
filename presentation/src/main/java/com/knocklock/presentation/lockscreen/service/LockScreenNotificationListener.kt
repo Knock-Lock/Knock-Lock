@@ -17,13 +17,19 @@ import android.util.Log
 import android.view.WindowManager
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.app.NotificationCompat
+import com.knocklock.domain.repository.NotificationRepository
 import com.knocklock.presentation.MainActivity
+import com.knocklock.presentation.lockscreen.mapper.getDatabaseKey
+import com.knocklock.presentation.lockscreen.mapper.toModel
+import com.knocklock.presentation.lockscreen.model.Group
+import com.knocklock.presentation.lockscreen.model.toModel
 import com.knocklock.presentation.lockscreen.receiver.OnScreenEventListener
 import com.knocklock.presentation.lockscreen.receiver.OnSystemBarEventListener
 import com.knocklock.presentation.lockscreen.receiver.ScreenEventReceiver
 import com.knocklock.presentation.lockscreen.receiver.SystemBarEventReceiver
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
+import javax.inject.Inject
 
 /**
  * @Created by 김현국 2022/12/04
@@ -33,6 +39,9 @@ import kotlinx.coroutines.*
 @AndroidEntryPoint
 class LockScreenNotificationListener :
     NotificationListenerService() {
+
+    @Inject
+    lateinit var notificationRepository: NotificationRepository
 
     private val windowManager by lazy { getSystemService(Context.WINDOW_SERVICE) as WindowManager }
     private val point by lazy { Point() }
@@ -77,7 +86,14 @@ class LockScreenNotificationListener :
         val packageName = sbn?.packageName
         if (sbn != null && !TextUtils.isEmpty(packageName)) {
             notificationScope.launch {
-                initLockScreenView.passActiveNotificationList(activeNotifications)
+                sbn.toModel(packageManager)?.let { notification ->
+                    notificationRepository.insertGroup(
+                        Group(
+                            key = notification.groupKey
+                        ).toModel()
+                    )
+                    notificationRepository.insertNotifications(notification)
+                }
             }
         }
     }
@@ -87,7 +103,7 @@ class LockScreenNotificationListener :
         val packageName = sbn?.packageName
         if (sbn != null && !TextUtils.isEmpty(packageName)) {
             notificationScope.launch {
-                initLockScreenView.passActiveNotificationList(activeNotifications)
+                notificationRepository.removeNotificationsWithId(sbn.key)
             }
         }
     }
@@ -121,7 +137,7 @@ class LockScreenNotificationListener :
                 }
 
                 override fun startIntentApplication(pendingIntent: PendingIntent) {
-                    pendingIntent.send()
+//                    pendingIntent.send()
                 }
             }
         )
@@ -141,7 +157,22 @@ class LockScreenNotificationListener :
         }
 
         notificationScope.launch {
-            initLockScreenView.passActiveNotificationList(activeNotifications)
+            val copyActiveNotification = activeNotifications.toList().toTypedArray()
+            copyActiveNotification.forEach { notification ->
+                notificationScope.launch {
+                    notification.getDatabaseKey(packageManager)?.let { key ->
+                        notificationRepository.insertGroup(
+                            Group(
+                                key = key
+                            ).toModel()
+                        )
+                    }
+                }
+            }
+
+            notificationRepository.insertNotifications(
+                *toModel(copyActiveNotification, packageManager)
+            )
         }
     }
 
