@@ -7,7 +7,7 @@ data class Notification(
     val id: String = "",
     val packageName: String = "",
     val appTitle: String = "",
-    val postedTime: String = "",
+    val postedTime: Long,
     val title: String = "",
     val content: String = "",
     val isClearable: Boolean = false,
