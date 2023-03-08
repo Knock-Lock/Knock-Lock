@@ -19,10 +19,20 @@ import kotlinx.coroutines.flow.flowOn
 @Dao
 interface GroupDao {
 
+    /**
+     * 모든 그룹과 그룹에 속한 Notification들을 가져옵니다.
+     * @return Flow<List<[GroupWithNotification]>>
+     */
     @Transaction
     @Query("SELECT * FROM `Group`")
     fun getGroupWithNotifications(): Flow<List<GroupWithNotification>>
 
+    /**
+     * 모든 그룹과 그룹에 속한 Notification들을 가져오고 그룹의 속한 Notification들을 최근 시간으로 정렬합니다.
+     *
+     * 이후 그룹에 속한 Notification의 첫번째 값의 postedTime을 최근 시간순으로 Group을 정렬합니다.
+     * @return Flow<List<[GroupWithNotification]>>
+     */
     @Transaction
     @Query("")
     fun getGroupWithNotificationsWithSorted(): Flow<List<GroupWithNotification>> {
