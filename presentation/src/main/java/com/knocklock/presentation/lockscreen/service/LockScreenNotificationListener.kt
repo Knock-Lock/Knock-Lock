@@ -143,19 +143,7 @@ class LockScreenNotificationListener :
         )
     }
 
-    private fun addLockScreen() {
-        val canOverlay =
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1 && !Settings.canDrawOverlays(this)
-
-        if (!canOverlay) {
-            requestScreenOverlay()
-        }
-        try {
-            windowManager.addView(composeView, fullScreenLayoutParams)
-        } catch (e: IllegalStateException) {
-            Log.e("로그", "view is already added")
-        }
-
+    private fun initNotificationsToLockScreen(){
         notificationScope.launch {
             val copyActiveNotification = activeNotifications.toList().toTypedArray()
             copyActiveNotification.forEach { notification ->
@@ -174,6 +162,21 @@ class LockScreenNotificationListener :
                 *toModel(copyActiveNotification, packageManager)
             )
         }
+    }
+
+    private fun addLockScreen() {
+        val canOverlay =
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1 && !Settings.canDrawOverlays(this)
+
+        if (!canOverlay) {
+            requestScreenOverlay()
+        }
+        try {
+            windowManager.addView(composeView, fullScreenLayoutParams)
+        } catch (e: IllegalStateException) {
+            Log.e("로그", "view is already added")
+        }
+        initNotificationsToLockScreen()
     }
 
     private fun requestScreenOverlay() {
