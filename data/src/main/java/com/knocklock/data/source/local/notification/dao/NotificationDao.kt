@@ -2,6 +2,8 @@ package com.knocklock.data.source.local.notification.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
 import com.knocklock.data.source.local.notification.entity.Notification
 
 /**
@@ -11,6 +13,16 @@ import com.knocklock.data.source.local.notification.entity.Notification
 @Dao
 interface NotificationDao {
 
-    @Insert
-    fun insertNotifications(vararg notifications: Notification)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertNotifications(vararg notifications: Notification)
+
+    @Query(
+        "DELETE FROM NOTIFICATION WHERE id LIKE :ids"
+    )
+    suspend fun deleteNotificationsWithIds(vararg ids: String)
+
+    @Query(
+        "DELETE FROM NOTIFICATION WHERE groupKey LIKE :groupKey"
+    )
+    suspend fun deleteNotificationsWithGroupKey(groupKey: String)
 }
