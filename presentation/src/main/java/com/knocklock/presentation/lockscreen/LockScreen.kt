@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import com.knocklock.presentation.lockscreen.model.GroupWithNotification
 import com.knocklock.presentation.lockscreen.util.FractionalThreshold
 import com.knocklock.presentation.lockscreen.util.rememberSwipeableState
 import com.knocklock.presentation.lockscreen.util.swipeable
@@ -73,7 +74,7 @@ fun LockScreen(
             when (notificationUiState) {
                 is NotificationUiState.Success -> {
                     LockScreenNotificationListColumn(
-                        groupNotificationList = notificationUiState.notificationList.toImmutableList(),
+                        groupNotificationList = notificationUiState.groupWithNotification.toImmutableList(),
                         scrollableState = startTransitionState,
                         onRemoveNotification = onRemoveNotification,
                         onNotificationClicked = onNotificationClicked
@@ -158,11 +159,16 @@ fun UnLockSwipeBar(
 @Composable
 fun LockScreenNotificationListColumn(
     modifier: Modifier = Modifier,
-    groupNotificationList: ImmutableList<GroupNotification>,
+    groupNotificationList: ImmutableList<GroupWithNotification>,
     scrollableState: Boolean,
     onRemoveNotification: (List<String>) -> Unit,
     onNotificationClicked: (PendingIntent) -> Unit
 ) {
+    LaunchedEffect(key1 = Unit) {
+        groupNotificationList.forEach {
+            println(it)
+        }
+    }
     LazyColumn(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -171,19 +177,16 @@ fun LockScreenNotificationListColumn(
     ) {
         items(
             items = groupNotificationList,
-            key = { item: GroupNotification -> generatedKey(item.notifications.first) } // size를 키로 둘경우 위치가 변경됨  item.notifications.second.size
-        ) { item: GroupNotification ->
+            key = { item: GroupWithNotification -> item.group.key } // size를 키로 둘경우 위치가 변경됨  item.notifications.second.size
+        ) { item: GroupWithNotification ->
             GroupLockNotiItem(
                 modifier = Modifier.animateItemPlacement(),
-                notificationList = item.notifications.second.toImmutableList(),
+                notificationList = item.notifications.toImmutableList(),
                 onRemoveNotification = onRemoveNotification,
                 onNotificationClicked = onNotificationClicked
             )
         }
     }
-}
-fun generatedKey(groupKey: GroupKey): String {
-    return groupKey.packageName + groupKey.appTitle + groupKey.title
 }
 
 @Composable
