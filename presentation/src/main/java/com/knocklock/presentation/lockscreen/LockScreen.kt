@@ -164,11 +164,6 @@ fun LockScreenNotificationListColumn(
     onRemoveNotification: (List<String>) -> Unit,
     onNotificationClicked: (PendingIntent) -> Unit
 ) {
-    LaunchedEffect(key1 = Unit) {
-        groupNotificationList.forEach {
-            println(it)
-        }
-    }
     LazyColumn(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(4.dp),
