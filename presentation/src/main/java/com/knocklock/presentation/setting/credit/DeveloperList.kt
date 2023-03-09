@@ -14,7 +14,6 @@ fun DeveloperList(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(30.dp)
     ) {
-        Spacer(modifier.padding(20.dp))
         DeveloperItem(
             developer = Developer(
                 R.string.daq,
