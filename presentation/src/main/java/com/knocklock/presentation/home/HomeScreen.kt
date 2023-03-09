@@ -105,7 +105,7 @@ fun HomeContent(
         )
         Image(
             modifier = Modifier
-                .fillMaxSize(0.6f)
+                .fillMaxSize(0.8f)
                 .align(Alignment.Center),
             painter = imagePainter,
             contentDescription = null,
