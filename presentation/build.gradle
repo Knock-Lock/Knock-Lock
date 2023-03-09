@@ -97,4 +97,5 @@ dependencies {
     // lottie
     implementation "com.airbnb.android:lottie-compose:5.2.0"
 
+    implementation('androidx.palette:palette:1.0.0')
 }
