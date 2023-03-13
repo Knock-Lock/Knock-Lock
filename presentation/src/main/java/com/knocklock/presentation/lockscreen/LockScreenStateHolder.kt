@@ -98,13 +98,6 @@ class LockScreenStateHolder(
                     val title: String = convertString(getCharSequence("android.title"))
                     val content: String = convertString(getCharSequence("android.text"))
                     val packageName = statusBarNotification.packageName
-                    val date = Date(statusBarNotification.postTime)
-                    val intent: PendingIntent? = statusBarNotification.notification.contentIntent
-                    val stringPostTime = try {
-                        SimpleDateFormat("a HH:mm", Locale.KOREA).format(date)
-                    } catch (e: Exception) {
-                        ""
-                    }
 
                     Notification(
                         id = statusBarNotification.key,

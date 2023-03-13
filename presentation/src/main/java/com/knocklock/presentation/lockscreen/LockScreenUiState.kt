@@ -13,7 +13,3 @@ sealed class NotificationUiState {
         val groupWithNotification: List<GroupWithNotification>
     ) : NotificationUiState()
 }
-
-data class GroupNotification(
-    val notifications: Pair<GroupKey, List<Notification>>
-)
