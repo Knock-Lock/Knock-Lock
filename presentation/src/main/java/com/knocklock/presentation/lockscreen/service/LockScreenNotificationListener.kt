@@ -132,6 +132,7 @@ class LockScreenNotificationListener :
 
                 override fun removeNotifications(keys: List<String>) {
                     notificationScope.launch {
+                        // Todo id가 전부 같은 문제해결하기
                         cancelNotifications(keys.toTypedArray())
                     }
                 }
@@ -143,11 +144,11 @@ class LockScreenNotificationListener :
         )
     }
 
-    private fun initNotificationsToLockScreen(){
+    private fun initNotificationsToLockScreen() {
         notificationScope.launch {
             val copyActiveNotification = activeNotifications.toList().toTypedArray()
             copyActiveNotification.forEach { notification ->
-                notificationScope.launch {
+                launch {
                     notification.getDatabaseKey(packageManager)?.let { key ->
                         notificationRepository.insertGroup(
                             Group(
@@ -204,6 +205,7 @@ class LockScreenNotificationListener :
         super.onDestroy()
         unregisterSystemBarEventReceiver()
         unregisterScreenEventReceiver()
+        job.cancel()
     }
 
     private fun createNotificationChannel() {
