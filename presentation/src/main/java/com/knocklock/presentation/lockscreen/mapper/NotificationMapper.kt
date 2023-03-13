@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable
 import android.os.Build
 import android.service.notification.StatusBarNotification
 import com.knocklock.presentation.lockscreen.model.Notification
+import com.knocklock.presentation.util.TimeWithMeridiem
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -102,7 +103,7 @@ fun NotificationModel.toModel(packageManager: PackageManager): Notification {
     val temp = getDrawableAndAppTitle(packageManager, packageName)
     val date = Date(this.postedTime)
     val stringPostTime = try {
-        SimpleDateFormat("a HH:mm", Locale.KOREA).format(date)
+        SimpleDateFormat(TimeWithMeridiem.timeFormat, Locale.KOREA).format(date)
     } catch (e: Exception) {
         ""
     }
