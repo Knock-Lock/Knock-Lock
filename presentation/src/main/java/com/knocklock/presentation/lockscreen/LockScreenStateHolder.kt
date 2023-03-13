@@ -141,7 +141,7 @@ class LockScreenStateHolder(
 
     private fun getGroupNotifications() {
         scope.launch {
-            repositoryEntryPoint.getNotificationRepository().getGroupWithNotifications().collect { groups ->
+            repositoryEntryPoint.getNotificationRepository().getGroupWithNotificationsWithSorted().collect { groups ->
                 _notificationList.value = NotificationUiState.Success(
                     groups.map { it.toModel(packageManager) }
                 )
