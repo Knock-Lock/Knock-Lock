@@ -25,9 +25,6 @@ class NotificationRepositoryImpl @Inject constructor(
         groupDao.insertGroup(group = group.toEntity())
     }
 
-    override suspend fun getSizeWithNotificationId(id: String): Int {
-        return notificationDao.getNotificationSize(id)
-    }
 
     override suspend fun insertNotifications(vararg notifications: Notification) {
         notificationDao.insertNotifications(
