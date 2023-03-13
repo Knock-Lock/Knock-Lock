@@ -112,6 +112,7 @@ fun NotificationModel.toModel(packageManager: PackageManager): Notification {
         drawable = temp.second,
         appTitle = if (this.appTitle != "") this.appTitle else temp.first ?: "",
         notiTime = stringPostTime,
+        postedTime = this.postedTime,
         title = this.title,
         content = this.content,
         isClearable = this.isClearable,
