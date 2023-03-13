@@ -110,6 +110,7 @@ fun UnLockSwipeBar(
     updateTransitionState: (Boolean) -> Unit
 ) {
     val swipeableState = rememberSwipeableState(initialValue = 0)
+
     val sizePx = with(LocalDensity.current) { height.toPx() }
     val anchors = mapOf(0f to 0, sizePx to 1)
 
@@ -122,13 +123,23 @@ fun UnLockSwipeBar(
             repeatMode = RepeatMode.Reverse
         )
     )
-    LaunchedEffect(swipeableState.targetValue) {
-        if (swipeableState.targetValue == 1) {
-            userSwipe()
+
+    val targetValue by remember(swipeableState) {
+        derivedStateOf {
+            swipeableState.targetValue == 1
         }
     }
-    LaunchedEffect(swipeableState.progress.fraction) {
-        updateTransitionState(swipeableState.progress.fraction == 1f)
+    val fraction by remember(swipeableState) {
+        derivedStateOf {
+            swipeableState.progress.fraction == 1f
+        }
+    }
+
+    if (targetValue) {
+        userSwipe()
+    }
+    if (fraction) {
+        updateTransitionState(fraction)
     }
 
     Box(
@@ -172,10 +183,10 @@ fun LockScreenNotificationListColumn(
     ) {
         items(
             items = groupNotificationList,
-            key = { item: GroupWithNotification -> item.group.key } // size를 키로 둘경우 위치가 변경됨  item.notifications.second.size
+            key = { item: GroupWithNotification -> item.group.key }
         ) { item: GroupWithNotification ->
             GroupLockNotiItem(
-                modifier = Modifier.animateItemPlacement(),
+                modifier = Modifier,
                 notificationList = item.notifications.toImmutableList(),
                 onRemoveNotification = onRemoveNotification,
                 onNotificationClicked = onNotificationClicked
