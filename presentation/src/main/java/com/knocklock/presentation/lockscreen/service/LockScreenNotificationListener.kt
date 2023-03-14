@@ -20,6 +20,7 @@ import androidx.core.app.NotificationCompat
 import com.knocklock.domain.repository.NotificationRepository
 import com.knocklock.presentation.MainActivity
 import com.knocklock.presentation.lockscreen.mapper.getDatabaseKey
+import com.knocklock.presentation.lockscreen.mapper.isNotEmptyTitleOrContent
 import com.knocklock.presentation.lockscreen.mapper.toModel
 import com.knocklock.presentation.lockscreen.model.Group
 import com.knocklock.presentation.lockscreen.model.toModel
@@ -86,7 +87,8 @@ class LockScreenNotificationListener :
         val packageName = sbn?.packageName
         if (sbn != null && !TextUtils.isEmpty(packageName)) {
             notificationScope.launch {
-                sbn.toModel(packageManager)?.let { notification ->
+                if (sbn.isNotEmptyTitleOrContent()) {
+                    val notification = sbn.toModel(packageManager)
                     notificationRepository.insertGroup(
                         Group(
                             key = notification.groupKey

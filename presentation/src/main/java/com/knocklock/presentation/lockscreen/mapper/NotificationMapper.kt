@@ -1,6 +1,5 @@
 package com.knocklock.presentation.lockscreen.mapper
 
-import android.app.PendingIntent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
@@ -26,7 +25,11 @@ import com.knocklock.domain.model.Notification as NotificationModel
  * @return Array<[NotificationModel]>
  */
 fun toModel(statusBarNotifications: Array<out StatusBarNotification>, packageManager: PackageManager): Array<NotificationModel> {
-    return statusBarNotifications.asSequence().filter { it.toModel(packageManager) != null }.map { it.toModel(packageManager)!! }.toList().toTypedArray()
+    return statusBarNotifications.asSequence().filter { statusBarNotification ->
+        statusBarNotification.isNotEmptyTitleOrContent()
+    }.map { statusBarNotification ->
+        statusBarNotification.toModel(packageManager)
+    }.toList().toTypedArray()
 }
 
 /**
@@ -37,13 +40,10 @@ fun toModel(statusBarNotifications: Array<out StatusBarNotification>, packageMan
  * @return null OR Group.Key
  */
 fun StatusBarNotification.getDatabaseKey(packageManager: PackageManager): String? {
-    val title: String = convertString(this.notification.extras.getCharSequence("android.title"))
-    val content: String = convertString(this.notification.extras.getCharSequence("android.text"))
-    return if (title != "" || content != "") {
+    return if (isNotEmptyTitleOrContent()) {
+        val (title, _, subText) = getTitleAndContentAndSubText()
         val appTitle = getDrawableAndAppTitle(packageManager, packageName).first ?: ""
-        val subText: String = convertString(this.notification.extras.getCharSequence("android.subText"))
-
-        if (subText == "")getGroupKey(packageName, appTitle, title) else getGroupKey(packageName, appTitle, subText)
+        if (subText.isEmpty()) getGroupKey(packageName, appTitle, title) else getGroupKey(packageName, appTitle, subText)
     } else {
         null
     }
@@ -57,30 +57,35 @@ fun StatusBarNotification.getDatabaseKey(packageManager: PackageManager): String
  * @param packageManager AppTitle을 가져오기 위한 packageManager입니다.
  * @return null OR Notification Domain Model
  */
-fun StatusBarNotification.toModel(packageManager: PackageManager): NotificationModel? {
+fun StatusBarNotification.toModel(packageManager: PackageManager): NotificationModel {
+    val (title, content, subText) = getTitleAndContentAndSubText()
+    val packageName = packageName
+    val appTitle = getDrawableAndAppTitle(packageManager, packageName).first ?: ""
+
+    return NotificationModel(
+        id = key,
+        packageName = packageName,
+        postedTime = postTime,
+        appTitle = subText.ifEmpty { appTitle },
+        title = title,
+        content = content,
+        isClearable = isClearable,
+        groupKey = if (subText.isEmpty()) getGroupKey(packageName, appTitle, title) else getGroupKey(packageName, appTitle, subText)
+    )
+}
+
+fun StatusBarNotification.isNotEmptyTitleOrContent(): Boolean {
     val title: String = convertString(this.notification.extras.getCharSequence("android.title"))
     val content: String = convertString(this.notification.extras.getCharSequence("android.text"))
-    return if (title != "" || content != "") {
-        val subText: String = convertString(this.notification.extras.getCharSequence("android.subText"))
-        val packageName = packageName
+    return title.isNotEmpty() || content.isNotEmpty()
+}
 
-        val intent: PendingIntent? = notification.contentIntent
+fun StatusBarNotification.getTitleAndContentAndSubText(): Triple<String, String, String> {
+    val title: String = convertString(this.notification.extras.getCharSequence("android.title"))
+    val content: String = convertString(this.notification.extras.getCharSequence("android.text"))
+    val subText: String = convertString(this.notification.extras.getCharSequence("android.subText"))
 
-        val appTitle = getDrawableAndAppTitle(packageManager, packageName).first ?: ""
-
-        NotificationModel(
-            id = key,
-            packageName = packageName,
-            postedTime = postTime,
-            appTitle = if (subText == "") appTitle else subText,
-            title = title,
-            content = content,
-            isClearable = isClearable,
-            groupKey = if (subText == "") getGroupKey(packageName, appTitle, title) else getGroupKey(packageName, appTitle, subText)
-        )
-    } else {
-        null
-    }
+    return Triple(title, content, subText)
 }
 
 fun getGroupKey(packageName: String, appTitle: String, title: String): String {
@@ -100,7 +105,7 @@ fun convertString(var1: Any?): String {
  * @return [Notification]
  */
 fun NotificationModel.toModel(packageManager: PackageManager): Notification {
-    val temp = getDrawableAndAppTitle(packageManager, packageName)
+    val (appTitle, drawable) = getDrawableAndAppTitle(packageManager, packageName)
     val date = Date(this.postedTime)
     val stringPostTime = try {
         SimpleDateFormat(TimeWithMeridiem.timeFormat, Locale.KOREA).format(date)
@@ -110,8 +115,8 @@ fun NotificationModel.toModel(packageManager: PackageManager): Notification {
 
     return Notification(
         id = this.id,
-        drawable = temp.second,
-        appTitle = if (this.appTitle != "") this.appTitle else temp.first ?: "",
+        drawable = drawable,
+        appTitle = this.appTitle.ifEmpty { appTitle ?: "" },
         notiTime = stringPostTime,
         postedTime = this.postedTime,
         title = this.title,
