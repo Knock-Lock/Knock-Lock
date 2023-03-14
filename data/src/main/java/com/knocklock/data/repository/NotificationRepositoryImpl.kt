@@ -8,10 +8,8 @@ import com.knocklock.domain.model.Group
 import com.knocklock.domain.model.GroupWithNotification
 import com.knocklock.domain.model.Notification
 import com.knocklock.domain.repository.NotificationRepository
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 /**
@@ -24,7 +22,6 @@ class NotificationRepositoryImpl @Inject constructor(
     override suspend fun insertGroup(group: Group) {
         groupDao.insertGroup(group = group.toEntity())
     }
-
 
     override suspend fun insertNotifications(vararg notifications: Notification) {
         notificationDao.insertNotifications(
@@ -41,20 +38,16 @@ class NotificationRepositoryImpl @Inject constructor(
      * @return Flow<List<[GroupWithNotification]>>
      */
     override fun getGroupWithNotificationsWithSorted(): Flow<List<GroupWithNotification>> {
-        return flow {
-            groupDao.getGroupWithNotifications().collect { groupWithNotifications ->
-                emit(
-                    groupWithNotifications.filter {
-                        it.notifications.isNotEmpty()
-                    }.map { groupWithNotification ->
-                        val notifications = groupWithNotification.notifications.sortedByDescending { it.postedTime }
-                        groupWithNotification.copy(
-                            notifications = notifications
-                        ).toModel()
-                    }.sortedByDescending { it.notifications[0].postedTime }
-                )
-            }
-        }.flowOn(Dispatchers.IO)
+        return groupDao.getGroupWithNotifications().map { groupWithNotifications ->
+            groupWithNotifications.filter { groupWithNotification ->
+                groupWithNotification.notifications.isNotEmpty()
+            }.map { groupWithNotification ->
+                val notifications = groupWithNotification.notifications.sortedByDescending { it.postedTime }
+                groupWithNotification.copy(
+                    notifications = notifications
+                ).toModel()
+            }.sortedByDescending { it.notifications[0].postedTime }
+        }
     }
 
     override suspend fun removeNotificationsWithId(vararg ids: String) {
