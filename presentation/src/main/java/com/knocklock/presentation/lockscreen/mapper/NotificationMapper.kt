@@ -74,12 +74,20 @@ fun StatusBarNotification.toModel(packageManager: PackageManager): NotificationM
     )
 }
 
+/**
+ * StatusBarNotification의 notification.extras에서 title과 content의 유무를 반환합니다.
+ * @return true if title or content isNotEmpty
+ */
 fun StatusBarNotification.isNotEmptyTitleOrContent(): Boolean {
     val title: String = convertString(this.notification.extras.getCharSequence("android.title"))
     val content: String = convertString(this.notification.extras.getCharSequence("android.text"))
     return title.isNotEmpty() || content.isNotEmpty()
 }
 
+/**
+ * StatusBarNotification에서 title과 content, subText를 반환합니다.
+ * @return [Triple]( title, content, subText )
+ */
 fun StatusBarNotification.getTitleAndContentAndSubText(): Triple<String, String, String> {
     val title: String = convertString(this.notification.extras.getCharSequence("android.title"))
     val content: String = convertString(this.notification.extras.getCharSequence("android.text"))
