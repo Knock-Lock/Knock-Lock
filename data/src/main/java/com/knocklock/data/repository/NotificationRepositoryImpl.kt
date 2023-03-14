@@ -39,14 +39,14 @@ class NotificationRepositoryImpl @Inject constructor(
      */
     override fun getGroupWithNotificationsWithSorted(): Flow<List<GroupWithNotification>> {
         return groupDao.getGroupWithNotifications().map { groupWithNotifications ->
-            groupWithNotifications.filter { groupWithNotification ->
+            groupWithNotifications.asSequence().filter { groupWithNotification ->
                 groupWithNotification.notifications.isNotEmpty()
             }.map { groupWithNotification ->
                 val notifications = groupWithNotification.notifications.sortedByDescending { it.postedTime }
                 groupWithNotification.copy(
                     notifications = notifications
                 ).toModel()
-            }.sortedByDescending { it.notifications[0].postedTime }
+            }.toList().sortedByDescending { it.notifications[0].postedTime }
         }
     }
 
