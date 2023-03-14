@@ -1,12 +1,9 @@
 package com.knocklock.presentation.lockscreen
 
 import android.app.PendingIntent
-import android.graphics.drawable.Drawable
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -22,12 +19,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
-import com.knocklock.presentation.lockscreen.util.*
+import com.knocklock.presentation.lockscreen.model.Notification
+import com.knocklock.presentation.lockscreen.util.DismissValue
 import com.knocklock.presentation.lockscreen.util.FractionalThreshold
 import com.knocklock.presentation.lockscreen.util.SwipeToDismiss
 import com.knocklock.presentation.lockscreen.util.rememberDismissState
@@ -39,24 +38,12 @@ import kotlinx.collections.immutable.toImmutableList
  * @Time 3:06 PM
  */
 
-@Immutable
-data class Notification(
-    val id: String = "",
-    val drawable: Drawable? = null,
-    val appTitle: String = "",
-    val notiTime: String = "",
-    val title: String = "",
-    val content: String = "",
-    val isClearable: Boolean = false,
-    val intent: PendingIntent? = null
-)
-
 @Composable
 fun GroupLockNotiItem(
     modifier: Modifier = Modifier,
     notificationList: ImmutableList<Notification>,
     onRemoveNotification: (List<String>) -> Unit,
-    onNotificationClicked: (PendingIntent) -> Unit,
+    onNotificationClicked: (PendingIntent) -> Unit
 ) {
     if (notificationList.isEmpty()) {
         return
@@ -71,16 +58,15 @@ fun GroupLockNotiItem(
         }
     }
     Column(
-        modifier = modifier.clickable(
-            enabled = clickableState,
-            indication = null,
-            interactionSource = remember { MutableInteractionSource() }
-        ) {
-            expandableState = !expandableState
-        }
+        modifier = modifier
     ) {
-        val lockNotiModifier = modifier.background(color = Color(0xFFFAFAFA).copy(alpha = 0.95f), shape = RoundedCornerShape(10.dp)).clip(RoundedCornerShape(10.dp))
-        key(notification) {
+        val lockNotiModifier = modifier
+            .background(
+                color = Color(0xFFFAFAFA).copy(alpha = 0.95f),
+                shape = RoundedCornerShape(10.dp)
+            )
+            .clip(RoundedCornerShape(10.dp))
+        key(notification.postedTime) {
             SwipeToDismissLockNotiItem(
                 modifier = lockNotiModifier,
                 onRemoveNotification = onRemoveNotification,
@@ -99,7 +85,7 @@ fun GroupLockNotiItem(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 for (index in 1 until notificationList.size) {
-                    key(notificationList[index]) {
+                    key(notificationList[index].postedTime) {
                         SwipeToDismissLockNotiItem(
                             modifier = lockNotiModifier,
                             onRemoveNotification = { list ->
@@ -162,12 +148,7 @@ fun SwipeToDismissLockNotiItem(
         }
     })
     SwipeToDismiss(
-        modifier = Modifier.clickable
-        {
-            updateNotification.intent?.let { intent ->
-                onNotificationClicked(intent)
-            }
-        },
+        modifier = Modifier,
         state = dismissState,
         dismissThresholds = { FractionalThreshold(0.25f) },
         dismissContent = {
@@ -179,7 +160,9 @@ fun SwipeToDismissLockNotiItem(
                     )
                     if (clickableState) {
                         Icon(
-                            modifier = Modifier.align(Alignment.CenterEnd).padding(end = 5.dp),
+                            modifier = Modifier
+                                .align(Alignment.CenterEnd)
+                                .padding(end = 5.dp),
                             imageVector = if (expandableState) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
                             contentDescription = null
                         )
@@ -188,10 +171,25 @@ fun SwipeToDismissLockNotiItem(
                 AnimatedVisibility(visible = !expandableState) {
                     Column {
                         if (notificationSize == 2) {
-                            MoreNotification(modifier = Modifier.padding(horizontal = 15.dp).fillMaxWidth().height(7.dp))
+                            MoreNotification(
+                                modifier = Modifier
+                                    .padding(horizontal = 15.dp)
+                                    .fillMaxWidth()
+                                    .height(7.dp)
+                            )
                         } else if (notificationSize >= 3) {
-                            MoreNotification(modifier = Modifier.padding(horizontal = 15.dp).fillMaxWidth().height(7.dp))
-                            MoreNotification(modifier = Modifier.padding(horizontal = 35.dp).fillMaxWidth().height(5.dp))
+                            MoreNotification(
+                                modifier = Modifier
+                                    .padding(horizontal = 15.dp)
+                                    .fillMaxWidth()
+                                    .height(7.dp)
+                            )
+                            MoreNotification(
+                                modifier = Modifier
+                                    .padding(horizontal = 35.dp)
+                                    .fillMaxWidth()
+                                    .height(5.dp)
+                            )
                         }
                     }
                 }
@@ -207,7 +205,17 @@ fun MoreNotification(
 ) {
     val moreNotificationShape = RoundedCornerShape(bottomStart = 5.dp, bottomEnd = 5.dp)
     Row(
-        modifier = modifier.background(brush = Brush.verticalGradient(listOf(Color(0xFFFAFAFA).copy(alpha = 0.9f), Color.LightGray)), shape = moreNotificationShape).clip(shape = moreNotificationShape)
+        modifier = modifier
+            .background(
+                brush = Brush.verticalGradient(
+                    listOf(
+                        Color(0xFFFAFAFA).copy(alpha = 0.9f),
+                        Color.LightGray
+                    )
+                ),
+                shape = moreNotificationShape
+            )
+            .clip(shape = moreNotificationShape)
     ) {}
 }
 
@@ -224,7 +232,7 @@ fun LockNotiItem(
             modifier = Modifier
                 .padding(horizontal = 10.dp)
                 .padding(top = 4.dp),
-            drawable = notification.drawable,
+            packageName = notification.packageName,
             appTitle = notification.appTitle,
             time = notification.notiTime
         )
@@ -242,7 +250,7 @@ fun LockNotiItem(
 @Composable
 fun LockNotiTop(
     modifier: Modifier = Modifier,
-    drawable: Drawable?,
+    packageName: String?,
     appTitle: String,
     time: String
 ) {
@@ -255,10 +263,12 @@ fun LockNotiTop(
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (drawable != null) {
+            if (packageName != null) {
                 Image(
                     modifier = Modifier.size(10.dp),
-                    painter = rememberDrawablePainter(drawable = drawable),
+                    painter = rememberDrawablePainter(
+                        drawable = LocalContext.current.packageManager.getApplicationIcon(packageName)
+                    ),
                     contentDescription = null
                 )
             }

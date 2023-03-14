@@ -3,7 +3,6 @@ package com.knocklock.presentation.lockscreen
 import android.app.PendingIntent
 import android.widget.TextClock
 import androidx.compose.animation.core.*
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.*
@@ -20,6 +19,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.zIndex
+import com.knocklock.presentation.lockscreen.model.GroupWithNotification
 import com.knocklock.presentation.lockscreen.util.FractionalThreshold
 import com.knocklock.presentation.lockscreen.util.rememberSwipeableState
 import com.knocklock.presentation.lockscreen.util.swipeable
@@ -38,8 +39,6 @@ fun LockScreenRoute(
     notificationUiState: NotificationUiState,
     userSwipe: () -> Unit,
     onRemoveNotification: (List<String>) -> Unit,
-    startTransitionState: Boolean,
-    updateTransitionState: (Boolean) -> Unit,
     onNotificationClicked: (PendingIntent) -> Unit
 ) {
     LockScreen(
@@ -47,8 +46,6 @@ fun LockScreenRoute(
         notificationUiState = notificationUiState,
         userSwipe = userSwipe,
         onRemoveNotification = onRemoveNotification,
-        startTransitionState = startTransitionState,
-        updateTransitionState = updateTransitionState,
         onNotificationClicked = onNotificationClicked
     )
 }
@@ -59,8 +56,6 @@ fun LockScreen(
     notificationUiState: NotificationUiState,
     userSwipe: () -> Unit,
     onRemoveNotification: (List<String>) -> Unit,
-    startTransitionState: Boolean,
-    updateTransitionState: (Boolean) -> Unit,
     onNotificationClicked: (PendingIntent) -> Unit
 ) {
     Column(
@@ -73,8 +68,7 @@ fun LockScreen(
             when (notificationUiState) {
                 is NotificationUiState.Success -> {
                     LockScreenNotificationListColumn(
-                        groupNotificationList = notificationUiState.notificationList.toImmutableList(),
-                        scrollableState = startTransitionState,
+                        groupNotificationList = notificationUiState.groupWithNotification.toImmutableList(),
                         onRemoveNotification = onRemoveNotification,
                         onNotificationClicked = onNotificationClicked
                     )
@@ -86,12 +80,10 @@ fun LockScreen(
                 modifier = Modifier.fillMaxWidth().height(50.dp).align(Alignment.BottomCenter)
             ) {
                 UnLockSwipeBar(
-                    modifier = Modifier.fillMaxWidth().height(50.dp),
+                    modifier = Modifier.fillMaxWidth().height(50.dp).zIndex(2f),
                     width = 200.dp,
                     height = 100.dp,
-                    userSwipe = userSwipe,
-                    startTransitionState = startTransitionState,
-                    updateTransitionState = updateTransitionState
+                    userSwipe = userSwipe
                 )
             }
         }
@@ -104,30 +96,30 @@ fun UnLockSwipeBar(
     modifier: Modifier = Modifier,
     width: Dp,
     height: Dp,
-    userSwipe: () -> Unit,
-    startTransitionState: Boolean,
-    updateTransitionState: (Boolean) -> Unit
+    userSwipe: () -> Unit
 ) {
     val swipeableState = rememberSwipeableState(initialValue = 0)
+
     val sizePx = with(LocalDensity.current) { height.toPx() }
     val anchors = mapOf(0f to 0, sizePx to 1)
 
     val infiniteTransition = rememberInfiniteTransition()
     val movingAnimation by infiniteTransition.animateFloat(
         initialValue = 0f,
-        targetValue = if (startTransitionState) height.value / 3 else 0f,
+        targetValue = height.value,
         animationSpec = infiniteRepeatable(
             animation = tween(1000, easing = LinearEasing),
             repeatMode = RepeatMode.Reverse
         )
     )
-    LaunchedEffect(swipeableState.targetValue) {
-        if (swipeableState.targetValue == 1) {
-            userSwipe()
+
+    val targetValue by remember(swipeableState) {
+        derivedStateOf {
+            swipeableState.targetValue == 1
         }
     }
-    LaunchedEffect(swipeableState.progress.fraction) {
-        updateTransitionState(swipeableState.progress.fraction == 1f)
+    if (targetValue) {
+        userSwipe()
     }
 
     Box(
@@ -154,36 +146,30 @@ fun UnLockSwipeBar(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LockScreenNotificationListColumn(
     modifier: Modifier = Modifier,
-    groupNotificationList: ImmutableList<GroupNotification>,
-    scrollableState: Boolean,
+    groupNotificationList: ImmutableList<GroupWithNotification>,
     onRemoveNotification: (List<String>) -> Unit,
     onNotificationClicked: (PendingIntent) -> Unit
 ) {
     LazyColumn(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(4.dp),
-        contentPadding = PaddingValues(10.dp),
-        userScrollEnabled = scrollableState
+        contentPadding = PaddingValues(10.dp)
     ) {
         items(
             items = groupNotificationList,
-            key = { item: GroupNotification -> generatedKey(item.notifications.first) } // size를 키로 둘경우 위치가 변경됨  item.notifications.second.size
-        ) { item: GroupNotification ->
+            key = { item: GroupWithNotification -> item.group.key }
+        ) { item: GroupWithNotification ->
             GroupLockNotiItem(
-                modifier = Modifier.animateItemPlacement(),
-                notificationList = item.notifications.second.toImmutableList(),
+                modifier = Modifier,
+                notificationList = item.notifications.toImmutableList(),
                 onRemoveNotification = onRemoveNotification,
                 onNotificationClicked = onNotificationClicked
             )
         }
     }
-}
-fun generatedKey(groupKey: GroupKey): String {
-    return groupKey.packageName + groupKey.appTitle + groupKey.title
 }
 
 @Composable

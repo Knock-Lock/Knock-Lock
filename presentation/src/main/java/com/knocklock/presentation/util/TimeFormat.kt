@@ -18,3 +18,7 @@ object TimeVerticalFormat : TimeFormat() {
     override val timeFormat: String = "hh"
     const val minutesFormat: String = "mm"
 }
+
+object TimeWithMeridiem : TimeFormat() {
+    override val timeFormat: String = "a HH:mm"
+}

@@ -2,20 +2,23 @@ package com.knocklock.presentation.lockscreen
 
 import android.app.PendingIntent
 import android.content.Context
-import android.content.pm.ApplicationInfo
-import android.content.pm.PackageManager
-import android.graphics.drawable.Drawable
-import android.os.Build
 import android.service.notification.StatusBarNotification
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import com.knocklock.domain.model.Group
+import com.knocklock.domain.model.GroupWithNotification
 import com.knocklock.domain.model.LockScreen
 import com.knocklock.domain.model.LockScreenBackground
+import com.knocklock.domain.model.Notification
 import com.knocklock.domain.model.User
+import com.knocklock.domain.repository.NotificationRepository
 import com.knocklock.domain.usecase.lockscreen.GetLockScreenUseCase
 import com.knocklock.domain.usecase.setting.GetUserUseCase
+import com.knocklock.presentation.lockscreen.mapper.convertString
+import com.knocklock.presentation.lockscreen.mapper.toModel
+import com.knocklock.presentation.lockscreen.model.toModel
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
@@ -45,9 +48,20 @@ class LockScreenStateHolder(
         fun getLockScreenUseCase(): GetLockScreenUseCase
     }
 
+    @EntryPoint
+    @InstallIn(SingletonComponent::class)
+    interface RepositoryEntryPoint {
+        fun getNotificationRepository(): NotificationRepository
+    }
+
     private val useCaseEntryPoint = EntryPointAccessors.fromApplication(
         context,
         UseCaseEntryPoint::class.java
+    )
+
+    private val repositoryEntryPoint = EntryPointAccessors.fromApplication(
+        context,
+        RepositoryEntryPoint::class.java
     )
 
     private val _notificationList: MutableStateFlow<NotificationUiState> = MutableStateFlow(
@@ -66,84 +80,66 @@ class LockScreenStateHolder(
     init {
         getCurrentLockState()
         getCurrentLockScreenBackground()
+        getGroupNotifications()
     }
 
-    fun updateNotificationList(notificationList: List<StatusBarNotification>) {
-        val notificationUiState = NotificationUiState.Success(
-            notificationList = notificationList.asSequence()
-                .filter { statusBarNotification ->
-                    with(statusBarNotification.notification.extras) {
-                        val title: String = convertString(getCharSequence("android.title"))
-                        val content: String = convertString(getCharSequence("android.text"))
-                        title != "" || content != ""
-                    }
-                }.map { statusBarNotification ->
-                    with(statusBarNotification.notification.extras) {
-                        var appTitle = ""
-                        val subText: String = convertString(getCharSequence("android.subText"))
-                        val title: String = convertString(getCharSequence("android.title"))
-                        val content: String = convertString(getCharSequence("android.text"))
-                        val packageName = statusBarNotification.packageName
-                        val date = Date(statusBarNotification.postTime)
-                        val intent: PendingIntent? = statusBarNotification.notification.contentIntent
-                        val stringPostTime = try {
-                            SimpleDateFormat("a HH:mm", Locale.KOREA).format(date)
-                        } catch (e: Exception) {
-                            ""
-                        }
-                        val applicationInfo: ApplicationInfo?
+    suspend fun updateNotificationList(notificationList: List<StatusBarNotification>) {
+        val list = notificationList.asSequence()
+            .filter { statusBarNotification ->
+                with(statusBarNotification.notification.extras) {
+                    val title: String = convertString(getCharSequence("android.title"))
+                    val content: String = convertString(getCharSequence("android.text"))
+                    title != "" || content != ""
+                }
+            }.map { statusBarNotification ->
+                with(statusBarNotification.notification.extras) {
+                    var appTitle = ""
+                    val subText: String = convertString(getCharSequence("android.subText"))
+                    val title: String = convertString(getCharSequence("android.title"))
+                    val content: String = convertString(getCharSequence("android.text"))
+                    val packageName = statusBarNotification.packageName
 
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                            applicationInfo = runCatching {
-                                packageManager.getApplicationInfo(
-                                    packageName,
-                                    PackageManager.ApplicationInfoFlags.of(PackageManager.GET_META_DATA.toLong())
-                                )
-                            }.onSuccess { info ->
-                                appTitle = packageManager.getApplicationLabel(info).toString()
-                            }.getOrNull()
-                        } else {
-                            applicationInfo = runCatching {
-                                packageManager.getApplicationInfo(packageName, 0)
-                            }.onSuccess { info ->
-                                appTitle = packageManager.getApplicationLabel(info).toString()
-                            }.getOrNull()
-                        }
-
-                        val icon: Drawable? = if (applicationInfo != null) {
-                            packageManager.getApplicationIcon(applicationInfo)
-                        } else null
-
-                        Notification(
-                            id = statusBarNotification.key,
-                            drawable = icon,
-                            appTitle = if (subText == "") appTitle else subText,
-                            notiTime = stringPostTime,
-                            title = title,
-                            isClearable = statusBarNotification.isClearable,
-                            content = content,
-                            intent = intent
-                        )
-                    }
-                }.groupBy { notification ->
-                    GroupKey(
-                        packageName = notification.id.split("|")[1],
-                        appTitle = notification.appTitle,
-                        title = notification.title
+                    Notification(
+                        id = statusBarNotification.key,
+                        postedTime = statusBarNotification.postTime,
+                        appTitle = if (subText == "") appTitle else subText,
+                        title = title,
+                        isClearable = statusBarNotification.isClearable,
+                        content = content,
+                        packageName = packageName
                     )
                 }
-                .map { entry ->
-                    GroupNotification(
-                        entry.toPair()
-                    )
-                }.sortedByDescending { groupNotification ->
-                    groupNotification.notifications.second.first().notiTime
-                }
-        )
-        _notificationList.value = notificationUiState
+            }.groupBy { notification ->
+                GroupKey(
+                    packageName = notification.id.split("|")[1],
+                    appTitle = notification.appTitle,
+                    title = notification.title
+                )
+            }.map {
+                GroupWithNotification(
+                    group = Group(key = it.key.toString()),
+                    notifications = it.value
+                )
+            }
+
+        for (i in list) {
+            scope.launch {
+                repositoryEntryPoint.getNotificationRepository().insertGroup(i.group)
+                repositoryEntryPoint.getNotificationRepository().insertNotifications(
+                    *i.notifications.toTypedArray()
+                )
+            }
+        }
     }
-    private fun convertString(var1: Any?): String {
-        return var1?.toString() ?: ""
+
+    private fun getGroupNotifications() {
+        scope.launch {
+            repositoryEntryPoint.getNotificationRepository().getGroupWithNotificationsWithSorted().collect { groups ->
+                _notificationList.value = NotificationUiState.Success(
+                    groups.map { it.toModel(packageManager) }
+                )
+            }
+        }
     }
 
     private fun getCurrentLockState() {

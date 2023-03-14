@@ -125,10 +125,6 @@ class InitLockScreenView(
                         onRemoveNotification = { notifications ->
                             onComposeViewListener.removeNotifications(notifications)
                         },
-                        startTransitionState = startTransitionState,
-                        updateTransitionState = { state ->
-                            startTransitionState = state
-                        },
                         onNotificationClicked = { intent ->
                             currentUserState?.let { user ->
                                 when (user.authenticationType) {
