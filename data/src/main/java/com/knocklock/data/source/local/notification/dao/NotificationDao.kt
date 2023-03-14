@@ -17,12 +17,12 @@ interface NotificationDao {
     suspend fun insertNotifications(vararg notifications: Notification)
 
     @Query(
-        "DELETE FROM NOTIFICATION WHERE id LIKE :ids"
+        "DELETE FROM NOTIFICATION WHERE id = :ids"
     )
     suspend fun deleteNotificationsWithIds(vararg ids: String)
 
     @Query(
-        "DELETE FROM NOTIFICATION WHERE groupKey LIKE :groupKey"
+        "DELETE FROM NOTIFICATION WHERE groupKey = :groupKey"
     )
     suspend fun deleteNotificationsWithGroupKey(groupKey: String)
 }

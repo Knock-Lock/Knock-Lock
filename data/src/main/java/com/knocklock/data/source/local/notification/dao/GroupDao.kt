@@ -28,7 +28,7 @@ interface GroupDao {
     suspend fun insertGroup(group: Group)
 
     @Query(
-        "DELETE FROM `GROUP` WHERE `key` Like :key"
+        "DELETE FROM `GROUP` WHERE `key` = :key"
     )
     suspend fun deleteGroupWithKey(key: String)
 }
