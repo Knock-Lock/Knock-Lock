@@ -17,6 +17,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.knocklock.presentation.extenstions.noRippleClickable
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 
@@ -33,7 +34,7 @@ fun HomeMenuBar(
         menuList.forEach { homeMenu ->
             HomeMenuItem(
                 modifier = Modifier
-                    .clickable { onClickHomeMenu(homeMenu) }
+                    .noRippleClickable { onClickHomeMenu(homeMenu) }
                     .padding(vertical = 16.dp, horizontal = 8.dp),
                 homeMenu = homeMenu,
             )
