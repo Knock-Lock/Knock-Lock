@@ -101,4 +101,8 @@ class MainActivity : ComponentActivity() {
             startService(Intent(this, LockScreenNotificationListener::class.java))
         }
     }
+
+    companion object{
+        const val GITHUB_LINK = "https://github.com/Knock-Lock/Knock-Lock"
+    }
 }

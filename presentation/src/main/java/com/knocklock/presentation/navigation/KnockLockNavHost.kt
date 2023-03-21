@@ -2,6 +2,7 @@ package com.knocklock.presentation.navigation
 
 import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import android.provider.MediaStore
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -15,6 +16,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
+import com.knocklock.presentation.MainActivity.Companion.GITHUB_LINK
 import com.knocklock.presentation.R
 import com.knocklock.presentation.home.HomeRoute
 import com.knocklock.presentation.home.HomeViewModel
@@ -59,7 +61,10 @@ fun NavGraphBuilder.homeGraph(
                 rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                     if (result.resultCode == Activity.RESULT_OK) {
                         result.data?.data?.let { uri ->
-                            context.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            context.contentResolver.takePersistableUriPermission(
+                                uri,
+                                Intent.FLAG_GRANT_READ_URI_PERMISSION
+                            )
                             vm.saveTmpWallPaper(uri.toString())
                         }
                     }
@@ -128,10 +133,24 @@ fun NavGraphBuilder.settingGraph(
             )
         }
         composable(route = NavigationRoute.SettingGraph.Credit.route) {
+            val context = LocalContext.current
             CreditRoute(
                 modifier = modifier,
                 onIconClick = { navController.popBackStack() },
-                onTextClicked = { }
+                onTextClicked = { textRes ->
+                    when (textRes) {
+                        R.string.github -> {
+                            val intent = Intent(Intent.ACTION_VIEW).apply {
+                                data = Uri.parse(GITHUB_LINK)
+                            }
+                            context.startActivity(intent)
+                        }
+                        R.string.inquiry -> {}
+                        R.string.open_source_license -> {}
+                        R.string.service -> {}
+                        R.string.donate -> {}
+                    }
+                }
             )
         }
     }
