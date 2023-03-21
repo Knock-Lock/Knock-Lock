@@ -1,6 +1,9 @@
 package com.knocklock.presentation.navigation
 
 import android.app.Activity
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context.CLIPBOARD_SERVICE
 import android.content.Intent
 import android.net.Uri
 import android.provider.MediaStore
@@ -17,6 +20,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import com.knocklock.presentation.MainActivity.Companion.GITHUB_LINK
+import com.knocklock.presentation.MainActivity.Companion.KNOCK_LOCK_ACCOUNT
 import com.knocklock.presentation.R
 import com.knocklock.presentation.home.HomeRoute
 import com.knocklock.presentation.home.HomeViewModel
@@ -24,6 +28,7 @@ import com.knocklock.presentation.home.menu.HomeMenu
 import com.knocklock.presentation.setting.SettingRoute
 import com.knocklock.presentation.setting.credit.CreditRoute
 import com.knocklock.presentation.setting.password.PasswordInputRoute
+import com.knocklock.presentation.util.showShortToastMessage
 
 @Composable
 fun KnockLockNavHost(
@@ -148,7 +153,17 @@ fun NavGraphBuilder.settingGraph(
                         R.string.inquiry -> {}
                         R.string.open_source_license -> {}
                         R.string.service -> {}
-                        R.string.donate -> {}
+                        R.string.donate -> {
+                            val clipboard = context.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+                            val clip = ClipData.newPlainText("donate", KNOCK_LOCK_ACCOUNT)
+                            runCatching {
+                                clipboard.setPrimaryClip(clip)
+                            }.onSuccess {
+                                context.showShortToastMessage(context.getString(R.string.copy_success_msg))
+                            }.onFailure {
+                                context.showShortToastMessage(context.getString(R.string.copy_failed_msg))
+                            }
+                        }
                     }
                 }
             )
