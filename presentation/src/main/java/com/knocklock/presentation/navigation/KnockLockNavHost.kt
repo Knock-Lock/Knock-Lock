@@ -21,6 +21,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import com.knocklock.presentation.MainActivity.Companion.GITHUB_LINK
 import com.knocklock.presentation.MainActivity.Companion.KNOCK_LOCK_ACCOUNT
+import com.knocklock.presentation.MainActivity.Companion.KNOCK_LOCK_EMAIL_ADDRESS
 import com.knocklock.presentation.R
 import com.knocklock.presentation.home.HomeRoute
 import com.knocklock.presentation.home.HomeViewModel
@@ -150,11 +151,32 @@ fun NavGraphBuilder.settingGraph(
                             }
                             context.startActivity(intent)
                         }
-                        R.string.inquiry -> {}
-                        R.string.open_source_license -> {}
-                        R.string.service -> {}
+                        R.string.inquiry -> {
+                            val intent = Intent(Intent.ACTION_SENDTO).apply {
+                                data = Uri.parse("mailto:")
+                                putExtra(Intent.EXTRA_EMAIL, arrayOf(KNOCK_LOCK_EMAIL_ADDRESS))
+                            }
+                            intent.resolveActivity(context.packageManager)?.let {
+                                context.startActivity(intent)
+                            }
+                        }
+                        R.string.open_source_license -> {
+                            // TODO 임시로 깃헙 연결
+                            val intent = Intent(Intent.ACTION_VIEW).apply {
+                                data = Uri.parse(GITHUB_LINK)
+                            }
+                            context.startActivity(intent)
+                        }
+                        R.string.service -> {
+                            // TODO 임시로 깃헙 연결
+                            val intent = Intent(Intent.ACTION_VIEW).apply {
+                                data = Uri.parse(GITHUB_LINK)
+                            }
+                            context.startActivity(intent)
+                        }
                         R.string.donate -> {
-                            val clipboard = context.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+                            val clipboard =
+                                context.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
                             val clip = ClipData.newPlainText("donate", KNOCK_LOCK_ACCOUNT)
                             runCatching {
                                 clipboard.setPrimaryClip(clip)
