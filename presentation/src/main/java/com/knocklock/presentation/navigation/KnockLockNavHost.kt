@@ -130,7 +130,8 @@ fun NavGraphBuilder.settingGraph(
         composable(route = NavigationRoute.SettingGraph.Credit.route) {
             CreditRoute(
                 modifier = modifier,
-                onIconClick = { navController.popBackStack() }
+                onIconClick = { navController.popBackStack() },
+                onTextClicked = { }
             )
         }
     }
