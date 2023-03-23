@@ -28,6 +28,7 @@ import com.knocklock.presentation.home.HomeViewModel
 import com.knocklock.presentation.home.menu.HomeMenu
 import com.knocklock.presentation.setting.SettingRoute
 import com.knocklock.presentation.setting.credit.CreditRoute
+import com.knocklock.presentation.setting.credit.TextMenu
 import com.knocklock.presentation.setting.password.PasswordInputRoute
 import com.knocklock.presentation.util.showShortToastMessage
 
@@ -143,15 +144,15 @@ fun NavGraphBuilder.settingGraph(
             CreditRoute(
                 modifier = modifier,
                 onIconClick = { navController.popBackStack() },
-                onTextClicked = { textRes ->
-                    when (textRes) {
-                        R.string.github -> {
+                onTextClicked = { menu ->
+                    when (menu) {
+                        TextMenu.GITHUB -> {
                             val intent = Intent(Intent.ACTION_VIEW).apply {
                                 data = Uri.parse(GITHUB_LINK)
                             }
                             context.startActivity(intent)
                         }
-                        R.string.inquiry -> {
+                        TextMenu.INQUIRY -> {
                             val intent = Intent(Intent.ACTION_SENDTO).apply {
                                 data = Uri.parse("mailto:")
                                 putExtra(Intent.EXTRA_EMAIL, arrayOf(KNOCK_LOCK_EMAIL_ADDRESS))
@@ -160,21 +161,21 @@ fun NavGraphBuilder.settingGraph(
                                 context.startActivity(intent)
                             }
                         }
-                        R.string.open_source_license -> {
+                        TextMenu.OPENSOURCE -> {
                             // TODO 임시로 깃헙 연결
                             val intent = Intent(Intent.ACTION_VIEW).apply {
                                 data = Uri.parse(GITHUB_LINK)
                             }
                             context.startActivity(intent)
                         }
-                        R.string.service -> {
+                        TextMenu.SERVICE -> {
                             // TODO 임시로 깃헙 연결
                             val intent = Intent(Intent.ACTION_VIEW).apply {
                                 data = Uri.parse(GITHUB_LINK)
                             }
                             context.startActivity(intent)
                         }
-                        R.string.donate -> {
+                        TextMenu.DONATE -> {
                             val clipboard =
                                 context.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
                             val clip = ClipData.newPlainText("donate", KNOCK_LOCK_ACCOUNT)

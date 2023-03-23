@@ -1,6 +1,5 @@
 package com.knocklock.presentation.setting.credit
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -24,7 +23,7 @@ import com.knocklock.presentation.R
 fun CreditRoute(
     modifier: Modifier = Modifier,
     onIconClick: () -> Boolean,
-    onTextClicked: (Int) -> Unit
+    onTextClicked: (TextMenu) -> Unit
 ) {
     CreditScreen(modifier, onIconClick, onTextClicked)
 }
@@ -34,7 +33,7 @@ fun CreditRoute(
 fun CreditScreen(
     modifier: Modifier = Modifier,
     onIconClick: () -> Boolean,
-    onTextClicked: (Int) -> Unit
+    onTextClicked: (TextMenu) -> Unit
 ) {
     val scrollState = rememberScrollState(0)
 
@@ -82,7 +81,7 @@ private fun CreditBody(
     modifier: Modifier = Modifier,
     scrollState: ScrollState,
     padding: PaddingValues,
-    onTextClicked: (Int) -> Unit
+    onTextClicked: (TextMenu) -> Unit
 ) {
     Column(
         modifier = modifier
@@ -102,21 +101,15 @@ private fun CreditBody(
 @Composable
 fun CreditTextMenuList(
     modifier: Modifier = Modifier,
-    onTextClicked: (Int) -> Unit
+    onTextClicked: (TextMenu) -> Unit
 ) {
     Column(
         modifier = modifier.padding(bottom = 20.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        listOf(
-            R.string.github,
-            R.string.inquiry,
-            R.string.open_source_license,
-            R.string.service,
-            R.string.donate
-        ).forEach { res ->
-            CreditTextMenu(onTextClicked = onTextClicked, menuTitle = res)
+        TextMenu.values().forEach { menu ->
+            CreditTextMenu(onTextClicked = onTextClicked, menu = menu)
         }
     }
 }
@@ -124,12 +117,12 @@ fun CreditTextMenuList(
 @Composable
 private fun CreditTextMenu(
     modifier: Modifier = Modifier,
-    onTextClicked: (Int) -> Unit,
-    @StringRes menuTitle: Int
+    onTextClicked: (TextMenu) -> Unit,
+    menu: TextMenu
 ) {
     Text(
-        modifier = modifier.clickable { onTextClicked(menuTitle) },
-        text = stringResource(id = menuTitle),
+        modifier = modifier.clickable { onTextClicked(menu) },
+        text = stringResource(id = menu.textRes),
         fontSize = 12.sp,
         color = Color.Blue,
         textDecoration = TextDecoration.Underline
