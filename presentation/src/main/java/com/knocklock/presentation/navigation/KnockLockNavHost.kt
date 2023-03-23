@@ -157,9 +157,7 @@ fun NavGraphBuilder.settingGraph(
                                 data = Uri.parse("mailto:")
                                 putExtra(Intent.EXTRA_EMAIL, arrayOf(KNOCK_LOCK_EMAIL_ADDRESS))
                             }
-                            intent.resolveActivity(context.packageManager)?.let {
-                                context.startActivity(intent)
-                            }
+                            context.startActivity(Intent.createChooser(intent, null))
                         }
                         TextMenu.OPENSOURCE -> {
                             // TODO 임시로 깃헙 연결
