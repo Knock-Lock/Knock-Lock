@@ -60,7 +60,6 @@ class LockScreenActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        println("로드 : in onCreate")
         getWindowSize()
         composeView = ComposeView(this).also { view ->
             initViewTreeOwner(view)
