@@ -118,8 +118,10 @@ fun UnLockSwipeBar(
             swipeableState.targetValue == 1
         }
     }
-    if (targetValue) {
-        userSwipe()
+    LaunchedEffect(targetValue) {
+        if (targetValue) {
+            userSwipe()
+        }
     }
 
     Box(
