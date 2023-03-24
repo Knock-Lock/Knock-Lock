@@ -98,4 +98,9 @@ dependencies {
     implementation "com.airbnb.android:lottie-compose:5.2.0"
 
     implementation('androidx.palette:palette:1.0.0')
+
+    implementation 'com.github.android:renderscript-intrinsics-replacement-toolkit:b6363490c3'
+
+    implementation "com.github.skydoves:landscapist-glide:2.1.8"
+    
 }
