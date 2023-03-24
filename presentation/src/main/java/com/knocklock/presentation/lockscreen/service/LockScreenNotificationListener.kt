@@ -6,19 +6,19 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.graphics.Point
 import android.net.Uri
+import android.os.Binder
 import android.os.Build
+import android.os.IBinder
 import android.provider.Settings
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.text.TextUtils
 import android.util.Log
-import android.view.WindowManager
-import androidx.compose.ui.platform.ComposeView
 import androidx.core.app.NotificationCompat
 import com.knocklock.domain.repository.NotificationRepository
 import com.knocklock.presentation.MainActivity
+import com.knocklock.presentation.lockscreen.LockScreenActivity
 import com.knocklock.presentation.lockscreen.mapper.getDatabaseKey
 import com.knocklock.presentation.lockscreen.mapper.isNotEmptyTitleOrContent
 import com.knocklock.presentation.lockscreen.mapper.toModel
@@ -44,20 +44,24 @@ class LockScreenNotificationListener :
     @Inject
     lateinit var notificationRepository: NotificationRepository
 
-    private val windowManager by lazy { getSystemService(Context.WINDOW_SERVICE) as WindowManager }
-    private val point by lazy { Point() }
-
     private val notificationManager by lazy { getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager }
 
     private val job by lazy { SupervisorJob() }
     private val notificationScope by lazy { CoroutineScope(job + Dispatchers.Default) }
 
-    private val composeView by lazy { ComposeView(context = this) }
+    private val binder = LocalBinder()
 
-    private lateinit var initLockScreenView: InitLockScreenView
+    inner class LocalBinder : Binder() {
+        fun getService(): LockScreenNotificationListener = this@LockScreenNotificationListener
+    }
 
-    private val fullScreenLayoutParams by lazy {
-        initLockScreenView.getWindowManagerLayoutParams()
+    override fun onBind(intent: Intent): IBinder? {
+        val action = intent.action
+        return if (SERVICE_INTERFACE == action) {
+            super.onBind(intent)
+        } else {
+            binder
+        }
     }
 
     private val screenEventReceiver by lazy {
@@ -112,38 +116,8 @@ class LockScreenNotificationListener :
 
     override fun onCreate() {
         super.onCreate()
-        initView()
         registerSystemBarEventReceiver()
         registerScreenEventReceiver()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            point.x = windowManager.maximumWindowMetrics.bounds.width()
-            point.y = windowManager.maximumWindowMetrics.bounds.height()
-        } else {
-            windowManager.defaultDisplay.getRealSize(point)
-        }
-    }
-
-    private fun initView() {
-        initLockScreenView = InitLockScreenView(
-            composeView = composeView,
-            point = point,
-            onComposeViewListener = object : OnComposeViewListener {
-                override fun remove() {
-                    windowManager.removeView(composeView)
-                }
-
-                override fun removeNotifications(keys: List<String>) {
-                    notificationScope.launch {
-                        // Todo id가 전부 같은 문제해결하기
-                        cancelNotifications(keys.toTypedArray())
-                    }
-                }
-
-                override fun startIntentApplication(pendingIntent: PendingIntent) {
-//                    pendingIntent.send()
-                }
-            }
-        )
     }
 
     private fun initNotificationsToLockScreen() {
@@ -174,12 +148,15 @@ class LockScreenNotificationListener :
         if (!canOverlay) {
             requestScreenOverlay()
         }
+        initNotificationsToLockScreen()
         try {
-            windowManager.addView(composeView, fullScreenLayoutParams)
+            val intent = Intent(this, LockScreenActivity::class.java).apply {
+                flags = (Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            }
+            startActivity(intent)
         } catch (e: IllegalStateException) {
             Log.e("로그", "view is already added")
         }
-        initNotificationsToLockScreen()
     }
 
     private fun requestScreenOverlay() {
