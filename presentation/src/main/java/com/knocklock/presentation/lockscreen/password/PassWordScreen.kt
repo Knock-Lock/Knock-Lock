@@ -1,6 +1,5 @@
 package com.knocklock.presentation.lockscreen.password
 
-import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -110,11 +109,12 @@ fun PassWordScreen(
         }
         BackButton(
             modifier = Modifier.align(Alignment.End).padding(end = contentPadding).size(circlePassWordNumberSize).clickable(
-                interactionSource = MutableInteractionSource(),
-                indication = null
-            ) {
-                passWordScreenState.removePassWord()
-            }
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = {
+                    passWordScreenState.removePassWord()
+                }
+            )
         )
     }
 }
@@ -215,7 +215,6 @@ fun PreviewLocker() {
         Locker(isPlaying = false)
     }
 }
-
 
 @Preview
 @Composable
