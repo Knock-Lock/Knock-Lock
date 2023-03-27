@@ -14,21 +14,18 @@ import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.setViewTreeOnBackPressedDispatcherOwner
 import androidx.activity.viewModels
-import androidx.compose.runtime.Recomposer
-import androidx.compose.ui.platform.AndroidUiDispatcher
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.compositionContext
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ViewModelStore
+import androidx.compose.ui.platform.createLifecycleAwareWindowRecomposer
 import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.lifecycle.ViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.knocklock.presentation.lockscreen.service.LockScreenNotificationListener
-import com.knocklock.presentation.lockscreen.util.ComposeLifecycleOwner
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class LockScreenActivity : ComponentActivity() {
@@ -40,8 +37,6 @@ class LockScreenActivity : ComponentActivity() {
     }
 
     private val point by lazy { Point() }
-    private val composeViewModelStore by lazy { ViewModelStore() }
-    private val lifecycleOwner by lazy { ComposeLifecycleOwner() }
     private var notificationListener: LockScreenNotificationListener? = null
     private var mBound: Boolean = false
     private val vm: LockScreenViewModel by viewModels()
@@ -61,13 +56,14 @@ class LockScreenActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         getWindowSize()
-        composeView = ComposeView(this).also { view ->
-            initViewTreeOwner(view)
-            view.setContent {
+        composeView = ComposeView(this).apply {
+            val parent = this.compositionContext
+            setParentCompositionContext(parent)
+            setContent {
                 LockScreenHost(
                     onFinish = {
                         windowManager.removeViewImmediate(composeView)
-                        finishAndRemoveTask()
+                        onDestroy()
                     },
                     onRemoveNotifications = { keys ->
                         if (mBound) notificationListener?.cancelNotifications(keys)
@@ -76,8 +72,8 @@ class LockScreenActivity : ComponentActivity() {
                     packageManager = manager,
                 )
             }
+            initViewTreeOwner(this)
         }
-
         windowManager.addView(composeView, getWindowManagerLayoutParams())
     }
 
@@ -98,22 +94,17 @@ class LockScreenActivity : ComponentActivity() {
         super.onDestroy()
         notificationListener = null
         composeView = null
+        finishAndRemoveTask()
     }
-    private fun initViewTreeOwner(composeView: ComposeView) {
-        lifecycleOwner.apply {
-            performRestore(null)
-            handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
-        }
-        ViewTreeLifecycleOwner.set(composeView, lifecycleOwner)
-        composeView.setViewTreeSavedStateRegistryOwner(lifecycleOwner)
 
-        ViewTreeViewModelStoreOwner.set(composeView) { composeViewModelStore }
-        val coroutineContext = AndroidUiDispatcher.CurrentThread
-        val runRecomposeScope = CoroutineScope(coroutineContext)
-        val recomposer = Recomposer(coroutineContext)
-        composeView.compositionContext = recomposer
-        runRecomposeScope.launch {
-            recomposer.runRecomposeAndApplyChanges()
+    @OptIn(ExperimentalComposeUiApi::class)
+    private fun initViewTreeOwner(composeView: ComposeView) {
+        composeView.apply {
+            ViewTreeLifecycleOwner.set(this, this@LockScreenActivity)
+            ViewTreeViewModelStoreOwner.set(this, this@LockScreenActivity)
+            setViewTreeSavedStateRegistryOwner(this@LockScreenActivity)
+            setViewTreeOnBackPressedDispatcherOwner(this@LockScreenActivity)
+            compositionContext = createLifecycleAwareWindowRecomposer(lifecycle = lifecycle)
         }
     }
 
