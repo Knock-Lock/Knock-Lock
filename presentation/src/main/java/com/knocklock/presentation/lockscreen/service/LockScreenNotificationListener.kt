@@ -151,7 +151,7 @@ class LockScreenNotificationListener :
         initNotificationsToLockScreen()
         try {
             val intent = Intent(this, LockScreenActivity::class.java).apply {
-                flags = (Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                flags = (Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
             }
             startActivity(intent)
         } catch (e: IllegalStateException) {
