@@ -63,7 +63,7 @@ class LockScreenActivity : ComponentActivity() {
                 LockScreenHost(
                     onFinish = {
                         windowManager.removeViewImmediate(composeView)
-                        onDestroy()
+                        this@LockScreenActivity.finish()
                     },
                     onRemoveNotifications = { keys ->
                         if (mBound) notificationListener?.cancelNotifications(keys)
@@ -94,7 +94,6 @@ class LockScreenActivity : ComponentActivity() {
         super.onDestroy()
         notificationListener = null
         composeView = null
-        finishAndRemoveTask()
     }
 
     @OptIn(ExperimentalComposeUiApi::class)
