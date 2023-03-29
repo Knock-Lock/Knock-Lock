@@ -1,7 +1,6 @@
 package com.knocklock.presentation.lockscreen
 
 import android.content.pm.PackageManager
-import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.knocklock.domain.model.User
@@ -13,7 +12,11 @@ import com.knocklock.presentation.lockscreen.model.LockScreen
 import com.knocklock.presentation.lockscreen.model.LockScreenBackground
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -24,55 +27,40 @@ import javax.inject.Inject
 @HiltViewModel
 class LockScreenViewModel @Inject constructor(
     private val notificationRepository: NotificationRepository,
-    private val getUserUseCase: GetUserUseCase,
-    private val getLockScreenUseCase: GetLockScreenUseCase
+    getUserUseCase: GetUserUseCase,
+    getLockScreenUseCase: GetLockScreenUseCase,
 ) : ViewModel() {
 
     private val _notificationList: MutableStateFlow<NotificationUiState> = MutableStateFlow(
-        NotificationUiState.Empty
+        NotificationUiState.Empty,
     )
     val notificationList = _notificationList.asStateFlow()
 
-    private val _currentLockState: MutableStateFlow<User?> = MutableStateFlow(null)
-    val currentLockState = _currentLockState.asStateFlow()
-
-    private val _currentBackground: MutableStateFlow<LockScreen> = MutableStateFlow(
-        LockScreen(
-            LockScreenBackground.DefaultWallPaper
-        )
+    val currentLockState: StateFlow<User?> = getUserUseCase().stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5_000),
+        null,
     )
-    val currentBackground = _currentBackground.asStateFlow()
+
+    val currentBackground: StateFlow<LockScreen> = getLockScreenUseCase()
+        .map { lockScreen ->
+            lockScreen.toModel()
+        }
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5_000),
+            LockScreen(LockScreenBackground.DefaultWallPaper),
+        )
 
     private val _composeScreenState = MutableStateFlow<ComposeScreenState>(ComposeScreenState.LockScreen)
     val composeScreenState = _composeScreenState.asStateFlow()
-
-    init {
-        getCurrentLockState()
-        getCurrentLockScreenBackground()
-    }
 
     fun getGroupNotifications(packageManager: PackageManager) {
         viewModelScope.launch {
             notificationRepository.getGroupWithNotificationsWithSorted().collect { groups ->
                 _notificationList.value = NotificationUiState.Success(
-                    groups.map { it.toModel(packageManager) }
+                    groups.map { it.toModel(packageManager) },
                 )
-            }
-        }
-    }
-
-    private fun getCurrentLockState() {
-        viewModelScope.launch {
-            getUserUseCase().collect { user ->
-                _currentLockState.value = user
-            }
-        }
-    }
-
-    private fun getCurrentLockScreenBackground() {
-        viewModelScope.launch {
-            getLockScreenUseCase().collect { lockscreen ->
-                _currentBackground.value = lockscreen.toModel()
             }
         }
     }
