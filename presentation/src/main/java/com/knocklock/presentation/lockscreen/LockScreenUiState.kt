@@ -1,7 +1,6 @@
 package com.knocklock.presentation.lockscreen
 
 import com.knocklock.presentation.lockscreen.model.GroupWithNotification
-import com.knocklock.presentation.lockscreen.model.Notification
 
 /**
  * @Created by 김현국 2022/12/07

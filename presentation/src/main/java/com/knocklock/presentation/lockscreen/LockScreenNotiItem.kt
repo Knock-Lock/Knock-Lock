@@ -156,7 +156,6 @@ fun SwipeToDismissLockNotiItem(
         }
     })
     SwipeToDismiss(
-        modifier = Modifier,
         state = dismissState,
         dismissThresholds = { FractionalThreshold(0.25f) },
         dismissContent = {
