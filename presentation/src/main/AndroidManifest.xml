@@ -10,7 +10,7 @@
     <application>
         <activity
             android:name=".lockscreen.LockScreenActivity"
-            android:launchMode="singleTop"
+            android:launchMode="singleTask"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"

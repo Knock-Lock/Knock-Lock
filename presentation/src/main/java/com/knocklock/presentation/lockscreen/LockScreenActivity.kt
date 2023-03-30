@@ -36,6 +36,10 @@ class LockScreenActivity : ComponentActivity() {
         this.applicationContext.packageManager
     }
 
+    private val window by lazy {
+        this.applicationContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+    }
+
     private val point by lazy { Point() }
     private var notificationListener: LockScreenNotificationListener? = null
     private var mBound: Boolean = false
@@ -62,7 +66,6 @@ class LockScreenActivity : ComponentActivity() {
             setContent {
                 LockScreenHost(
                     onFinish = {
-                        windowManager.removeViewImmediate(composeView)
                         this@LockScreenActivity.finish()
                     },
                     onRemoveNotifications = { keys ->
@@ -74,7 +77,7 @@ class LockScreenActivity : ComponentActivity() {
             }
             initViewTreeOwner(this)
         }
-        windowManager.addView(composeView, getWindowManagerLayoutParams())
+        window.addView(composeView, getWindowManagerLayoutParams())
     }
 
     override fun onStart() {
@@ -92,6 +95,7 @@ class LockScreenActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        window.removeViewImmediate(composeView)
         notificationListener = null
         composeView = null
     }
@@ -109,10 +113,10 @@ class LockScreenActivity : ComponentActivity() {
 
     private fun getWindowSize() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            point.x = windowManager.maximumWindowMetrics.bounds.width()
-            point.y = windowManager.maximumWindowMetrics.bounds.height()
+            point.x = window.maximumWindowMetrics.bounds.width()
+            point.y = window.maximumWindowMetrics.bounds.height()
         } else {
-            windowManager.defaultDisplay.getRealSize(point)
+            window.defaultDisplay.getRealSize(point)
         }
     }
 
