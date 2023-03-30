@@ -7,9 +7,7 @@ import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.view.WindowCompat
@@ -100,5 +98,11 @@ class MainActivity : ComponentActivity() {
         } else {
             startService(Intent(this, LockScreenNotificationListener::class.java))
         }
+    }
+
+    companion object {
+        const val GITHUB_LINK = "https://github.com/Knock-Lock/Knock-Lock"
+        const val KNOCK_LOCK_ACCOUNT = "100056653114"
+        const val KNOCK_LOCK_EMAIL_ADDRESS = "rldkvos2@gmail.com"
     }
 }

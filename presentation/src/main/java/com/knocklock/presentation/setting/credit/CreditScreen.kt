@@ -1,6 +1,7 @@
 package com.knocklock.presentation.setting.credit
 
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -21,16 +22,18 @@ import com.knocklock.presentation.R
 @Composable
 fun CreditRoute(
     modifier: Modifier = Modifier,
-    onIconClick: () -> Boolean
+    onIconClick: () -> Boolean,
+    onTextClicked: (TextMenu) -> Unit
 ) {
-    CreditScreen(modifier, onIconClick)
+    CreditScreen(modifier, onIconClick, onTextClicked)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreditScreen(
     modifier: Modifier = Modifier,
-    onIconClick: () -> Boolean
+    onIconClick: () -> Boolean,
+    onTextClicked: (TextMenu) -> Unit
 ) {
     val scrollState = rememberScrollState(0)
 
@@ -38,7 +41,7 @@ fun CreditScreen(
         modifier = modifier,
         topBar = { CreditHeader(onIconClick) },
     ) { padding ->
-        CreditBody(modifier, scrollState, padding)
+        CreditBody(modifier, scrollState, padding, onTextClicked)
     }
 }
 
@@ -77,12 +80,12 @@ private fun CreditHeader(
 private fun CreditBody(
     modifier: Modifier = Modifier,
     scrollState: ScrollState,
-    padding: PaddingValues
+    padding: PaddingValues,
+    onTextClicked: (TextMenu) -> Unit
 ) {
     Column(
         modifier = modifier
             .verticalScroll(scrollState)
-            /*.padding(padding)*/
             .padding(
                 top = padding.calculateTopPadding(),
                 bottom = padding.calculateBottomPadding() - 5.dp
@@ -91,47 +94,37 @@ private fun CreditBody(
     ) {
         DeveloperList()
         Spacer(modifier.padding(20.dp))
-        Column(
-            modifier = modifier.padding(bottom = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = stringResource(R.string.github),
-                fontSize = 12.sp,
-                color = Color.Blue,
-                textDecoration = TextDecoration.Underline
-            )
-            Text(
-                text = stringResource(R.string.evaluate),
-                fontSize = 12.sp,
-                color = Color.Blue,
-                textDecoration = TextDecoration.Underline
-            )
-            Text(
-                text = stringResource(R.string.inquiry),
-                fontSize = 12.sp,
-                color = Color.Blue,
-                textDecoration = TextDecoration.Underline
-            )
-            Text(
-                text = stringResource(R.string.open_source_license),
-                fontSize = 12.sp,
-                color = Color.Blue,
-                textDecoration = TextDecoration.Underline
-            )
-            Text(
-                text = stringResource(R.string.service),
-                fontSize = 12.sp,
-                color = Color.Blue,
-                textDecoration = TextDecoration.Underline
-            )
-            Text(
-                text = stringResource(R.string.donate),
-                fontSize = 12.sp,
-                color = Color.Blue,
-                textDecoration = TextDecoration.Underline
-            )
+        CreditTextMenuList(onTextClicked = onTextClicked)
+    }
+}
+
+@Composable
+fun CreditTextMenuList(
+    modifier: Modifier = Modifier,
+    onTextClicked: (TextMenu) -> Unit
+) {
+    Column(
+        modifier = modifier.padding(bottom = 20.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        TextMenu.values().forEach { menu ->
+            CreditTextMenu(onTextClicked = onTextClicked, menu = menu)
         }
     }
+}
+
+@Composable
+private fun CreditTextMenu(
+    modifier: Modifier = Modifier,
+    onTextClicked: (TextMenu) -> Unit,
+    menu: TextMenu
+) {
+    Text(
+        modifier = modifier.clickable { onTextClicked(menu) },
+        text = stringResource(id = menu.textRes),
+        fontSize = 12.sp,
+        color = Color.Blue,
+        textDecoration = TextDecoration.Underline
+    )
 }
