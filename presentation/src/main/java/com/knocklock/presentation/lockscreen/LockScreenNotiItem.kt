@@ -4,8 +4,6 @@ import android.app.PendingIntent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -33,84 +31,11 @@ import com.knocklock.presentation.lockscreen.util.FractionalThreshold
 import com.knocklock.presentation.lockscreen.util.SwipeToDismiss
 import com.knocklock.presentation.lockscreen.util.rememberDismissState
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.toImmutableList
 
 /**
  * @Created by 김현국 2022/12/02
  * @Time 3:06 PM
  */
-
-@Composable
-fun GroupLockNotiItem(
-    modifier: Modifier = Modifier,
-    notificationList: ImmutableList<Notification>,
-    onRemoveNotification: (List<String>) -> Unit,
-    onNotificationClicked: (PendingIntent) -> Unit
-) {
-    if (notificationList.isEmpty()) {
-        return
-    }
-    val notification by rememberUpdatedState(notificationList[0])
-    var clickableState by remember { mutableStateOf(false) }
-    var expandableState by remember { mutableStateOf(false) }
-    LaunchedEffect(notificationList.size) {
-        clickableState = notificationList.size >= 2
-        if (notificationList.isEmpty()) {
-            expandableState = false
-        }
-    }
-    Column(
-        modifier = modifier.clickable(
-            enabled = clickableState,
-            indication = null,
-            interactionSource = remember { MutableInteractionSource() }
-        ) {
-            expandableState = !expandableState
-        }
-    ) {
-        val lockNotiModifier = modifier
-            .background(
-                color = Color(0xFFFAFAFA).copy(alpha = 0.95f),
-                shape = RoundedCornerShape(10.dp)
-            )
-            .clip(RoundedCornerShape(10.dp))
-        key(notification.postedTime) {
-            SwipeToDismissLockNotiItem(
-                modifier = lockNotiModifier,
-                onRemoveNotification = onRemoveNotification,
-                notification = notification,
-                notificationSize = notificationList.size,
-                clickableState = clickableState,
-                expandableState = expandableState,
-                groupNotification = notificationList.toImmutableList(),
-                onNotificationClicked = onNotificationClicked
-            )
-        }
-
-        AnimatedVisibility(visible = expandableState && notificationList.size != 1) {
-            Column(
-                modifier = modifier.padding(top = 4.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                for (index in 1 until notificationList.size) {
-                    key(notificationList[index].postedTime) {
-                        SwipeToDismissLockNotiItem(
-                            modifier = lockNotiModifier,
-                            onRemoveNotification = { list ->
-                                onRemoveNotification(list)
-                            },
-                            notification = notificationList[index],
-                            notificationSize = notificationList.size,
-                            clickableState = false,
-                            expandableState = expandableState,
-                            onNotificationClicked = onNotificationClicked
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -122,7 +47,7 @@ fun SwipeToDismissLockNotiItem(
     notificationSize: Int,
     clickableState: Boolean,
     expandableState: Boolean,
-    groupNotification: ImmutableList<Notification>? = null
+    groupNotification: ImmutableList<Notification>? = null,
 ) {
     val updateGroupNotification by rememberUpdatedState(newValue = groupNotification)
     val updateNotification by rememberUpdatedState(newValue = notification)
@@ -144,7 +69,7 @@ fun SwipeToDismissLockNotiItem(
                             onRemoveNotification(
                                 childNotificationList.map { notification ->
                                     notification.id
-                                }
+                                },
                             )
                         }
                     }
@@ -163,7 +88,7 @@ fun SwipeToDismissLockNotiItem(
                 Box {
                     LockNotiItem(
                         modifier = modifier,
-                        notification = updateNotification
+                        notification = updateNotification,
                     )
                     if (clickableState) {
                         Icon(
@@ -171,7 +96,7 @@ fun SwipeToDismissLockNotiItem(
                                 .align(Alignment.CenterEnd)
                                 .padding(end = 5.dp),
                             imageVector = if (expandableState) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                            contentDescription = null
+                            contentDescription = null,
                         )
                     }
                 }
@@ -182,33 +107,33 @@ fun SwipeToDismissLockNotiItem(
                                 modifier = Modifier
                                     .padding(horizontal = 15.dp)
                                     .fillMaxWidth()
-                                    .height(7.dp)
+                                    .height(7.dp),
                             )
                         } else if (notificationSize >= 3) {
                             MoreNotification(
                                 modifier = Modifier
                                     .padding(horizontal = 15.dp)
                                     .fillMaxWidth()
-                                    .height(7.dp)
+                                    .height(7.dp),
                             )
                             MoreNotification(
                                 modifier = Modifier
                                     .padding(horizontal = 35.dp)
                                     .fillMaxWidth()
-                                    .height(5.dp)
+                                    .height(5.dp),
                             )
                         }
                     }
                 }
             }
         },
-        background = {}
+        background = {},
     )
 }
 
 @Composable
 fun MoreNotification(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val moreNotificationShape = RoundedCornerShape(bottomStart = 5.dp, bottomEnd = 5.dp)
     Row(
@@ -217,23 +142,23 @@ fun MoreNotification(
                 brush = Brush.verticalGradient(
                     listOf(
                         Color(0xFFFAFAFA).copy(alpha = 0.9f),
-                        Color.LightGray
-                    )
+                        Color.LightGray,
+                    ),
                 ),
-                shape = moreNotificationShape
+                shape = moreNotificationShape,
             )
-            .clip(shape = moreNotificationShape)
+            .clip(shape = moreNotificationShape),
     ) {}
 }
 
 @Composable
 fun LockNotiItem(
     modifier: Modifier = Modifier,
-    notification: Notification
+    notification: Notification,
 ) {
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(4.dp)
+        verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         LockNotiTop(
             modifier = Modifier
@@ -241,7 +166,7 @@ fun LockNotiItem(
                 .padding(top = 4.dp),
             packageName = notification.packageName,
             appTitle = notification.appTitle,
-            time = notification.notiTime
+            time = notification.notiTime,
         )
         LockNotiContent(
             modifier = Modifier
@@ -249,7 +174,7 @@ fun LockNotiItem(
                 .padding(bottom = 4.dp)
                 .wrapContentHeight(),
             title = notification.title,
-            content = notification.content
+            content = notification.content,
         )
     }
 }
@@ -259,35 +184,35 @@ fun LockNotiTop(
     modifier: Modifier = Modifier,
     packageName: String?,
     appTitle: String,
-    time: String
+    time: String,
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight(),
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             if (packageName != null) {
                 Image(
                     modifier = Modifier.size(10.dp),
                     painter = rememberDrawablePainter(
-                        drawable = LocalContext.current.packageManager.getApplicationIcon(packageName)
+                        drawable = LocalContext.current.packageManager.getApplicationIcon(packageName),
                     ),
-                    contentDescription = null
+                    contentDescription = null,
                 )
             }
             Spacer(modifier = Modifier.width(4.dp))
             Text(
                 text = appTitle,
-                fontSize = 10.sp
+                fontSize = 10.sp,
             )
         }
         Text(
             text = time,
-            fontSize = 10.sp
+            fontSize = 10.sp,
         )
     }
 }
@@ -296,21 +221,21 @@ fun LockNotiTop(
 fun LockNotiContent(
     modifier: Modifier = Modifier,
     title: String,
-    content: String
+    content: String,
 ) {
     Column(
-        modifier = modifier
+        modifier = modifier,
     ) {
         Text(
             title,
             overflow = TextOverflow.Ellipsis,
             maxLines = 1,
-            fontWeight = FontWeight.W700
+            fontWeight = FontWeight.W700,
         )
         Text(
             content,
             overflow = TextOverflow.Ellipsis,
-            maxLines = 1
+            maxLines = 1,
         )
     }
 }
