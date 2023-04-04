@@ -23,11 +23,9 @@ class NotificationRepositoryImpl @Inject constructor(
         groupDao.insertGroup(group = group.toEntity())
     }
 
-    override suspend fun insertNotifications(vararg notifications: Notification) {
+    override suspend fun insertNotifications(notification: Notification) {
         notificationDao.insertNotifications(
-            *notifications.map { notification ->
                 notification.toEntity()
-            }.toTypedArray()
         )
     }
 
@@ -50,8 +48,8 @@ class NotificationRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun removeNotificationsWithId(vararg ids: String) {
-        notificationDao.deleteNotificationsWithIds(*ids)
+    override suspend fun removeNotificationsWithId(id: String) {
+        notificationDao.deleteNotificationsWithId(id)
     }
 
     override suspend fun removeGroupWithNotifications(key: String) {

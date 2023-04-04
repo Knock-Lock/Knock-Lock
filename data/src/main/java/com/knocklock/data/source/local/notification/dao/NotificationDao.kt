@@ -14,12 +14,12 @@ import com.knocklock.data.source.local.notification.entity.Notification
 interface NotificationDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertNotifications(vararg notifications: Notification)
+    suspend fun insertNotifications(notifications: Notification)
 
     @Query(
-        "DELETE FROM NOTIFICATION WHERE id = :ids"
+        "DELETE FROM NOTIFICATION WHERE id = :id"
     )
-    suspend fun deleteNotificationsWithIds(vararg ids: String)
+    suspend fun deleteNotificationsWithId(id: String)
 
     @Query(
         "DELETE FROM NOTIFICATION WHERE groupKey = :groupKey"

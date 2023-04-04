@@ -12,11 +12,11 @@ interface NotificationRepository {
 
     suspend fun insertGroup(group: Group)
 
-    suspend fun insertNotifications(vararg notifications: Notification)
+    suspend fun insertNotifications(notification: Notification)
 
     fun getGroupWithNotificationsWithSorted(): Flow<List<GroupWithNotification>>
 
-    suspend fun removeNotificationsWithId(vararg ids: String)
+    suspend fun removeNotificationsWithId(id: String)
 
     suspend fun removeGroupWithNotifications(key: String)
 }
