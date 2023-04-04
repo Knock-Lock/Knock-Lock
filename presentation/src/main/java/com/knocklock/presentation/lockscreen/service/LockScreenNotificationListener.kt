@@ -21,6 +21,7 @@ import com.knocklock.presentation.MainActivity
 import com.knocklock.presentation.lockscreen.LockScreenActivity
 import com.knocklock.presentation.lockscreen.mapper.getDatabaseKey
 import com.knocklock.presentation.lockscreen.mapper.isNotEmptyTitleOrContent
+import com.knocklock.presentation.lockscreen.mapper.mapToList
 import com.knocklock.presentation.lockscreen.mapper.toModel
 import com.knocklock.presentation.lockscreen.model.Group
 import com.knocklock.presentation.lockscreen.model.toModel
@@ -71,7 +72,7 @@ class LockScreenNotificationListener :
                 override fun openLockScreenByIntent() {
                     addLockScreen()
                 }
-            }
+            },
         )
     }
 
@@ -82,7 +83,7 @@ class LockScreenNotificationListener :
                 override fun onSystemBarClicked() {
                     // Todo 현재 PassWordScreen이 열려있는지
                 }
-            }
+            },
         )
     }
 
@@ -93,12 +94,16 @@ class LockScreenNotificationListener :
             notificationScope.launch {
                 if (sbn.isNotEmptyTitleOrContent()) {
                     val notification = sbn.toModel(packageManager)
-                    notificationRepository.insertGroup(
-                        Group(
-                            key = notification.groupKey
-                        ).toModel()
-                    )
-                    notificationRepository.insertNotifications(notification)
+                    launch {
+                        notificationRepository.insertGroup(
+                            Group(
+                                key = notification.groupKey,
+                            ).toModel(),
+                        )
+                    }
+                    launch {
+                        notificationRepository.insertNotifications(notification)
+                    }
                 }
             }
         }
@@ -128,16 +133,17 @@ class LockScreenNotificationListener :
                     notification.getDatabaseKey(packageManager)?.let { key ->
                         notificationRepository.insertGroup(
                             Group(
-                                key = key
-                            ).toModel()
+                                key = key,
+                            ).toModel(),
                         )
                     }
                 }
             }
-
-            notificationRepository.insertNotifications(
-                *toModel(copyActiveNotification, packageManager)
-            )
+            mapToList(copyActiveNotification, packageManager).forEach { notification ->
+                launch {
+                    notificationRepository.insertNotifications(notification)
+                }
+            }
         }
     }
 
@@ -165,7 +171,7 @@ class LockScreenNotificationListener :
             builder.append("package:$packageName")
             val intent = Intent(
                 "android.settings.action.MANAGE_OVERLAY_PERMISSION",
-                Uri.parse(builder.toString())
+                Uri.parse(builder.toString()),
             ).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
@@ -192,7 +198,7 @@ class LockScreenNotificationListener :
         val channel = NotificationChannel(
             ANDROID_CHANNEL_ID,
             ANDROID_CHANNEL_NAME,
-            NotificationManager.IMPORTANCE_HIGH
+            NotificationManager.IMPORTANCE_HIGH,
         ).apply {
             lockscreenVisibility = Notification.VISIBILITY_PUBLIC
         }
@@ -205,7 +211,7 @@ class LockScreenNotificationListener :
             this,
             0,
             contentIntent,
-            PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_IMMUTABLE,
         )
 
         return NotificationCompat.Builder(this, ANDROID_CHANNEL_ID)

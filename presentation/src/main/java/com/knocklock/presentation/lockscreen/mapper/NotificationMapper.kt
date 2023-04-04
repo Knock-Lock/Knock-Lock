@@ -17,19 +17,16 @@ import com.knocklock.domain.model.Notification as NotificationModel
  */
 
 /**
- * StatusBarNotification를 Array<[NotificationModel]>로 변환합니다.
- *
- * StatusBarNotification를 수정할 수 없기 때문에 List->Array로 변환합니다.
- *
+ * StatusBarNotification를 List<[NotificationModel]>로 변환합니다.
  * @param statusBarNotifications Array<out [StatusBarNotification]> activeNotifications 입니다.
- * @return Array<[NotificationModel]>
+ * @return List<[NotificationModel]>
  */
-fun toModel(statusBarNotifications: Array<out StatusBarNotification>, packageManager: PackageManager): Array<NotificationModel> {
+fun mapToList(statusBarNotifications: Array<out StatusBarNotification>, packageManager: PackageManager) : List<NotificationModel>{
     return statusBarNotifications.asSequence().filter { statusBarNotification ->
         statusBarNotification.isNotEmptyTitleOrContent()
     }.map { statusBarNotification ->
         statusBarNotification.toModel(packageManager)
-    }.toList().toTypedArray()
+    }.toList()
 }
 
 /**
