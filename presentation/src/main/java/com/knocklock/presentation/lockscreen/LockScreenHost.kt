@@ -1,6 +1,5 @@
 package com.knocklock.presentation.lockscreen
 
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateIntAsState
@@ -17,6 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.android.renderscript.Toolkit
 import com.knocklock.domain.model.AuthenticationType
 import com.knocklock.presentation.R
@@ -33,10 +34,10 @@ import com.skydoves.landscapist.glide.GlideImage
 fun LockScreenHost(
     modifier: Modifier = Modifier,
     onFinish: () -> Unit,
-    vm: LockScreenViewModel,
+    vm: LockScreenViewModel = hiltViewModel(),
     onRemoveNotifications: (Array<String>) -> Unit,
-    packageManager: PackageManager,
 ) {
+    val packageManager = LocalContext.current.packageManager
     LaunchedEffect(key1 = Unit) {
         vm.getGroupNotifications(packageManager)
     }
