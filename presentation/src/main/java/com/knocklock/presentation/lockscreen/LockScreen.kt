@@ -267,11 +267,11 @@ fun TextClockComposable(
     )
 }
 
-suspend fun updateExpandable(expandableState: SnapshotStateMap<String, Boolean>, key: String) {
+fun updateExpandable(expandableState: SnapshotStateMap<String, Boolean>, key: String) {
     if (!expandableState.containsKey(key)) {
         expandableState[key] = false
     }
 }
-suspend fun updateClickable(clickableState: SnapshotStateMap<String, Boolean>, key: String, flag: Boolean) {
+fun updateClickable(clickableState: SnapshotStateMap<String, Boolean>, key: String, flag: Boolean) {
     clickableState[key] = flag
 }
