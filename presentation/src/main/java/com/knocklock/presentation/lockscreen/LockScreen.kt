@@ -192,11 +192,6 @@ fun LockScreenNotificationListColumn(
             launch(Dispatchers.Default) {
                 updateExpandable(expandableState, groupWithNotification.group.key)
             }
-        }
-    }
-
-    LaunchedEffect(groupNotificationList) {
-        groupNotificationList.forEach { groupWithNotification ->
             launch(Dispatchers.Default) {
                 updateClickable(clickableState, groupWithNotification.group.key, groupWithNotification.notifications.size >= 2)
             }
