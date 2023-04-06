@@ -35,7 +35,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.knocklock.presentation.R
-import kotlinx.coroutines.delay
 
 
 enum class Developer(
@@ -112,9 +111,8 @@ fun DeveloperItem(
     }
 
     LaunchedEffect(Unit) {
-        delay(10)
-        imageVisible = true
-        textVisible = true
+        if (!imageVisible) imageVisible = true
+        if (!textVisible) textVisible = true
     }
 }
 
