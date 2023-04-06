@@ -34,7 +34,6 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.*
-import androidx.compose.ui.util.lerp
 import com.knocklock.presentation.lockscreen.util.SwipeableDefaults.AnimationSpec
 import com.knocklock.presentation.lockscreen.util.SwipeableDefaults.StandardResistanceFactor
 import com.knocklock.presentation.lockscreen.util.SwipeableDefaults.VelocityThreshold
@@ -639,7 +638,7 @@ internal data class FractionalThreshold(
     private val fraction: Float
 ) : ThresholdConfig {
     override fun Density.computeThreshold(fromValue: Float, toValue: Float): Float {
-        return lerp(fromValue, toValue, fraction)
+        return lerp(fromValue.dp, toValue.dp, fraction).value
     }
 }
 
