@@ -14,15 +14,13 @@ import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.activity.setViewTreeOnBackPressedDispatcherOwner
-import androidx.activity.viewModels
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.compositionContext
 import androidx.compose.ui.platform.createLifecycleAwareWindowRecomposer
-import androidx.lifecycle.ViewTreeLifecycleOwner
-import androidx.lifecycle.ViewTreeViewModelStoreOwner
+import androidx.lifecycle.setViewTreeLifecycleOwner
+import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.knocklock.presentation.lockscreen.service.LockScreenNotificationListener
 import dagger.hilt.android.AndroidEntryPoint
@@ -32,10 +30,6 @@ class LockScreenActivity : ComponentActivity() {
 
     private var composeView: ComposeView? = null
 
-    private val manager by lazy {
-        this.applicationContext.packageManager
-    }
-
     private val window by lazy {
         this.applicationContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     }
@@ -43,7 +37,6 @@ class LockScreenActivity : ComponentActivity() {
     private val point by lazy { Point() }
     private var notificationListener: LockScreenNotificationListener? = null
     private var mBound: Boolean = false
-    private val vm: LockScreenViewModel by viewModels()
 
     private val connection = object : ServiceConnection {
         override fun onServiceConnected(p0: ComponentName?, service: IBinder) {
@@ -71,8 +64,6 @@ class LockScreenActivity : ComponentActivity() {
                     onRemoveNotifications = { keys ->
                         if (mBound) notificationListener?.cancelNotifications(keys)
                     },
-                    vm = vm,
-                    packageManager = manager,
                 )
             }
             initViewTreeOwner(this)
@@ -103,8 +94,8 @@ class LockScreenActivity : ComponentActivity() {
     @OptIn(ExperimentalComposeUiApi::class)
     private fun initViewTreeOwner(composeView: ComposeView) {
         composeView.apply {
-            ViewTreeLifecycleOwner.set(this, this@LockScreenActivity)
-            ViewTreeViewModelStoreOwner.set(this, this@LockScreenActivity)
+            setViewTreeLifecycleOwner(this@LockScreenActivity)
+            setViewTreeViewModelStoreOwner(this@LockScreenActivity)
             setViewTreeSavedStateRegistryOwner(this@LockScreenActivity)
             setViewTreeOnBackPressedDispatcherOwner(this@LockScreenActivity)
             compositionContext = createLifecycleAwareWindowRecomposer(lifecycle = lifecycle)
