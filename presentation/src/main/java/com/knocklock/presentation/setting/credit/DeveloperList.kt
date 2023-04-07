@@ -1,10 +1,11 @@
 package com.knocklock.presentation.setting.credit
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.knocklock.presentation.R
 
 @Composable
 fun DeveloperList(
@@ -14,27 +15,9 @@ fun DeveloperList(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(30.dp)
     ) {
-        DeveloperItem(
-            developer = Developer(
-                R.string.daq,
-                R.drawable.hyunkuk,
-                R.string.daq_comment
-            )
-        )
-        DeveloperItem(
-            developer = Developer(
-                R.string.jaeryo,
-                R.drawable.minuk,
-                R.string.jaeryo_comment
-            )
-        )
-        DeveloperItem(
-            developer = Developer(
-                R.string.hence,
-                R.drawable.hyunsu,
-                R.string.hence_comment
-            )
-        )
-
+        Developer.values().forEachIndexed { index, developer ->
+            val delay = index * 500
+            DeveloperItem(developer = developer, delay = delay)
+        }
     }
 }
