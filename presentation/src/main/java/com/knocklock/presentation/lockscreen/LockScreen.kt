@@ -3,7 +3,6 @@ package com.knocklock.presentation.lockscreen
 import android.app.PendingIntent
 import android.widget.TextClock
 import androidx.compose.animation.core.*
-import androidx.compose.animation.with
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
@@ -31,9 +30,8 @@ import com.knocklock.presentation.lockscreen.util.FractionalThreshold
 import com.knocklock.presentation.lockscreen.util.rememberSwipeableState
 import com.knocklock.presentation.lockscreen.util.swipeable
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 /**
@@ -45,16 +43,20 @@ import kotlin.math.roundToInt
 fun LockScreenRoute(
     modifier: Modifier = Modifier,
     notificationUiState: NotificationUiState,
+    notificationUiFlagState: ImmutableMap<String, NotificationUiFlagState>,
     userSwipe: () -> Unit,
     onRemoveNotification: (List<String>) -> Unit,
     onNotificationClicked: (PendingIntent) -> Unit,
+    updateNotificationExpandableFlag: (String) -> Unit,
 ) {
     LockScreen(
         modifier = modifier,
         notificationUiState = notificationUiState,
+        notificationUiFlagState = notificationUiFlagState,
         userSwipe = userSwipe,
         onRemoveNotification = onRemoveNotification,
         onNotificationClicked = onNotificationClicked,
+        updateNotificationExpandableFlag = updateNotificationExpandableFlag,
     )
 }
 
@@ -62,9 +64,11 @@ fun LockScreenRoute(
 fun LockScreen(
     modifier: Modifier = Modifier,
     notificationUiState: NotificationUiState,
+    notificationUiFlagState: ImmutableMap<String, NotificationUiFlagState>,
     userSwipe: () -> Unit,
     onRemoveNotification: (List<String>) -> Unit,
     onNotificationClicked: (PendingIntent) -> Unit,
+    updateNotificationExpandableFlag: (String) -> Unit,
 ) {
     Column(
         modifier = modifier.fillMaxSize(),
@@ -77,8 +81,10 @@ fun LockScreen(
                 is NotificationUiState.Success -> {
                     LockScreenNotificationListColumn(
                         groupNotificationList = notificationUiState.groupWithNotification.toImmutableList(),
+                        notificationUiFlagState = notificationUiFlagState,
                         onRemoveNotification = onRemoveNotification,
                         onNotificationClicked = onNotificationClicked,
+                        updateNotificationExpandableFlag = updateNotificationExpandableFlag,
                     )
                 }
                 is NotificationUiState.Empty -> {
@@ -169,6 +175,8 @@ fun UnLockSwipeBar(
 fun LockScreenNotificationListColumn(
     modifier: Modifier = Modifier,
     groupNotificationList: ImmutableList<GroupWithNotification>,
+    notificationUiFlagState: ImmutableMap<String, NotificationUiFlagState>,
+    updateNotificationExpandableFlag: (String) -> Unit,
     onRemoveNotification: (List<String>) -> Unit,
     onNotificationClicked: (PendingIntent) -> Unit,
 ) {
@@ -179,25 +187,6 @@ fun LockScreenNotificationListColumn(
         )
         .clip(RoundedCornerShape(10.dp))
 
-    val expandableState = remember {
-        mutableStateMapOf<String, Boolean>()
-    }
-
-    val clickableState = remember {
-        mutableStateMapOf<String, Boolean>()
-    }
-
-    LaunchedEffect(groupNotificationList) {
-        groupNotificationList.forEach { groupWithNotification ->
-            launch(Dispatchers.Default) {
-                updateExpandable(expandableState, groupWithNotification.group.key)
-            }
-            launch(Dispatchers.Default) {
-                updateClickable(clickableState, groupWithNotification.group.key, groupWithNotification.notifications.size >= 2)
-            }
-        }
-    }
-
     LazyColumn(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -207,26 +196,28 @@ fun LockScreenNotificationListColumn(
             item(key = item.notifications[0].postedTime) {
                 SwipeToDismissLockNotiItem(
                     modifier = lockNotiModifier.clickable(
-                        enabled = clickableState[item.group.key] ?: false,
+                        enabled = notificationUiFlagState[item.group.key]?.clickable ?: false,
                         indication = null,
                         interactionSource = remember { MutableInteractionSource() },
                     ) {
-                        if (expandableState.containsKey(item.group.key)) {
-                            expandableState[item.group.key]?.let { flag ->
-                                expandableState[item.group.key] = !flag
+                        if (notificationUiFlagState.containsKey(item.group.key)) {
+                            notificationUiFlagState[item.group.key]?.let { state ->
+                                updateNotificationExpandableFlag(
+                                    item.group.key,
+                                )
                             }
                         }
                     },
                     onRemoveNotification = onRemoveNotification,
                     notification = item.notifications[0],
                     notificationSize = item.notifications.size,
-                    clickableState = clickableState[item.group.key] ?: false,
-                    expandableState = expandableState[item.group.key] ?: false,
+                    clickableState = notificationUiFlagState[item.group.key]?.clickable ?: false,
+                    expandableState = notificationUiFlagState[item.group.key]?.expandable ?: false,
                     groupNotification = item.notifications.toImmutableList(),
                     onNotificationClicked = onNotificationClicked,
                 )
             }
-            if (expandableState.containsKey(item.group.key) && expandableState[item.group.key] == true && item.notifications.size != 1) {
+            if (notificationUiFlagState.containsKey(item.group.key) && notificationUiFlagState[item.group.key]!!.expandable && item.notifications.size != 1) {
                 items(items = item.notifications.drop(1), key = { notification -> notification.postedTime }) { notification ->
                     SwipeToDismissLockNotiItem(
                         modifier = lockNotiModifier,
@@ -237,7 +228,7 @@ fun LockScreenNotificationListColumn(
                         notification = notification,
                         notificationSize = item.notifications.size,
                         clickableState = false,
-                        expandableState = expandableState[item.group.key] ?: false,
+                        expandableState = notificationUiFlagState[item.group.key]?.expandable ?: false,
                     )
                 }
             }
