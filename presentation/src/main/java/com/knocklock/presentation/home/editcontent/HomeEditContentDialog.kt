@@ -14,31 +14,41 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.holix.android.bottomsheetdialog.compose.BottomSheetDialog
 import com.knocklock.presentation.extenstions.noRippleClickable
 import com.knocklock.presentation.widget.BottomSheetHeaderBar
 
 @Composable
-fun HomeEditContent(
+fun HomeEditContentDialog(
     modifier: Modifier = Modifier,
     clickListener: (HomeEditType) -> Unit = {},
+    onDismiss: () -> Unit = {}
 ) {
-    Column(
-        modifier = modifier
-            .padding(8.dp)
+    BottomSheetDialog(
+        onDismissRequest = {
+            onDismiss()
+        }
     ) {
-        BottomSheetHeaderBar(
-            modifier = Modifier.align(CenterHorizontally)
-        )
-
-        LazyVerticalGrid(
-            modifier = modifier.padding(24.dp),
-            columns = GridCells.Fixed(3)
+        Column(
+            modifier = modifier
+                .background(color = Color.DarkGray)
+                .padding(8.dp)
         ) {
-            items(HomeEditType.values()) { type ->
-                HomeEditTypeItem(
-                    modifier = Modifier.fillMaxSize(),
-                    editType = type
-                )
+            BottomSheetHeaderBar(
+                modifier = Modifier.align(CenterHorizontally)
+            )
+
+            LazyVerticalGrid(
+                modifier = modifier.padding(24.dp),
+                columns = GridCells.Fixed(3)
+            ) {
+                items(HomeEditType.values()) { type ->
+                    HomeEditTypeItem(
+                        modifier = Modifier.fillMaxSize(),
+                        editType = type,
+                        clickListener = clickListener,
+                    )
+                }
             }
         }
     }

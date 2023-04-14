@@ -6,15 +6,12 @@ import androidx.compose.material.BottomSheetScaffold
 import androidx.compose.material.BottomSheetValue
 import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.material.rememberBottomSheetState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.knocklock.presentation.home.editcontent.HomeEditContent
+import com.knocklock.presentation.home.editcontent.HomeEditContentDialog
 import com.knocklock.presentation.home.menu.HomeMenu
 import kotlinx.coroutines.launch
 
@@ -26,29 +23,9 @@ fun HomeRoute(
 ) {
     val homeScreenUiState by viewModel.homeScreenUiState.collectAsState(HomeScreenUiState.Loading)
 
-    val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
-        bottomSheetState = rememberBottomSheetState(
-            initialValue = BottomSheetValue.Collapsed
-        )
-    )
-    val coroutineScope = rememberCoroutineScope()
+    var isShowHomeEditContent by remember { mutableStateOf(false) }
 
-    BottomSheetScaffold(
-        scaffoldState = bottomSheetScaffoldState,
-        sheetContent = {
-            HomeEditContent(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .navigationBarsPadding(),
-                clickListener = {
-                    //TODO: implement
-                }
-            )
-        },
-        sheetShape = RoundedCornerShape(12.dp),
-        sheetPeekHeight = 0.dp,
-        sheetBackgroundColor = Color.DarkGray,
-    ) {
+    Box(modifier = modifier) {
         HomeScreen(
             modifier = modifier,
             homeScreenUiState = homeScreenUiState,
@@ -58,9 +35,7 @@ fun HomeRoute(
                         onClickSetting()
                     }
                     HomeMenu.EDIT -> {
-                        coroutineScope.launch {
-                            bottomSheetScaffoldState.bottomSheetState.expand()
-                        }
+                        isShowHomeEditContent = true
                     }
                     HomeMenu.SAVE -> {
                         //vm.saveWallPaper()
@@ -70,5 +45,12 @@ fun HomeRoute(
                 }
             }
         )
+
+        if (isShowHomeEditContent) {
+            HomeEditContentDialog(
+                clickListener = {},
+                onDismiss = { isShowHomeEditContent = false }
+            )
+        }
     }
 }
