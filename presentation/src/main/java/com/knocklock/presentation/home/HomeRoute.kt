@@ -1,7 +1,5 @@
 package com.knocklock.presentation.home
 
-import android.content.Intent
-import android.provider.MediaStore
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomSheetScaffold
@@ -16,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.knocklock.presentation.home.editcontent.HomeEditContent
 import com.knocklock.presentation.home.menu.HomeMenu
 import kotlinx.coroutines.launch
 
@@ -37,10 +36,13 @@ fun HomeRoute(
     BottomSheetScaffold(
         scaffoldState = bottomSheetScaffoldState,
         sheetContent = {
-            HomeBottomSheetContent(
+            HomeEditContent(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(0.8f)
+                    .navigationBarsPadding(),
+                clickListener = {
+                    //TODO: implement
+                }
             )
         },
         sheetShape = RoundedCornerShape(12.dp),
