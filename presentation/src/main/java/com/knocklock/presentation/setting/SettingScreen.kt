@@ -26,7 +26,7 @@ fun SettingRoute(
         modifier = modifier,
         onMenuSelected = onMenuSelected,
         onPasswordActivatedChanged = { isChecked ->
-            if (userSettings.password.isEmpty()) {
+            if (userSettings.password.isNotEmpty()) {
                 viewModel.onPasswordActivatedChanged(isChecked)
             } else {
                 navigateToPasswordInputScreen()
