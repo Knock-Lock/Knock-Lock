@@ -1,7 +1,6 @@
 package com.knocklock.presentation.lockscreen
 
 import android.app.PendingIntent
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -81,101 +80,60 @@ fun SwipeToDismissLockNotiItem(
         }
     })
     SwipeToDismiss(
+        modifier = modifier,
         state = dismissState,
         dismissThresholds = { FractionalThreshold(0.25f) },
         dismissContent = {
-            Column {
-                Box {
-                    LockNotiItem(
-                        modifier = modifier,
-                        notification = updateNotification,
-                    )
-                    if (clickableState) {
-                        Icon(
-                            modifier = Modifier
-                                .align(Alignment.CenterEnd)
-                                .padding(end = 5.dp),
-                            imageVector = if (expandableState) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                            contentDescription = null,
-                        )
-                    }
-                }
-                AnimatedVisibility(visible = !expandableState) {
-                    Column {
-                        if (notificationSize == 2) {
-                            MoreNotification(
-                                modifier = Modifier
-                                    .padding(horizontal = 15.dp)
-                                    .fillMaxWidth()
-                                    .height(7.dp),
-                            )
-                        } else if (notificationSize >= 3) {
-                            MoreNotification(
-                                modifier = Modifier
-                                    .padding(horizontal = 15.dp)
-                                    .fillMaxWidth()
-                                    .height(7.dp),
-                            )
-                            MoreNotification(
-                                modifier = Modifier
-                                    .padding(horizontal = 35.dp)
-                                    .fillMaxWidth()
-                                    .height(5.dp),
-                            )
-                        }
-                    }
-                }
+            Box {
+                LockNotiItem(
+                    notification = updateNotification,
+                    clickableState = clickableState,
+                    expandableState = expandableState,
+                )
             }
         },
         background = {},
     )
 }
 
-@Composable
-fun MoreNotification(
-    modifier: Modifier = Modifier,
-) {
-    val moreNotificationShape = RoundedCornerShape(bottomStart = 5.dp, bottomEnd = 5.dp)
-    Row(
-        modifier = modifier
-            .background(
-                brush = Brush.verticalGradient(
-                    listOf(
-                        Color(0xFFFAFAFA).copy(alpha = 0.9f),
-                        Color.LightGray,
-                    ),
-                ),
-                shape = moreNotificationShape,
-            )
-            .clip(shape = moreNotificationShape),
-    ) {}
-}
 
 @Composable
 fun LockNotiItem(
     modifier: Modifier = Modifier,
     notification: Notification,
+    clickableState: Boolean,
+    expandableState: Boolean,
 ) {
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(4.dp),
-    ) {
-        LockNotiTop(
-            modifier = Modifier
-                .padding(horizontal = 10.dp)
-                .padding(top = 4.dp),
-            packageName = notification.packageName,
-            appTitle = notification.appTitle,
-            time = notification.notiTime,
-        )
-        LockNotiContent(
-            modifier = Modifier
-                .padding(horizontal = 10.dp)
-                .padding(bottom = 4.dp)
-                .wrapContentHeight(),
-            title = notification.title,
-            content = notification.content,
-        )
+    Box(modifier = modifier) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            LockNotiTop(
+                modifier = Modifier
+                    .padding(horizontal = 10.dp)
+                    .padding(top = 4.dp),
+                packageName = notification.packageName,
+                appTitle = notification.appTitle,
+                time = notification.notiTime,
+            )
+            LockNotiContent(
+                modifier = Modifier
+                    .padding(horizontal = 10.dp)
+                    .padding(bottom = 4.dp)
+                    .wrapContentHeight(),
+                title = notification.title,
+                content = notification.content,
+            )
+        }
+        if (clickableState) {
+            Icon(
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(end = 5.dp),
+                imageVector = if (expandableState) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                contentDescription = null,
+            )
+        }
     }
 }
 
