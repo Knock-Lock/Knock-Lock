@@ -9,6 +9,11 @@ import com.knocklock.presentation.lockscreen.model.GroupWithNotification
 sealed class NotificationUiState {
     object Empty : NotificationUiState()
     data class Success(
-        val groupWithNotification: List<GroupWithNotification>
+        val groupWithNotification: List<GroupWithNotification>,
     ) : NotificationUiState()
 }
+
+data class NotificationUiFlagState(
+    val expandable: Boolean = false,
+    val clickable: Boolean = false,
+)

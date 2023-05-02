@@ -1,6 +1,7 @@
 package com.knocklock.presentation.lockscreen
 
 import android.content.pm.PackageManager
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.knocklock.domain.model.User
@@ -52,6 +53,12 @@ class LockScreenViewModel @Inject constructor(
             LockScreen(LockScreenBackground.DefaultWallPaper),
         )
 
+    private val _notificationUiFlagStateState: MutableStateFlow<SnapshotStateMap<String, NotificationUiFlagState>> = MutableStateFlow(
+        SnapshotStateMap(),
+    )
+
+    val notificationUiFlagState = _notificationUiFlagStateState.asStateFlow()
+
     private val _composeScreenState = MutableStateFlow<ComposeScreenState>(ComposeScreenState.LockScreen)
     val composeScreenState = _composeScreenState.asStateFlow()
 
@@ -61,12 +68,41 @@ class LockScreenViewModel @Inject constructor(
                 _notificationList.value = NotificationUiState.Success(
                     groups.map { it.toModel(packageManager) },
                 )
+                launch {
+                    groups.forEach { groupNotification ->
+                        launch {
+                            val key = groupNotification.group.key
+                            val flag = groupNotification.notifications.size >= 2
+                            initUiFlagMap(key, flag)
+                        }
+                    }
+                }
             }
         }
     }
 
     fun setComposeScreenState(composeScreenState: ComposeScreenState) {
         _composeScreenState.value = composeScreenState
+    }
+
+    private fun initUiFlagMap(key: String, flag: Boolean) = with(_notificationUiFlagStateState.value) {
+        if (this.containsKey(key).not()) {
+            this[key] = NotificationUiFlagState(clickable = flag)
+        } else {
+            this[key]?.let { uiFlag ->
+                this[key] = uiFlag.copy(clickable = flag)
+            }
+        }
+    }
+
+    fun updateExpandable(key: String) = with(_notificationUiFlagStateState.value) {
+        if (this.containsKey(key).not()) {
+            this[key] = NotificationUiFlagState()
+        } else {
+            this[key]?.let { uiFlag ->
+                this[key] = uiFlag.copy(expandable = uiFlag.expandable.not())
+            }
+        }
     }
 }
 
