@@ -3,10 +3,8 @@ package com.knocklock.presentation.setting.password
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material3.LocalContentColor
@@ -46,6 +44,14 @@ fun PasswordInputScreen(
             }
             is PasswordInputState.PasswordConfirmState -> {
                 PasswordInputConfirmContent(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 60.dp),
+                    state = state
+                )
+            }
+            is PasswordInputState.PasswordVerifyState -> {
+                PasswordInputVerifyContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 60.dp),
@@ -97,6 +103,29 @@ fun PasswordInputContent(
             style = MaterialTheme.typography.titleMedium,
             text = stringResource(R.string.desc_password_input)
         )
+    }
+}
+
+@Composable
+fun PasswordInputVerifyContent(
+    modifier: Modifier = Modifier,
+    state: PasswordInputState.PasswordVerifyState
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            style = MaterialTheme.typography.titleMedium,
+            text = stringResource(R.string.desc_password_verify)
+        )
+        AnimatedVisibility(visible = state.mismatchPassword) {
+            Text(
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(top = 16.dp),
+                text = stringResource(R.string.desc_password_verify_failed)
+            )
+        }
     }
 }
 
