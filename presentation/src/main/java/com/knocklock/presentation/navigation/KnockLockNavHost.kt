@@ -62,26 +62,12 @@ fun NavGraphBuilder.homeGraph(
     ) {
 
         composable(route = NavigationRoute.HomeGraph.Home.route) {
-            val vm: HomeViewModel = hiltViewModel()
-            val context = LocalContext.current
-            val galleryLauncher =
-                rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                    if (result.resultCode == Activity.RESULT_OK) {
-                        result.data?.data?.let { uri ->
-                            context.contentResolver.takePersistableUriPermission(
-                                uri,
-                                Intent.FLAG_GRANT_READ_URI_PERMISSION
-                            )
-                            vm.saveTmpWallPaper(uri.toString())
-                        }
-                    }
-                }
             HomeRoute(
                 modifier = modifier,
                 onClickSetting = {
                     navController.navigate(NavigationRoute.SettingGraph.route)
                 },
-                viewModel = vm
+                viewModel = hiltViewModel()
             )
         }
     }
