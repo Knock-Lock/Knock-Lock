@@ -1,6 +1,5 @@
 package com.knocklock.presentation.lockscreen
 
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateIntAsState
@@ -17,6 +16,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.renderscript.Toolkit
 import com.knocklock.domain.model.AuthenticationType
 import com.knocklock.presentation.R
@@ -24,6 +26,7 @@ import com.knocklock.presentation.lockscreen.model.LockScreen
 import com.knocklock.presentation.lockscreen.model.LockScreenBackground
 import com.knocklock.presentation.lockscreen.password.PassWordRoute
 import com.skydoves.landscapist.glide.GlideImage
+import kotlinx.collections.immutable.toImmutableMap
 
 /**
  * @Created by 김현국 2023/03/24
@@ -33,18 +36,19 @@ import com.skydoves.landscapist.glide.GlideImage
 fun LockScreenHost(
     modifier: Modifier = Modifier,
     onFinish: () -> Unit,
-    vm: LockScreenViewModel,
+    vm: LockScreenViewModel = hiltViewModel(),
     onRemoveNotifications: (Array<String>) -> Unit,
-    packageManager: PackageManager,
 ) {
+    val packageManager = LocalContext.current.packageManager
     LaunchedEffect(key1 = Unit) {
         vm.getGroupNotifications(packageManager)
     }
 
-    val backgroundState by vm.currentBackground.collectAsState()
-    val composeScreenState by vm.composeScreenState.collectAsState()
-    val notificationUiState by vm.notificationList.collectAsState()
-    val currentUserState by vm.currentLockState.collectAsState()
+    val backgroundState by vm.currentBackground.collectAsStateWithLifecycle()
+    val composeScreenState by vm.composeScreenState.collectAsStateWithLifecycle()
+    val notificationUiState by vm.notificationList.collectAsStateWithLifecycle()
+    val currentUserState by vm.currentLockState.collectAsStateWithLifecycle()
+    val notificationUiFlagState by vm.notificationUiFlagState.collectAsStateWithLifecycle()
 
     val animateRadiusState by animateIntAsState(
         targetValue = if (composeScreenState == ComposeScreenState.LockScreen) { 1 } else { 15 },
@@ -67,7 +71,8 @@ fun LockScreenHost(
         ) {
             LockScreenRoute(
                 modifier = Modifier,
-                notificationUiState,
+                notificationUiState = notificationUiState,
+                notificationUiFlagState = notificationUiFlagState.toImmutableMap(),
                 userSwipe = {
                     currentUserState?.let { user ->
                         when (user.authenticationType) {
@@ -82,7 +87,6 @@ fun LockScreenHost(
                     }
                 },
                 onRemoveNotification = { keys -> onRemoveNotifications(keys.toTypedArray()) },
-
                 onNotificationClicked = { intent ->
                     currentUserState?.let { user ->
                         when (user.authenticationType) {
@@ -94,6 +98,7 @@ fun LockScreenHost(
                         }
                     }
                 },
+                updateNotificationExpandableFlag = vm::updateExpandable
             )
         }
 

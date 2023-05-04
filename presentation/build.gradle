@@ -60,6 +60,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
+
     testImplementation 'junit:junit:4.13.2'
 
     // DI

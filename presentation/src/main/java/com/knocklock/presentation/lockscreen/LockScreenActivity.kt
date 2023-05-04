@@ -15,7 +15,6 @@ import android.view.View
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.setViewTreeOnBackPressedDispatcherOwner
-import androidx.activity.viewModels
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.compositionContext
@@ -31,10 +30,6 @@ class LockScreenActivity : ComponentActivity() {
 
     private var composeView: ComposeView? = null
 
-    private val manager by lazy {
-        this.applicationContext.packageManager
-    }
-
     private val window by lazy {
         this.applicationContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     }
@@ -42,7 +37,6 @@ class LockScreenActivity : ComponentActivity() {
     private val point by lazy { Point() }
     private var notificationListener: LockScreenNotificationListener? = null
     private var mBound: Boolean = false
-    private val vm: LockScreenViewModel by viewModels()
 
     private val connection = object : ServiceConnection {
         override fun onServiceConnected(p0: ComponentName?, service: IBinder) {
@@ -70,8 +64,6 @@ class LockScreenActivity : ComponentActivity() {
                     onRemoveNotifications = { keys ->
                         if (mBound) notificationListener?.cancelNotifications(keys)
                     },
-                    vm = vm,
-                    packageManager = manager,
                 )
             }
             initViewTreeOwner(this)
