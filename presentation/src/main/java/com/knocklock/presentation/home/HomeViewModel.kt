@@ -22,7 +22,7 @@ class HomeViewModel @Inject constructor(
     getLockScreenUseCase: GetLockScreenUseCase,
     private val saveWallPaperUseCase: SaveWallPaperUseCase
 ) : ViewModel() {
-    private val initHomeMenuList = listOf(HomeMenu.SETTING, HomeMenu.TMP, HomeMenu.SAVE)
+    private val initHomeMenuList = listOf(HomeMenu.SETTING, HomeMenu.EDIT, HomeMenu.SAVE)
 
     private val homeMenuList = MutableStateFlow(initHomeMenuList)
 

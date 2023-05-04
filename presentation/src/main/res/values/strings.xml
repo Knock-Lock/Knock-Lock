@@ -30,4 +30,9 @@
     <string name="desc_forget_password">비밀번호를 잊어버리셨다면 뒤로 돌아가주세요.</string>
     <string name="copy_success_msg">후원계좌가 클립보드에 복사되었습니다.\n감사합니다:)</string>
     <string name="copy_failed_msg">계좌복사에 싪패했습니다.</string>
+
+    <!--    Home-->
+    <string name="home_edit_clock_type">시계</string>
+    <string name="home_edit_background_type">배경</string>
+    <string name="home_edit_unknown_type">"?"</string>
 </resources>

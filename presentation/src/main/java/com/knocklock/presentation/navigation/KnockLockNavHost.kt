@@ -76,31 +76,10 @@ fun NavGraphBuilder.homeGraph(
                         }
                     }
                 }
-            val launcherIntent = Intent(
-                Intent.ACTION_GET_CONTENT,
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-            ).apply {
-                type = "image/*"
-                action = Intent.ACTION_OPEN_DOCUMENT
-                putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false)
-
-            }
             HomeRoute(
                 modifier = modifier,
-                onClickHomeMenu = { homeMenu ->
-                    when (homeMenu) {
-                        HomeMenu.SETTING -> {
-                            navController.navigate(NavigationRoute.SettingGraph.route)
-                        }
-                        HomeMenu.TMP -> {
-                            galleryLauncher.launch(launcherIntent)
-                        }
-                        HomeMenu.SAVE -> {
-                            vm.saveWallPaper()
-                        }
-                        HomeMenu.CLEAR -> {
-                        }
-                    }
+                onClickSetting = {
+                    navController.navigate(NavigationRoute.SettingGraph.route)
                 },
                 viewModel = vm
             )
