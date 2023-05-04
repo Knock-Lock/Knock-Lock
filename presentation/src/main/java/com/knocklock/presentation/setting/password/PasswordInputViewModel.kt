@@ -10,7 +10,9 @@ import com.knocklock.domain.usecase.setting.UpdatePasswordUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,7 +25,12 @@ class PasswordInputViewModel @Inject constructor(
         PasswordInputState.PasswordNoneState("")
     )
 
-    private val userPassword = getUserUseCase().map { user -> user.password }
+    private val userPassword = getUserUseCase()
+        .map { user -> user.password }
+        .shareIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5_000L)
+        )
 
     init {
         checkInitialPassword()
@@ -69,9 +76,11 @@ class PasswordInputViewModel @Inject constructor(
             is PasswordInputState.PasswordNoneState -> {
                 state.copy(inputPassword = state.inputPassword + newPasswordNumber)
             }
+
             is PasswordInputState.PasswordConfirmState -> {
                 state.copy(inputPassword = state.inputPassword + newPasswordNumber)
             }
+
             is PasswordInputState.PasswordVerifyState -> {
                 state.copy(inputPassword = state.inputPassword + newPasswordNumber)
             }
@@ -82,9 +91,11 @@ class PasswordInputViewModel @Inject constructor(
                 is PasswordInputState.PasswordNoneState -> {
                     checkPasswordNoneState(passwordInputState as PasswordInputState.PasswordNoneState)
                 }
+
                 is PasswordInputState.PasswordConfirmState -> {
                     checkPasswordConfirmState(passwordInputState as PasswordInputState.PasswordConfirmState)
                 }
+
                 is PasswordInputState.PasswordVerifyState -> {
                     checkPasswordVerifyState(passwordInputState as PasswordInputState.PasswordVerifyState)
                 }
@@ -100,9 +111,11 @@ class PasswordInputViewModel @Inject constructor(
             is PasswordInputState.PasswordNoneState -> {
                 state.copy(inputPassword = state.inputPassword.dropLast(1))
             }
+
             is PasswordInputState.PasswordConfirmState -> {
                 state.copy(inputPassword = state.inputPassword.dropLast(1))
             }
+
             is PasswordInputState.PasswordVerifyState -> {
                 state.copy(inputPassword = state.inputPassword.dropLast(1))
             }
