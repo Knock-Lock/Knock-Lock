@@ -33,7 +33,6 @@
     <string name="desc_password_verify">기존에 설정된 비밀번호를 입력하세요.</string>
     <string name="desc_password_verify_failed">비밀번호가 일치하지 않습니다.</string>
 
-    <!--    Home-->
     <string name="home_edit_clock_type">시계</string>
     <string name="home_edit_background_type">배경</string>
     <string name="home_edit_unknown_type">"?"</string>
