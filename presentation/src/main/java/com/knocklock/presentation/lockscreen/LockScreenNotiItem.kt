@@ -4,7 +4,6 @@ import android.app.PendingIntent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
@@ -15,9 +14,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -39,13 +35,13 @@ import kotlinx.collections.immutable.ImmutableList
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SwipeToDismissLockNotiItem(
-    modifier: Modifier = Modifier,
     onNotificationClicked: (PendingIntent) -> Unit,
     onRemoveNotification: (List<String>) -> Unit,
     notification: Notification,
-    notificationSize: Int,
     clickableState: Boolean,
     expandableState: Boolean,
+    modifier: Modifier = Modifier,
+    updateSwipeOffset: (Float) -> Unit,
     groupNotification: ImmutableList<Notification>? = null,
 ) {
     val updateGroupNotification by rememberUpdatedState(newValue = groupNotification)
@@ -79,6 +75,12 @@ fun SwipeToDismissLockNotiItem(
             false
         }
     })
+
+    LaunchedEffect(dismissState) {
+        snapshotFlow { dismissState.offset.value }.collect {
+            updateSwipeOffset(it)
+        }
+    }
     SwipeToDismiss(
         modifier = modifier,
         state = dismissState,
@@ -95,7 +97,6 @@ fun SwipeToDismissLockNotiItem(
         background = {},
     )
 }
-
 
 @Composable
 fun LockNotiItem(
