@@ -69,7 +69,6 @@ fun LockScreenHost(
             exit = fadeOut(),
         ) {
             LockScreenRoute(
-                modifier = Modifier,
                 notificationUiState = notificationUiState,
                 notificationUiFlagState = notificationUiFlagState.toImmutableMap(),
                 userSwipe = {
