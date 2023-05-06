@@ -4,6 +4,7 @@ import android.app.PendingIntent
 import android.widget.TextClock
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,14 +16,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
@@ -84,8 +83,6 @@ fun LockScreen(
     Column(
         modifier = modifier.fillMaxSize(),
     ) {
-        Box(modifier = Modifier.background(color = MaterialTheme.colorScheme.primary)) // Image로 추후 변경
-        Spacer(modifier = Modifier.height(50.dp))
         Box(modifier = Modifier.fillMaxSize()) {
             when (notificationUiState) {
                 is NotificationUiState.Success -> {
@@ -96,6 +93,7 @@ fun LockScreen(
                         onNotificationClicked = onNotificationClicked,
                         updateNotificationExpandableFlag = updateNotificationExpandableFlag,
                         updateNotificationClickableFlag = updateNotificationClickableFlag,
+                        notificationHeight = 60.dp,
                     )
                 }
                 is NotificationUiState.Empty -> {
@@ -185,13 +183,14 @@ fun UnLockSwipeBar(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LockScreenNotificationListColumn(
-    modifier: Modifier = Modifier,
+    notificationHeight: Dp,
     groupNotificationList: ImmutableList<GroupWithNotification>,
     notificationUiFlagState: ImmutableMap<String, NotificationUiFlagState>,
     updateNotificationExpandableFlag: (String) -> Unit,
     updateNotificationClickableFlag: (String, Boolean) -> Unit,
     onRemoveNotification: (List<String>) -> Unit,
     onNotificationClicked: (PendingIntent) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val lockNotiModifier = modifier
         .clip(RoundedCornerShape(10.dp))
@@ -201,113 +200,192 @@ fun LockScreenNotificationListColumn(
     val screenHeight = with(density) {
         configuration.screenHeightDp.dp.roundToPx()
     }
-    val threshold = screenHeight.times(0.8f)
+    val threshold = screenHeight.times(0.7f)
 
     LazyColumn(
         modifier = modifier,
         state = scrollState,
         verticalArrangement = Arrangement.spacedBy(4.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        contentPadding = PaddingValues(10.dp),
+        contentPadding = PaddingValues(bottom = 500.dp, start = 10.dp, end = 10.dp),
     ) {
         item {
-            TextClockComposable(modifier = Modifier)
+            TextClockComposable(modifier = Modifier.padding(top = 50.dp))
         }
         groupNotificationList.forEach { item ->
 
             item(key = item.notifications[0].postedTime) {
-                var animateFlag by rememberSaveable { mutableStateOf(true) }
-                var alphaState by rememberSaveable { mutableStateOf(0f) }
-                val animateScale by animateFloatAsState(
-                    targetValue = if (animateFlag) { 0f } else { 1f },
+                var isNotVisible by rememberSaveable { mutableStateOf(true) }
+                var currentOffset by rememberSaveable { mutableStateOf(10000f) }
+                val animateColor by animateColorAsState(
+                    targetValue =
+                    if (currentOffset !in 0.8f..1f) {
+                        Color.Transparent
+                    } else {
+                        Color.White.copy(alpha = currentOffset)
+                    },
                     label = "",
-                    animationSpec = tween(500),
                 )
-                val animateBackgroundColor by animateColorAsState(
-                    targetValue = if (animateFlag) Color.Transparent else Color(0xFFFAFAFA).copy(alpha = 0.95f),
-                    label = "animateBackground",
-                )
+                var offsetY by remember { mutableStateOf((-50f)) }
+                var offsetX by remember { mutableStateOf(0f) }
+                val animateOffsetY = remember { Animatable(0f) }
+
+                LaunchedEffect(
+                    currentOffset,
+                ) {
+                    if (currentOffset == 1f) {
+                        animateOffsetY.animateTo(0f, tween()) {
+                            offsetY = value
+                        }
+                    } else {
+                        animateOffsetY.animateTo(-(1f- currentOffset) * 100, tween()) {
+                            offsetY = value
+                        }
+                    }
+                }
                 LaunchedEffect(scrollState) {
                     snapshotFlow {
-                        scrollState.layoutInfo.visibleItemsInfo.firstOrNull { it.key == item.notifications[0].postedTime }?.offset ?: 0
+                        scrollState.layoutInfo.visibleItemsInfo.firstOrNull { it.key == item.notifications[0].postedTime }?.offset ?: Integer.MAX_VALUE
                     }.collectLatest { offset ->
-                        alphaState = if (offset > threshold) 0f else 1f
-                        animateFlag = (offset > threshold)
-                        updateNotificationClickableFlag(item.group.key, (item.notifications.size >=2 && offset <threshold))
+                        currentOffset = if (threshold - offset < 0) threshold / offset else 1f
+                        isNotVisible = currentOffset !in 0.8f..1f
+                        updateNotificationClickableFlag(item.group.key, (item.notifications.size >= 2 && offset < threshold))
                     }
                 }
 
-                SwipeToDismissLockNotiItem(
-                    modifier = lockNotiModifier
-                        .graphicsLayer {
-                            alpha = alphaState
-                            scaleX = animateScale
-                            scaleY = animateScale
-                        }.scale(
-                            animateScale,
-                        )
-                        .clickable(
-                            enabled = notificationUiFlagState[item.group.key]?.clickable ?: false,
-                            indication = null,
-                            interactionSource = remember { MutableInteractionSource() },
-                        ) {
-                            if (notificationUiFlagState.containsKey(item.group.key)) {
-                                notificationUiFlagState[item.group.key]?.let { state ->
-                                    updateNotificationExpandableFlag(
-                                        item.group.key,
-                                    )
-                                }
+                Box(
+                    modifier = Modifier.animateItemPlacement(),
+                ) {
+                    Canvas(
+                        modifier = Modifier.fillMaxWidth().height(notificationHeight) // Notification의 배경을 담당
+                            .graphicsLayer {
+                                translationY = offsetY
+                                translationX = offsetX
+                                alpha = currentOffset
+                                scaleX = currentOffset
+                                scaleY = currentOffset
                             }
-                        }.background(animateBackgroundColor).animateItemPlacement(),
-                    onRemoveNotification = onRemoveNotification,
-                    notification = item.notifications[0],
-                    notificationSize = item.notifications.size,
-                    clickableState = notificationUiFlagState[item.group.key]?.clickable ?: false,
-                    expandableState = notificationUiFlagState[item.group.key]?.expandable ?: false,
-                    groupNotification = item.notifications.toImmutableList(),
-                    onNotificationClicked = onNotificationClicked,
-                )
+                            .zIndex(offsetY).animateItemPlacement(),
+                    ) {
+                        drawRoundRect(
+                            color = animateColor,
+                            cornerRadius = CornerRadius(10.dp.toPx(), 10.dp.toPx()),
+                        )
+                    }
+                    if (!isNotVisible) {
+                        SwipeToDismissLockNotiItem(
+                            modifier = lockNotiModifier
+                                .graphicsLayer {
+                                    translationY = offsetY
+                                    alpha = currentOffset
+                                    scaleX = currentOffset
+                                    scaleY = currentOffset
+                                }
+                                .clickable(
+                                    enabled = notificationUiFlagState[item.group.key]?.clickable ?: false,
+                                    indication = null,
+                                    interactionSource = remember { MutableInteractionSource() },
+                                ) {
+                                    with(item.group.key) {
+                                        if (notificationUiFlagState.containsKey(this)) {
+                                            updateNotificationExpandableFlag(this)
+                                        }
+                                    }
+                                }
+                                .animateItemPlacement(),
+                            onRemoveNotification = onRemoveNotification,
+                            notification = item.notifications[0],
+                            clickableState = notificationUiFlagState[item.group.key]?.clickable ?: false,
+                            expandableState = notificationUiFlagState[item.group.key]?.expandable ?: false,
+                            groupNotification = item.notifications.toImmutableList(),
+                            onNotificationClicked = onNotificationClicked,
+                            updateSwipeOffset = {
+                                offsetX = it
+                            },
+                        )
+                    }
+                }
             }
             if (notificationUiFlagState.containsKey(item.group.key) && notificationUiFlagState[item.group.key]!!.expandable && item.notifications.size != 1) {
                 items(items = item.notifications.drop(1), key = { notification -> notification.postedTime }) { notification ->
-                    var animateFlag by rememberSaveable { mutableStateOf(true) }
-                    var alphaState by rememberSaveable { mutableStateOf(0f) }
-                    val animateScale by animateFloatAsState(
-                        targetValue = if (animateFlag) { 0f } else { 1f },
+                    var isNotVisible by rememberSaveable { mutableStateOf(true) }
+                    var currentOffset by remember { mutableStateOf(10000f) }
+                    val animateColor by animateColorAsState(
+                        targetValue =
+                        if (currentOffset !in 0.8f..1f) {
+                            Color.Transparent
+                        } else {
+                            Color.White.copy(alpha = currentOffset)
+                        },
                         label = "",
-                        animationSpec = tween(500),
                     )
-                    val animateBackgroundColor by animateColorAsState(
-                        targetValue = if (animateFlag) Color.Transparent else Color(0xFFFAFAFA).copy(alpha = 0.95f),
-                        label = "animateBackground",
-                    )
-                    LaunchedEffect(scrollState) {
-                        snapshotFlow {
-                            scrollState.layoutInfo.visibleItemsInfo.firstOrNull { it.key == notification.postedTime }?.offset ?: 0
-                        }.collectLatest { offset ->
-                            alphaState = if (offset > threshold) 0f else 1f
-                            animateFlag = (offset > threshold)
+                    var offsetX by remember { mutableStateOf(0f) }
+                    var offsetY by remember { mutableStateOf((-50f)) }
+                    val animateOffsetY = remember { Animatable(0f) }
+
+                    LaunchedEffect(
+                        currentOffset,
+                    ) {
+                        if (currentOffset == 1f) {
+                            animateOffsetY.animateTo(0f, tween()) {
+                                offsetY = value
+                            }
+                        } else {
+                            animateOffsetY.animateTo(-(1f - currentOffset) * 100, tween()) {
+                                offsetY = value
+                            }
                         }
                     }
-                    SwipeToDismissLockNotiItem(
-                        modifier = lockNotiModifier
-                            .animateItemPlacement()
-                            .graphicsLayer {
-                                alpha = alphaState
-                                scaleX = animateScale
-                                scaleY = animateScale
-                            }.scale(
-                                animateScale,
-                            ).background(animateBackgroundColor),
-                        onNotificationClicked = onNotificationClicked,
-                        onRemoveNotification = {
-                            onRemoveNotification(it)
-                        },
-                        notification = notification,
-                        notificationSize = item.notifications.size,
-                        clickableState = false,
-                        expandableState = notificationUiFlagState[item.group.key]?.expandable ?: false,
-                    )
+                    LaunchedEffect(scrollState) {
+                        snapshotFlow {
+                            scrollState.layoutInfo.visibleItemsInfo.firstOrNull { it.key == notification.postedTime }?.offset
+                                ?: Integer.MAX_VALUE
+                        }.collectLatest { offset ->
+                            currentOffset = if (threshold - offset < 0) threshold / offset else 1f
+                            isNotVisible = currentOffset !in 0.8f..1f
+                        }
+                    }
+                    Box {
+                        Canvas(
+                            modifier = Modifier.fillMaxWidth().height(notificationHeight) // Notification의 배경 크기를 담당을 담당
+                                .graphicsLayer {
+                                    translationY = offsetY
+                                    translationX = offsetX
+                                    alpha = currentOffset
+                                    scaleX = currentOffset
+                                    scaleY = currentOffset
+                                }
+                                .zIndex(offsetY),
+                        ) {
+                            drawRoundRect(
+                                color = animateColor,
+                                cornerRadius = CornerRadius(10.dp.toPx(), 10.dp.toPx()),
+                            )
+                        }
+                        if (!isNotVisible) {
+                            SwipeToDismissLockNotiItem(
+                                modifier = lockNotiModifier
+                                    .fillMaxWidth().height(60.dp)
+                                    .graphicsLayer {
+                                        translationY = offsetY
+                                        alpha = currentOffset
+                                        scaleX = currentOffset
+                                        scaleY = currentOffset
+                                    }.animateItemPlacement(),
+                                onNotificationClicked = onNotificationClicked,
+                                onRemoveNotification = {
+                                    onRemoveNotification(it)
+                                },
+                                notification = notification,
+                                clickableState = false,
+                                expandableState = notificationUiFlagState[item.group.key]?.expandable
+                                    ?: false,
+                                updateSwipeOffset = {
+                                    offsetX = it
+                                },
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -329,13 +407,4 @@ fun TextClockComposable(
         // on below line we are adding padding.
         modifier = modifier,
     )
-}
-
-fun updateExpandable(expandableState: SnapshotStateMap<String, Boolean>, key: String) {
-    if (!expandableState.containsKey(key)) {
-        expandableState[key] = false
-    }
-}
-fun updateClickable(clickableState: SnapshotStateMap<String, Boolean>, key: String, flag: Boolean) {
-    clickableState[key] = flag
 }
