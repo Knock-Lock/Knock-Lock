@@ -29,7 +29,6 @@ import com.knocklock.presentation.util.TimeWithSecondFormat
 fun HomeEditTimeFormatDialog(
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = viewModel(),
-    clickListener: (TimeFormat) -> Unit = {},
     onDismiss: () -> Unit = {}
 ) {
     BottomSheetDialog(onDismissRequest = onDismiss) {
@@ -49,22 +48,22 @@ fun HomeEditTimeFormatDialog(
                 TimeFormatItem(
                     modifier = Modifier.fillMaxWidth(),
                     format = TimeWithNoSecondFormat,
-                    clickListener = clickListener
+                    clickListener = viewModel::setTimeFormat
                 )
                 TimeFormatItem(
                     modifier = Modifier.fillMaxWidth(),
                     format = TimeWithSecondFormat,
-                    clickListener = clickListener
+                    clickListener = viewModel::setTimeFormat
                 )
                 TimeFormatItem(
                     modifier = Modifier.fillMaxWidth(),
                     format = TimeVerticalFormat,
-                    clickListener = clickListener
+                    clickListener = viewModel::setTimeFormat
                 )
                 TimeFormatItem(
                     modifier = Modifier.fillMaxWidth(),
                     format = TimeWithMeridiem,
-                    clickListener = clickListener
+                    clickListener = viewModel::setTimeFormat
                 )
             }
         }

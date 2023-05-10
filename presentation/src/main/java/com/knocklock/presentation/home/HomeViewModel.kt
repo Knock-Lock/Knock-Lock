@@ -7,6 +7,7 @@ import com.knocklock.domain.model.LockScreenBackground
 import com.knocklock.domain.usecase.lockscreen.GetLockScreenUseCase
 import com.knocklock.domain.usecase.lockscreen.SaveWallPaperUseCase
 import com.knocklock.presentation.home.menu.HomeMenu
+import com.knocklock.presentation.util.TimeFormat
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
@@ -16,6 +17,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlinx.coroutines.flow.update
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -55,10 +57,16 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun saveTmpWallPaper(uri: String) {
+    fun setWallPaper(uri: String) {
         viewModelScope.launch {
             tmpHomeScreen.value =
                 TmpScreenState.Custom(LockScreen(LockScreenBackground.LocalImage(uri)))
+        }
+    }
+
+    fun setTimeFormat(format: TimeFormat) {
+        viewModelScope.launch {
+            //TODO: save format
         }
     }
 }
