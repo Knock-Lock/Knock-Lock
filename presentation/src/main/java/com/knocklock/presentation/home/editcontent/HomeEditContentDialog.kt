@@ -42,7 +42,10 @@ fun HomeEditContentDialog(
                     HomeEditTypeItem(
                         modifier = Modifier.fillMaxSize(),
                         editType = type,
-                        clickListener = clickListener,
+                        clickListener = {
+                            clickListener(it)
+                            onDismiss()
+                        }
                     )
                 }
             }

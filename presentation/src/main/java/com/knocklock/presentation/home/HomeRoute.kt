@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.knocklock.presentation.home.editcontent.HomeEditContentDialog
+import com.knocklock.presentation.home.editcontent.HomeEditTimeFormatDialog
 import com.knocklock.presentation.home.editcontent.HomeEditType
 import com.knocklock.presentation.home.menu.HomeMenu
 import com.knocklock.presentation.util.getGalleryIntent
@@ -22,7 +23,8 @@ fun HomeRoute(
 ) {
     val homeScreenUiState by viewModel.homeScreenUiState.collectAsState(HomeScreenUiState.Loading)
 
-    var isShowHomeEditContent by remember { mutableStateOf(false) }
+    var isShowHomeEditContentDialog by remember { mutableStateOf(false) }
+    var isShowHomeEditTimeFormatDialog by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     val galleryLauncher =
@@ -48,7 +50,7 @@ fun HomeRoute(
                         onClickSetting()
                     }
                     HomeMenu.EDIT -> {
-                        isShowHomeEditContent = true
+                        isShowHomeEditContentDialog = true
                     }
                     HomeMenu.SAVE -> {
                         viewModel.saveLockScreen()
@@ -59,19 +61,32 @@ fun HomeRoute(
             }
         )
 
-        if (isShowHomeEditContent) {
+        if (isShowHomeEditContentDialog) {
             HomeEditContentDialog(
+                modifier = Modifier.fillMaxWidth(),
                 clickListener = { editType ->
                     when (editType) {
                         HomeEditType.BACKGROUND -> {
                             galleryLauncher.launch(getGalleryIntent())
                         }
 
+                        HomeEditType.TimeFormat -> {
+                            isShowHomeEditTimeFormatDialog = true
+                        }
+
                         else -> {}
                     }
-                    isShowHomeEditContent = false
                 },
-                onDismiss = { isShowHomeEditContent = false }
+                onDismiss = { isShowHomeEditContentDialog = false }
+            )
+        }
+
+        if (isShowHomeEditTimeFormatDialog) {
+            HomeEditTimeFormatDialog(
+                modifier = Modifier.fillMaxWidth(),
+                selectedTimeFormat = (homeScreenUiState as? HomeScreenUiState.Success)?.lockScreen?.timeFormat,
+                clickListener = viewModel::setTimeFormat,
+                onDismiss = { isShowHomeEditTimeFormatDialog = false }
             )
         }
     }
