@@ -8,10 +8,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.viewinterop.AndroidView
-import com.knocklock.presentation.util.TimeFormat
-import com.knocklock.presentation.util.TimeVerticalFormat
-import com.knocklock.presentation.util.TimeWithNoSecondFormat
-import com.knocklock.presentation.util.TimeWithSecondFormat
+import com.knocklock.domain.model.TimeFormat
 import java.util.*
 
 
@@ -32,24 +29,13 @@ fun ClockWidget(
         }, update = { textClock ->
             textClock.format12Hour = timeFormat.timeFormat
         })
-        if (timeFormat is TimeVerticalFormat) {
-            AndroidView(factory = { context ->
-                TextClock(context).apply {
-                    format12Hour = timeFormat.minutesFormat
-                    textSize = 36F
-                    setTextColor(Color.WHITE)
-                }
-            }, update = { textClock ->
-                textClock.format12Hour = timeFormat.minutesFormat
-            })
-        }
         AndroidView(factory = { context ->
             TextClock(context).apply {
                 format12Hour =
                     if (Locale.getDefault().language.equals("ko")) {
-                        timeFormat.dateFormatKor
+                        TimeFormat.dateFormatKor
                     } else {
-                        timeFormat.dateFormatEng
+                        TimeFormat.dateFormatEng
                     }
                 textSize = 12F
                 setTextColor(Color.WHITE)
@@ -57,9 +43,9 @@ fun ClockWidget(
         }, update = { textClock ->
             textClock.format12Hour =
                 if (Locale.getDefault().language.equals("ko")) {
-                    timeFormat.dateFormatKor
+                    TimeFormat.dateFormatKor
                 } else {
-                    timeFormat.dateFormatEng
+                    TimeFormat.dateFormatEng
                 }
         })
     }
@@ -68,17 +54,17 @@ fun ClockWidget(
 @Preview
 @Composable
 fun PreviewClockOne() {
-    ClockWidget(timeFormat = TimeWithNoSecondFormat)
+    ClockWidget(timeFormat = TimeFormat.TimeWithNoSecondFormat)
 }
 
 @Preview
 @Composable
 fun PreviewClockTwo() {
-    ClockWidget(timeFormat = TimeWithSecondFormat)
+    ClockWidget(timeFormat = TimeFormat.TimeWithSecondFormat)
 }
 
 @Preview
 @Composable
 fun PreviewClockThird() {
-    ClockWidget(timeFormat = TimeVerticalFormat)
+    ClockWidget(timeFormat = TimeFormat.TimeVerticalFormat)
 }

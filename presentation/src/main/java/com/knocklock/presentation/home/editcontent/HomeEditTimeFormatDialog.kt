@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,11 +20,7 @@ import com.knocklock.presentation.home.HomeViewModel
 import com.knocklock.presentation.widget.BottomSheetHeaderBar
 import com.knocklock.presentation.widget.ClockWidget
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.knocklock.presentation.util.TimeFormat
-import com.knocklock.presentation.util.TimeVerticalFormat
-import com.knocklock.presentation.util.TimeWithMeridiem
-import com.knocklock.presentation.util.TimeWithNoSecondFormat
-import com.knocklock.presentation.util.TimeWithSecondFormat
+import com.knocklock.domain.model.TimeFormat
 
 @Composable
 fun HomeEditTimeFormatDialog(
@@ -45,26 +42,15 @@ fun HomeEditTimeFormatDialog(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                TimeFormatItem(
-                    modifier = Modifier.fillMaxWidth(),
-                    format = TimeWithNoSecondFormat,
-                    clickListener = viewModel::setTimeFormat
-                )
-                TimeFormatItem(
-                    modifier = Modifier.fillMaxWidth(),
-                    format = TimeWithSecondFormat,
-                    clickListener = viewModel::setTimeFormat
-                )
-                TimeFormatItem(
-                    modifier = Modifier.fillMaxWidth(),
-                    format = TimeVerticalFormat,
-                    clickListener = viewModel::setTimeFormat
-                )
-                TimeFormatItem(
-                    modifier = Modifier.fillMaxWidth(),
-                    format = TimeWithMeridiem,
-                    clickListener = viewModel::setTimeFormat
-                )
+                TimeFormat.values().forEach {
+                    key(it) {
+                        TimeFormatItem(
+                            modifier = Modifier.fillMaxWidth(),
+                            format = it,
+                            clickListener = viewModel::setTimeFormat
+                        )
+                    }
+                }
             }
         }
     }
