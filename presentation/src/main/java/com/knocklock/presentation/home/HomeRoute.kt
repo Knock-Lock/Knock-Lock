@@ -51,7 +51,7 @@ fun HomeRoute(
                         isShowHomeEditContent = true
                     }
                     HomeMenu.SAVE -> {
-                        viewModel.saveWallPaper()
+                        viewModel.saveLockScreen()
                     }
                     HomeMenu.CLEAR -> {
                     }

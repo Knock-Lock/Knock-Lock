@@ -33,9 +33,9 @@ fun ClockWidget(
             TextClock(context).apply {
                 format12Hour =
                     if (Locale.getDefault().language.equals("ko")) {
-                        TimeFormat.dateFormatKor
+                        TimeFormat.DATE_FORMAT_KOR
                     } else {
-                        TimeFormat.dateFormatEng
+                        TimeFormat.DATE_FORMAT_ENG
                     }
                 textSize = 12F
                 setTextColor(Color.WHITE)
@@ -43,9 +43,9 @@ fun ClockWidget(
         }, update = { textClock ->
             textClock.format12Hour =
                 if (Locale.getDefault().language.equals("ko")) {
-                    TimeFormat.dateFormatKor
+                    TimeFormat.DATE_FORMAT_KOR
                 } else {
-                    TimeFormat.dateFormatEng
+                    TimeFormat.DATE_FORMAT_ENG
                 }
         })
     }

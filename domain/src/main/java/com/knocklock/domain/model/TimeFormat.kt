@@ -7,7 +7,13 @@ enum class TimeFormat(val timeFormat: String) {
     TimeWithMeridiem("a HH:mm")
     ;
     companion object {
-        const val dateFormatKor: String = "MMM d일 EEEE"
-        const val dateFormatEng: String = "E, MMM d"
+        val DEFAULT_TIME_FORMAT = TimeWithNoSecondFormat
+
+        const val DATE_FORMAT_KOR: String = "MMM d일 EEEE"
+        const val DATE_FORMAT_ENG: String = "E, MMM d"
+
+        fun getTimeFormat(format: String): TimeFormat {
+            return TimeFormat.values().find { it.name == format } ?: DEFAULT_TIME_FORMAT
+        }
     }
 }

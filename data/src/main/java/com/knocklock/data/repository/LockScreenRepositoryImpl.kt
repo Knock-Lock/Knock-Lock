@@ -1,8 +1,8 @@
 package com.knocklock.data.repository
 
 import androidx.datastore.core.DataStore
+import com.knocklock.data.mapper.toData
 import com.knocklock.data.mapper.toDomain
-import com.knocklock.data.source.local.lockscreen.LockScreenBackground
 import com.knocklock.data.source.local.lockscreen.LockScreenPreference
 import com.knocklock.domain.model.LockScreen
 import com.knocklock.domain.repository.LockScreenRepository
@@ -20,12 +20,11 @@ class LockScreenRepositoryImpl @Inject constructor(
         lockScreenDataStore.updateData { LockScreenPreference.getDefaultInstance() }
     }
 
-    override suspend fun saveWallPaperImage(imageUri: String?) {
+    override suspend fun saveLockScreen(lockScreen: LockScreen) {
         lockScreenDataStore.updateData { lockScreenDataStore ->
-            val background =
-                if (imageUri.isNullOrBlank()) LockScreenBackground.DefaultWallPaper else LockScreenBackground.LocalImage(imageUri)
             lockScreenDataStore.copy(
-                background = background
+                background = lockScreen.background.toData(),
+                timeFormat = lockScreen.timeFormat.name
             )
         }
     }
