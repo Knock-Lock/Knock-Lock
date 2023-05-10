@@ -5,13 +5,13 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class LockScreenPreference(
-    val background: LockScreenBackgroundPreference,
+    val background: LockScreenBackground,
     val timeFormat: String
 ) {
     companion object {
         const val localPath = "lockscreen.preferences_pb"
         fun getDefaultInstance() = LockScreenPreference(
-            background = LockScreenBackgroundPreference.DefaultWallPaper,
+            background = LockScreenBackground.DefaultWallPaper,
             timeFormat = TimeFormat.DEFAULT_TIME_FORMAT.name
         )
     }
@@ -19,10 +19,10 @@ data class LockScreenPreference(
 
 
 @Serializable
-sealed interface LockScreenBackgroundPreference {
+sealed interface LockScreenBackground {
     @Serializable
-    object DefaultWallPaper : LockScreenBackgroundPreference
+    object DefaultWallPaper : LockScreenBackground
 
     @Serializable
-    data class LocalImage(val imageUri: String) : LockScreenBackgroundPreference
+    data class LocalImage(val imageUri: String) : LockScreenBackground
 }

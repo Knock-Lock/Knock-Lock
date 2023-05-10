@@ -4,7 +4,7 @@ import com.knocklock.data.source.local.lockscreen.LockScreenPreference
 import com.knocklock.domain.model.LockScreen
 import com.knocklock.domain.model.LockScreenBackground
 import com.knocklock.domain.model.TimeFormat
-import com.knocklock.data.source.local.lockscreen.LockScreenBackgroundPreference as DataLockScreenBackground
+import com.knocklock.data.source.local.lockscreen.LockScreenBackground as DataLockScreenBackground
 
 fun LockScreenPreference.toDomain() = LockScreen(
     background = background.toDomain(),
