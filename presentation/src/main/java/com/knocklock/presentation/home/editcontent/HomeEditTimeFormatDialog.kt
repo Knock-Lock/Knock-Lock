@@ -28,7 +28,7 @@ import com.knocklock.domain.model.TimeFormat
 fun HomeEditTimeFormatDialog(
     modifier: Modifier = Modifier,
     selectedTimeFormat: TimeFormat? = null,
-    clickListener: (format: TimeFormat) -> Unit,
+    clickListener: (format: TimeFormat) -> Unit = {},
     onDismiss: () -> Unit = {}
 ) {
     BottomSheetDialog(onDismissRequest = onDismiss) {
