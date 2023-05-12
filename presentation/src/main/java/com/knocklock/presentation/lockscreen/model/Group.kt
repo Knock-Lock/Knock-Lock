@@ -8,10 +8,3 @@ data class Group(
     val key: String
 )
 
-fun Group.toModel() = GroupModel(
-    key = this.key
-)
-
-fun GroupModel.toModel() = Group(
-    key = this.key
-)
