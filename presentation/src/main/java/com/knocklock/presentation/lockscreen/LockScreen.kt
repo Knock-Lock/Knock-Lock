@@ -13,8 +13,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,34 +41,43 @@ import kotlin.math.roundToInt
 
 @Composable
 fun LockScreenRoute(
-    modifier: Modifier = Modifier,
-    notificationUiState: NotificationUiState,
-    notificationUiFlagState: ImmutableMap<String, NotificationUiFlagState>,
+    recentNotificationList: ImmutableList<GroupWithNotification>,
+    recentNotificationUiFlagState: ImmutableMap<String, NotificationUiFlagState>,
+    oldNotificationUiState: NotificationUiState,
+    oldNotificationUiFlagState: ImmutableMap<String, NotificationUiFlagState>,
     userSwipe: () -> Unit,
     onRemoveNotification: (List<String>) -> Unit,
     onNotificationClicked: (PendingIntent) -> Unit,
-    updateNotificationExpandableFlag: (String) -> Unit,
+    updateOldNotificationExpandableFlag: (String) -> Unit,
+    updateRecentNotificationExpandableFlag: (String) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     LockScreen(
         modifier = modifier,
-        notificationUiState = notificationUiState,
-        notificationUiFlagState = notificationUiFlagState,
+        recentNotificationList = recentNotificationList,
+        recentNotificationUiFlagState = recentNotificationUiFlagState,
+        oldNotificationUiState = oldNotificationUiState,
+        oldNotificationUiFlagState = oldNotificationUiFlagState,
         userSwipe = userSwipe,
         onRemoveNotification = onRemoveNotification,
         onNotificationClicked = onNotificationClicked,
-        updateNotificationExpandableFlag = updateNotificationExpandableFlag,
+        updateNotificationExpandableFlag = updateOldNotificationExpandableFlag,
+        updateNewNotificationExpandableFlag = updateRecentNotificationExpandableFlag,
     )
 }
 
 @Composable
 fun LockScreen(
-    modifier: Modifier = Modifier,
-    notificationUiState: NotificationUiState,
-    notificationUiFlagState: ImmutableMap<String, NotificationUiFlagState>,
+    recentNotificationList: ImmutableList<GroupWithNotification>,
+    recentNotificationUiFlagState: ImmutableMap<String, NotificationUiFlagState>,
+    oldNotificationUiState: NotificationUiState,
+    oldNotificationUiFlagState: ImmutableMap<String, NotificationUiFlagState>,
     userSwipe: () -> Unit,
     onRemoveNotification: (List<String>) -> Unit,
     onNotificationClicked: (PendingIntent) -> Unit,
     updateNotificationExpandableFlag: (String) -> Unit,
+    updateNewNotificationExpandableFlag: (String) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier.fillMaxSize(),
@@ -77,14 +86,17 @@ fun LockScreen(
         Spacer(modifier = Modifier.height(50.dp))
         TextClockComposable(modifier = Modifier.align(Alignment.CenterHorizontally))
         Box(modifier = Modifier.fillMaxSize()) {
-            when (notificationUiState) {
+            when (oldNotificationUiState) {
                 is NotificationUiState.Success -> {
                     LockScreenNotificationListColumn(
-                        groupNotificationList = notificationUiState.groupWithNotification.toImmutableList(),
-                        notificationUiFlagState = notificationUiFlagState,
+                        recentNotificationList = recentNotificationList,
+                        recentNotificationUiFlagState = recentNotificationUiFlagState,
+                        oldGroupNotificationList = oldNotificationUiState.groupWithNotification.toImmutableList(),
+                        oldNotificationUiFlagState = oldNotificationUiFlagState,
                         onRemoveNotification = onRemoveNotification,
                         onNotificationClicked = onNotificationClicked,
-                        updateNotificationExpandableFlag = updateNotificationExpandableFlag,
+                        updateOldNotificationExpandableFlag = updateNotificationExpandableFlag,
+                        updateRecentNotificationExpandableFlag = updateNewNotificationExpandableFlag,
                     )
                 }
                 is NotificationUiState.Empty -> {
@@ -123,7 +135,7 @@ fun UnLockSwipeBar(
     val sizePx = with(LocalDensity.current) { height.toPx() }
     val anchors = mapOf(0f to 0, sizePx to 1)
 
-    val infiniteTransition = rememberInfiniteTransition()
+    val infiniteTransition = rememberInfiniteTransition(label = "")
     val movingAnimation by infiniteTransition.animateFloat(
         initialValue = 0f,
         targetValue = height.value,
@@ -131,6 +143,7 @@ fun UnLockSwipeBar(
             animation = tween(1000, easing = LinearEasing),
             repeatMode = RepeatMode.Reverse,
         ),
+        label = "",
     )
 
     val targetValue by remember(swipeableState) {
@@ -173,12 +186,15 @@ fun UnLockSwipeBar(
 
 @Composable
 fun LockScreenNotificationListColumn(
-    modifier: Modifier = Modifier,
-    groupNotificationList: ImmutableList<GroupWithNotification>,
-    notificationUiFlagState: ImmutableMap<String, NotificationUiFlagState>,
-    updateNotificationExpandableFlag: (String) -> Unit,
+    recentNotificationList: ImmutableList<GroupWithNotification>,
+    recentNotificationUiFlagState: ImmutableMap<String, NotificationUiFlagState>,
+    oldGroupNotificationList: ImmutableList<GroupWithNotification>,
+    oldNotificationUiFlagState: ImmutableMap<String, NotificationUiFlagState>,
+    updateOldNotificationExpandableFlag: (String) -> Unit,
+    updateRecentNotificationExpandableFlag: (String) -> Unit,
     onRemoveNotification: (List<String>) -> Unit,
     onNotificationClicked: (PendingIntent) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val lockNotiModifier = modifier
         .background(
@@ -192,17 +208,69 @@ fun LockScreenNotificationListColumn(
         verticalArrangement = Arrangement.spacedBy(4.dp),
         contentPadding = PaddingValues(10.dp),
     ) {
-        groupNotificationList.forEach { item ->
-            item(key = item.notifications[0].postedTime) {
+        if (recentNotificationList.isNotEmpty()) {
+            item {
+                Text(text = " 최근 알림 입니다 ")
+            }
+        }
+        recentNotificationList.forEach { item ->
+            item(key = item.notifications[0].groupKey + item.notifications[0].postedTime) {
                 SwipeToDismissLockNotiItem(
                     modifier = lockNotiModifier.clickable(
-                        enabled = notificationUiFlagState[item.group.key]?.clickable ?: false,
+                        enabled = recentNotificationUiFlagState[item.group.key]?.clickable ?: false,
                         indication = null,
                         interactionSource = remember { MutableInteractionSource() },
                     ) {
-                        if (notificationUiFlagState.containsKey(item.group.key)) {
-                            notificationUiFlagState[item.group.key]?.let { state ->
-                                updateNotificationExpandableFlag(
+                        if (recentNotificationUiFlagState.containsKey(item.group.key)) {
+                            recentNotificationUiFlagState[item.group.key]?.let { _ ->
+                                updateRecentNotificationExpandableFlag(
+                                    item.group.key,
+                                )
+                            }
+                        }
+                    },
+                    onNotificationClicked = onNotificationClicked,
+                    onRemoveNotification = onRemoveNotification,
+                    notification = item.notifications[0],
+                    notificationSize = item.notifications.size,
+                    clickableState = recentNotificationUiFlagState[item.group.key]?.clickable ?: false,
+                    expandableState = recentNotificationUiFlagState[item.group.key]?.expandable ?: false,
+                )
+            }
+            if (recentNotificationUiFlagState.containsKey(item.group.key) && recentNotificationUiFlagState[item.group.key]!!.expandable && item.notifications.size != 1) {
+                items(items = item.notifications.drop(1), key = { notification -> notification.groupKey + notification.postedTime }) { notification ->
+                    SwipeToDismissLockNotiItem(
+                        modifier = lockNotiModifier,
+                        onNotificationClicked = onNotificationClicked,
+                        onRemoveNotification = {
+                            onRemoveNotification(it)
+                        },
+                        notification = notification,
+                        notificationSize = 0,
+                        clickableState = false,
+                        expandableState = oldNotificationUiFlagState[item.group.key]?.expandable ?: false,
+                    )
+                }
+            }
+        }
+
+        if (oldGroupNotificationList.isNotEmpty()) {
+            item {
+                Text(text = " 오래된 알림 입니다 ")
+            }
+        }
+
+        oldGroupNotificationList.forEach { item ->
+            item(key = item.notifications[0].groupKey + item.notifications[0].postedTime) {
+                SwipeToDismissLockNotiItem(
+                    modifier = lockNotiModifier.clickable(
+                        enabled = oldNotificationUiFlagState[item.group.key]?.clickable ?: false,
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() },
+                    ) {
+                        if (oldNotificationUiFlagState.containsKey(item.group.key)) {
+                            oldNotificationUiFlagState[item.group.key]?.let { _ ->
+                                updateOldNotificationExpandableFlag(
                                     item.group.key,
                                 )
                             }
@@ -211,14 +279,14 @@ fun LockScreenNotificationListColumn(
                     onRemoveNotification = onRemoveNotification,
                     notification = item.notifications[0],
                     notificationSize = item.notifications.size,
-                    clickableState = notificationUiFlagState[item.group.key]?.clickable ?: false,
-                    expandableState = notificationUiFlagState[item.group.key]?.expandable ?: false,
+                    clickableState = oldNotificationUiFlagState[item.group.key]?.clickable ?: false,
+                    expandableState = oldNotificationUiFlagState[item.group.key]?.expandable ?: false,
                     groupNotification = item.notifications.toImmutableList(),
                     onNotificationClicked = onNotificationClicked,
                 )
             }
-            if (notificationUiFlagState.containsKey(item.group.key) && notificationUiFlagState[item.group.key]!!.expandable && item.notifications.size != 1) {
-                items(items = item.notifications.drop(1), key = { notification -> notification.postedTime }) { notification ->
+            if (oldNotificationUiFlagState.containsKey(item.group.key) && oldNotificationUiFlagState[item.group.key]!!.expandable && item.notifications.size != 1) {
+                items(items = item.notifications.drop(1), key = { notification -> notification.groupKey + notification.postedTime }) { notification ->
                     SwipeToDismissLockNotiItem(
                         modifier = lockNotiModifier,
                         onNotificationClicked = onNotificationClicked,
@@ -228,7 +296,7 @@ fun LockScreenNotificationListColumn(
                         notification = notification,
                         notificationSize = item.notifications.size,
                         clickableState = false,
-                        expandableState = notificationUiFlagState[item.group.key]?.expandable ?: false,
+                        expandableState = oldNotificationUiFlagState[item.group.key]?.expandable ?: false,
                     )
                 }
             }
@@ -251,13 +319,4 @@ fun TextClockComposable(
         // on below line we are adding padding.
         modifier = modifier,
     )
-}
-
-fun updateExpandable(expandableState: SnapshotStateMap<String, Boolean>, key: String) {
-    if (!expandableState.containsKey(key)) {
-        expandableState[key] = false
-    }
-}
-fun updateClickable(clickableState: SnapshotStateMap<String, Boolean>, key: String, flag: Boolean) {
-    clickableState[key] = flag
 }
