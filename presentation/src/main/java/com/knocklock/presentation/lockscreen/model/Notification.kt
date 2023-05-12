@@ -10,6 +10,7 @@ import androidx.compose.runtime.Immutable
 
 @Immutable
 data class Notification(
+    val groupKey: String,
     val id: String = "",
     val drawable: Drawable? = null,
     val appTitle: String = "",
@@ -19,5 +20,5 @@ data class Notification(
     val content: String = "",
     val isClearable: Boolean = false,
     val intent: PendingIntent? = null,
-    val packageName: String? = null
+    val packageName: String? = null,
 )

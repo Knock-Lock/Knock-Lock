@@ -2,6 +2,7 @@ package com.knocklock.presentation.lockscreen.mapper
 
 import android.content.pm.PackageManager
 import com.knocklock.presentation.lockscreen.model.GroupWithNotification
+import com.knocklock.presentation.lockscreen.model.Notification
 import com.knocklock.domain.model.GroupWithNotification as GroupWithNotificationModel
 
 /**
@@ -10,5 +11,12 @@ import com.knocklock.domain.model.GroupWithNotification as GroupWithNotification
 
 fun GroupWithNotificationModel.toModel(packageManager: PackageManager) = GroupWithNotification(
     group = this.group.toModel(),
-    notifications = this.notifications.map { it.toModel(packageManager) }
+    notifications = this.notifications.map { it.toModel(packageManager) },
+)
+
+fun GroupWithNotification.toModel() = GroupWithNotificationModel(
+    group = this.group.toModel(),
+    notifications = this.notifications.map { notification: Notification ->
+        notification.toModel()
+    },
 )
