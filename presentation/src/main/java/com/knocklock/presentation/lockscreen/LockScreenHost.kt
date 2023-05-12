@@ -16,7 +16,6 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.renderscript.Toolkit
 import com.knocklock.domain.model.AuthenticationType
@@ -25,6 +24,7 @@ import com.knocklock.presentation.lockscreen.model.LockScreen
 import com.knocklock.presentation.lockscreen.model.LockScreenBackground
 import com.knocklock.presentation.lockscreen.password.PassWordRoute
 import com.skydoves.landscapist.glide.GlideImage
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableMap
 
 /**
@@ -33,22 +33,24 @@ import kotlinx.collections.immutable.toImmutableMap
 
 @Composable
 fun LockScreenHost(
-    modifier: Modifier = Modifier,
     onFinish: () -> Unit,
-    vm: LockScreenViewModel = hiltViewModel(),
     onRemoveNotifications: (Array<String>) -> Unit,
+    modifier: Modifier = Modifier,
+    lockScreenViewModel: LockScreenViewModel,
+
 ) {
     val packageManager = LocalContext.current.packageManager
     LaunchedEffect(key1 = Unit) {
-        vm.getGroupNotifications(packageManager)
+        lockScreenViewModel.getGroupNotifications(packageManager)
     }
 
-    val backgroundState by vm.currentBackground.collectAsStateWithLifecycle()
-    val composeScreenState by vm.composeScreenState.collectAsStateWithLifecycle()
-    val notificationUiState by vm.notificationList.collectAsStateWithLifecycle()
-    val currentUserState by vm.currentLockState.collectAsStateWithLifecycle()
-    val notificationUiFlagState by vm.notificationUiFlagState.collectAsStateWithLifecycle()
-
+    val backgroundState by lockScreenViewModel.currentBackground.collectAsStateWithLifecycle()
+    val composeScreenState by lockScreenViewModel.composeScreenState.collectAsStateWithLifecycle()
+    val oldNotificationUiState by lockScreenViewModel.oldNotificationList.collectAsStateWithLifecycle()
+    val oldNotificationUiFlagState by lockScreenViewModel.oldNotificationUiFlagState.collectAsStateWithLifecycle()
+    val recentNotificationList by lockScreenViewModel.recentNotificationList.collectAsStateWithLifecycle()
+    val recentNotificationUiFlagState by lockScreenViewModel.recentNotificationUiFlagState.collectAsStateWithLifecycle()
+    val currentUserState by lockScreenViewModel.currentLockState.collectAsStateWithLifecycle()
     val animateRadiusState by animateIntAsState(
         targetValue = if (composeScreenState == ComposeScreenState.LockScreen) { 1 } else { 15 },
         label = "",
@@ -69,9 +71,10 @@ fun LockScreenHost(
             exit = fadeOut(),
         ) {
             LockScreenRoute(
-                modifier = Modifier,
-                notificationUiState = notificationUiState,
-                notificationUiFlagState = notificationUiFlagState.toImmutableMap(),
+                recentNotificationList = recentNotificationList.toImmutableList(),
+                recentNotificationUiFlagState = recentNotificationUiFlagState.toImmutableMap(),
+                oldNotificationUiState = oldNotificationUiState,
+                oldNotificationUiFlagState = oldNotificationUiFlagState.toImmutableMap(),
                 userSwipe = {
                     currentUserState?.let { user ->
                         when (user.authenticationType) {
@@ -80,7 +83,7 @@ fun LockScreenHost(
                             }
 
                             AuthenticationType.PASSWORD -> {
-                                vm.setComposeScreenState(ComposeScreenState.PassWordScreen)
+                                lockScreenViewModel.setComposeScreenState(ComposeScreenState.PassWordScreen)
                             }
                         }
                     }
@@ -97,7 +100,8 @@ fun LockScreenHost(
                         }
                     }
                 },
-                updateNotificationExpandableFlag = vm::updateExpandable
+                updateOldNotificationExpandableFlag = lockScreenViewModel::updateOldNotificationExpandable,
+                updateRecentNotificationExpandableFlag = lockScreenViewModel::updateRecentNotificationExpandable,
             )
         }
 
@@ -108,12 +112,11 @@ fun LockScreenHost(
         ) {
             PassWordRoute(
                 unLockPassWordScreen = {
-                    vm.setComposeScreenState(ComposeScreenState.LockScreen)
+                    lockScreenViewModel.setComposeScreenState(ComposeScreenState.LockScreen)
                     onFinish()
                 },
                 returnLockScreen = {
-                    println("here in ")
-                    vm.setComposeScreenState(ComposeScreenState.LockScreen)
+                    lockScreenViewModel.setComposeScreenState(ComposeScreenState.LockScreen)
                 },
             )
         }
