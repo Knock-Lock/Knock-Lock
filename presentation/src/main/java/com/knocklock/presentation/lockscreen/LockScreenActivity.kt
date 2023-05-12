@@ -15,6 +15,7 @@ import android.view.View
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.setViewTreeOnBackPressedDispatcherOwner
+import androidx.activity.viewModels
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.compositionContext
@@ -22,8 +23,13 @@ import androidx.compose.ui.platform.createLifecycleAwareWindowRecomposer
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import com.knocklock.presentation.lockscreen.receiver.NotificationPostedListener
+import com.knocklock.presentation.lockscreen.receiver.NotificationPostedReceiver
 import com.knocklock.presentation.lockscreen.service.LockScreenNotificationListener
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
+import com.knocklock.domain.model.Notification as NotificationModel
 
 @AndroidEntryPoint
 class LockScreenActivity : ComponentActivity() {
@@ -32,6 +38,22 @@ class LockScreenActivity : ComponentActivity() {
 
     private val window by lazy {
         this.applicationContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+    }
+
+    private val lockScreenViewModel: LockScreenViewModel by viewModels()
+
+    private val notificationPostedReceiver by lazy {
+        NotificationPostedReceiver(
+            this,
+            onPostedNotificationPostedListener = object : NotificationPostedListener {
+                override fun onPostedNotification(notificationJson: String) {
+                    val notification: NotificationModel = Json.decodeFromString(notificationJson)
+
+                    lockScreenViewModel.addRecentNotification(notification, packageManager)
+                }
+            },
+
+        )
     }
 
     private val point by lazy { Point() }
@@ -53,17 +75,25 @@ class LockScreenActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         getWindowSize()
+        registerNotificationPostedReceiver()
         composeView = ComposeView(this).apply {
             val parent = this.compositionContext
             setParentCompositionContext(parent)
+
             setContent {
                 LockScreenHost(
                     onFinish = {
+                        lockScreenViewModel.saveRecentNotificationToDatabase()
                         this@LockScreenActivity.finish()
                     },
                     onRemoveNotifications = { keys ->
+                        /*
+                        Todo 삭제가 안되는문제 발생
+                         */
+                        println("로그 removeKeys : $keys")
                         if (mBound) notificationListener?.cancelNotifications(keys)
                     },
+                    lockScreenViewModel = lockScreenViewModel,
                 )
             }
             initViewTreeOwner(this)
@@ -86,6 +116,7 @@ class LockScreenActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        unregisterNotificationPostedReceiver()
         window.removeViewImmediate(composeView)
         notificationListener = null
         composeView = null
@@ -159,5 +190,11 @@ class LockScreenActivity : ComponentActivity() {
                 or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
             )
         return params
+    }
+    private fun registerNotificationPostedReceiver() {
+        notificationPostedReceiver.registerReceiver()
+    }
+    private fun unregisterNotificationPostedReceiver() {
+        notificationPostedReceiver.unregisterReceiver()
     }
 }
