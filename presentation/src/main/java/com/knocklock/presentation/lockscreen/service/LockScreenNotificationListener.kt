@@ -81,6 +81,8 @@ class LockScreenNotificationListener :
                 override fun openLockScreenByIntent() {
                     if (isLockActivated.value) {
                         addLockScreen()
+                    } else {
+                        stopSelf()
                     }
                 }
             },
@@ -130,7 +132,7 @@ class LockScreenNotificationListener :
         super.onCreate()
         registerSystemBarEventReceiver()
         registerScreenEventReceiver()
-        collectFlow()
+        collectLockActivated()
     }
 
     private fun initNotificationsToLockScreen() {
@@ -193,7 +195,7 @@ class LockScreenNotificationListener :
         return START_REDELIVER_INTENT
     }
 
-    private fun collectFlow() {
+    private fun collectLockActivated() {
         notificationScope.launch {
             userRepository.getUser().collect {
                 isLockActivated.value = it.isLockActivated
