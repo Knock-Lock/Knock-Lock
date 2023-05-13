@@ -46,10 +46,10 @@ class LockScreenActivity : ComponentActivity() {
         NotificationPostedReceiver(
             this,
             onPostedNotificationPostedListener = object : NotificationPostedListener {
-                override fun onPostedNotification(notificationJson: String) {
-                    val notification: NotificationModel = Json.decodeFromString(notificationJson)
+                override fun onPostedNotification(notification: String) {
+                    val notificationModel: NotificationModel = Json.decodeFromString(notification)
 
-                    lockScreenViewModel.addRecentNotification(notification, packageManager)
+                    lockScreenViewModel.addRecentNotification(notificationModel, packageManager)
                 }
             },
 
