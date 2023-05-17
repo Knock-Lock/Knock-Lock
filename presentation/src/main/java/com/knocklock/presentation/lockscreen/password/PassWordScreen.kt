@@ -24,11 +24,16 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.knocklock.presentation.R
+import com.knocklock.presentation.lockscreen.password.Event.Nothing
+import com.knocklock.presentation.lockscreen.password.Event.RETURN
+import com.knocklock.presentation.lockscreen.password.Event.UNLOCK
 import com.knocklock.presentation.ui.theme.KnockLockTheme
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
@@ -41,68 +46,85 @@ import kotlinx.collections.immutable.toImmutableList
 @Composable
 fun PassWordRoute(
     unLockPassWordScreen: () -> Unit,
-    returnLockScreen: () -> Unit
+    returnLockScreen: () -> Unit,
+    passWordViewModel: PassWordViewModel = hiltViewModel(),
 ) {
+    val eventState by passWordViewModel.eventState.collectAsStateWithLifecycle(Nothing)
+    val isPlaying = passWordViewModel.isPlaying
+    val inputPassWordState = passWordViewModel.passWordState.toImmutableList()
+    val passWordList = passWordViewModel.getPassWordList().toImmutableList()
+    LaunchedEffect(eventState) {
+        when (eventState) {
+            UNLOCK -> {
+                unLockPassWordScreen()
+            }
+            RETURN -> {
+                returnLockScreen()
+            }
+            else -> null
+        }
+    }
     PassWordScreen(
-        unLockPassWordScreen = unLockPassWordScreen,
-        returnLockScreen = returnLockScreen
+        isPlaying = isPlaying,
+        inputPassWordState = inputPassWordState,
+        passWordList = passWordList,
+        removePassWord = passWordViewModel::removePassWord,
+        updatePassWordState = passWordViewModel::updatePassWordState,
     )
 }
 
 @Composable
 fun PassWordScreen(
-    unLockPassWordScreen: () -> Unit,
-    returnLockScreen: () -> Unit
+    isPlaying: Boolean,
+    inputPassWordState: ImmutableList<PassWord>,
+    passWordList: ImmutableList<PassWord>,
+    removePassWord: () -> Unit,
+    updatePassWordState: (String) -> Unit,
 ) {
     val passWordSpace = 50.dp
     val contentPadding = passWordSpace / 2
     val screenWidthDp = LocalConfiguration.current.screenWidthDp.dp - passWordSpace * 3
     val circlePassWordNumberSize = screenWidthDp / 3
 
-    val passWordScreenState = rememberPassWordScreenState(
-        returnLockScreen = returnLockScreen,
-        unLockPassWordScreen = unLockPassWordScreen
-    )
-
     Column(
         modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(modifier = Modifier.height(50.dp))
         Locker(
             modifier = Modifier.size(50.dp),
-            isPlaying = passWordScreenState.isPlaying
+            isPlaying = isPlaying,
         )
         InsertPassWordText()
         Spacer(modifier = Modifier.height(40.dp))
         InsertPassWordRow(
             modifier = Modifier.padding(horizontal = 50.dp).fillMaxWidth(),
-            inputPassWordState = passWordScreenState.passWordState.toImmutableList()
+            inputPassWordState = inputPassWordState,
         )
         Spacer(modifier = Modifier.height(100.dp))
         LazyVerticalGrid(
             columns = GridCells.Fixed(3),
             contentPadding = PaddingValues(contentPadding),
             verticalArrangement = Arrangement.spacedBy(passWordSpace),
-            horizontalArrangement = Arrangement.spacedBy(passWordSpace)
+            horizontalArrangement = Arrangement.spacedBy(passWordSpace),
         ) {
-            items(items = passWordScreenState.getPassWordList()) { passWord: PassWord ->
+            items(items = passWordList) { passWord: PassWord ->
                 if (passWord.number.isEmpty()) {
                     CirclePassWordNumber(
                         modifier = Modifier.size(circlePassWordNumberSize),
                         passWord = passWord,
-                        onPassWordClick = { }
+                        onPassWordClick = { },
                     )
                 } else {
                     CirclePassWordNumber(
                         modifier = Modifier.size(circlePassWordNumberSize).background(
                             color = Color.LightGray.copy(alpha = 0.3f),
-                            shape = CircleShape
+                            shape = CircleShape,
                         ).clip(
-                            CircleShape
+                            CircleShape,
                         ),
                         passWord = passWord,
-                        onPassWordClick = passWordScreenState::updatePassWordState
+                        onPassWordClick = updatePassWordState,
                     )
                 }
             }
@@ -112,9 +134,9 @@ fun PassWordScreen(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
                 onClick = {
-                    passWordScreenState.removePassWord()
-                }
-            )
+                    removePassWord()
+                },
+            ),
         )
     }
 }
@@ -122,12 +144,12 @@ fun PassWordScreen(
 @Composable
 fun Locker(
     isPlaying: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val composition by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.locker))
     val progress by animateLottieCompositionAsState(
         composition = composition,
-        isPlaying = isPlaying
+        isPlaying = isPlaying,
     )
     LottieAnimation(modifier = modifier, composition = composition, progress = { progress })
 }
@@ -140,15 +162,15 @@ fun InsertPassWordText() {
 @Composable
 fun InsertPassWordRow(
     modifier: Modifier = Modifier,
-    inputPassWordState: ImmutableList<PassWord>
+    inputPassWordState: ImmutableList<PassWord>,
 ) {
     LazyRow(
         modifier = modifier,
         contentPadding = PaddingValues(horizontal = 50.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         items(
-            items = inputPassWordState
+            items = inputPassWordState,
         ) { inputPassWord: PassWord ->
             InsertedPassWordCircle(inputPassWord = inputPassWord.number)
         }
@@ -157,7 +179,7 @@ fun InsertPassWordRow(
 
 @Composable
 fun InsertedPassWordCircle(
-    inputPassWord: String
+    inputPassWord: String,
 ) {
     Canvas(modifier = Modifier.size(10.dp)) {
         val canvasWidth = size.width
@@ -167,7 +189,7 @@ fun InsertedPassWordCircle(
             color = Color.White,
             center = Offset(x = canvasWidth / 2, y = canvasHeight / 2),
             radius = size.minDimension / 2,
-            style = if (inputPassWord == "") Stroke(1.5f) else Fill
+            style = if (inputPassWord == "") Stroke(1.5f) else Fill,
         )
     }
 }
@@ -176,33 +198,33 @@ fun InsertedPassWordCircle(
 fun CirclePassWordNumber(
     modifier: Modifier = Modifier,
     passWord: PassWord,
-    onPassWordClick: (String) -> Unit
+    onPassWordClick: (String) -> Unit,
 ) {
     Column(
         modifier = modifier.clickable(enabled = passWord.number.isNotEmpty()) {
             onPassWordClick(passWord.number)
         },
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
         Text(
             text = passWord.number,
-            fontSize = 20.sp
+            fontSize = 20.sp,
         )
         Text(
-            text = passWord.subText ?: ""
+            text = passWord.subText ?: "",
         )
     }
 }
 
 @Composable
 fun BackButton(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
+        horizontalArrangement = Arrangement.Center,
     ) {
         Text(text = "취소")
     }
@@ -222,7 +244,7 @@ fun PreviewCirclePassWordNumber() {
     KnockLockTheme {
         CirclePassWordNumber(
             passWord = PassWord.getPassWordList()[1],
-            onPassWordClick = {}
+            onPassWordClick = {},
 
         )
     }
