@@ -23,6 +23,9 @@ import androidx.compose.ui.platform.createLifecycleAwareWindowRecomposer
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import com.knocklock.presentation.lockscreen.model.RemovedGroupNotification
+import com.knocklock.presentation.lockscreen.model.RemovedType.Old
+import com.knocklock.presentation.lockscreen.model.RemovedType.Recent
 import com.knocklock.presentation.lockscreen.receiver.NotificationPostedListener
 import com.knocklock.presentation.lockscreen.receiver.NotificationPostedReceiver
 import com.knocklock.presentation.lockscreen.service.LockScreenNotificationListener
@@ -86,12 +89,18 @@ class LockScreenActivity : ComponentActivity() {
                         lockScreenViewModel.saveRecentNotificationToDatabase()
                         this@LockScreenActivity.finish()
                     },
-                    onRemoveNotifications = { keys ->
+                    onRemoveNotifications = { removedGroupNotificaiton: RemovedGroupNotification ->
                         /*
                         Todo 삭제가 안되는문제 발생
                          */
-                        println("로그 removeKeys : $keys")
-                        if (mBound) notificationListener?.cancelNotifications(keys)
+                        when (removedGroupNotificaiton.type) {
+                            Recent -> {
+                                lockScreenViewModel.removeNotificationInState(removedGroupNotificaiton)
+                            }
+                            Old -> {
+                                lockScreenViewModel.removeNotificationInDatabase(removedGroupNotificaiton)
+                            }
+                        }
                     },
                     lockScreenViewModel = lockScreenViewModel,
                 )
