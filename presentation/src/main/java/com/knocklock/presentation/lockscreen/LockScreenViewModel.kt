@@ -14,6 +14,8 @@ import com.knocklock.presentation.lockscreen.model.GroupWithNotification
 import com.knocklock.presentation.lockscreen.model.LockScreen
 import com.knocklock.presentation.lockscreen.model.LockScreenBackground
 import com.knocklock.presentation.lockscreen.model.Notification
+import com.knocklock.presentation.lockscreen.model.RemovedGroupNotification
+import com.knocklock.presentation.lockscreen.util.toSnapShotStateMap
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -79,6 +81,75 @@ class LockScreenViewModel @Inject constructor(
     private val _composeScreenState = MutableStateFlow<ComposeScreenState>(ComposeScreenState.LockScreen)
     val composeScreenState = _composeScreenState.asStateFlow()
 
+    fun removeNotificationInDatabase(keys: Array<String>) {
+        viewModelScope.launch {
+            notificationRepository.removeNotificationsWithId(*keys)
+        }
+    }
+
+    /**
+     * 삭제할 Notifiation을 전달받아 viewModel에서 관리하는, [_recentNotificationList]와 [_recentNotificationUiFlagState]을 수정합니다.
+     *
+     * * [removedNotifications]에 담긴 키로 삭제를 할 [GroupWithNotification]레코드를 찾습니다.
+     * * [removedNotifications]에 담긴 List<[Notification]>의 size가 찾은 [GroupWithNotification]의 notifications보다 크기가 크다면 전체삭제로 간주합니다.
+     * * 전체삭제라면 Uiflag를 전부
+     * @param removedNotifications 삭제할 그룹의 key와 List<Notification>이 담긴 data class입니다.
+     */
+    fun removeNotificationInState(removedNotifications: RemovedGroupNotification) {
+        viewModelScope.launch {
+            val filteredGroupNotification = _recentNotificationList.value.filter { groupWithNotification: GroupWithNotification ->
+                groupWithNotification.group.key == removedNotifications.key
+            }
+            if (filteredGroupNotification.isEmpty()) {
+                return@launch
+            }
+
+            val targetGroupNotification = filteredGroupNotification.map { groupWithNotification: GroupWithNotification -> groupWithNotification.copy() }[0]
+
+            val targetNotificationsSize = targetGroupNotification.notifications.size
+            val removedNotificationsSize = removedNotifications.removedNotifications.size
+            if (targetNotificationsSize <= removedNotificationsSize) {
+                _recentNotificationList.update { recentNotificationList ->
+                    recentNotificationList.filter { groupWithNotification ->
+                        groupWithNotification.group.key != removedNotifications.key
+                    }
+                }
+                setRecentNotificationUiFlagMap(removedNotifications.key)
+            } else {
+                val updatedRecentNotificationList = _recentNotificationList.value.map { groupWithNotification: GroupWithNotification ->
+                    if (groupWithNotification.group.key == targetGroupNotification.group.key) {
+                        val targetNotifications = targetGroupNotification.notifications
+                        val removedReflectedNotifications = targetNotifications - removedNotifications.removedNotifications.toSet()
+                        if (removedReflectedNotifications.size == 1) {
+                            updateRecentNotificationExpandable(targetGroupNotification.group.key)
+                        }
+                        groupWithNotification.copy(
+                            notifications = removedReflectedNotifications,
+                        )
+                    } else {
+                        groupWithNotification
+                    }
+                }
+
+                _recentNotificationList.update {
+                    updatedRecentNotificationList
+                }
+                setRecentNotificationUiFlagMap(removedNotifications.key)
+            }
+        }
+    }
+
+    /**
+     * [_recentNotificationList]에서 전체 제거된 [GroupWithNotification]을 [_recentNotificationUiFlagState]에서도 제거합니다.
+     */
+    private fun removeRecentNotificationUiFlag(groupKey: String) {
+        val removedNotificationUiFlagState = _recentNotificationUiFlagState.value.toMutableMap()
+        removedNotificationUiFlagState.remove(groupKey)
+        _recentNotificationUiFlagState.update { _ ->
+            removedNotificationUiFlagState.toSnapShotStateMap()
+        }
+    }
+
     fun getGroupNotifications(packageManager: PackageManager) {
         viewModelScope.launch {
             notificationRepository.getGroupWithNotificationsWithSorted().collect { groups ->
@@ -106,7 +177,7 @@ class LockScreenViewModel @Inject constructor(
             }
             while (stack.isNotEmpty()) {
                 val groupWithNotificationStack = stack.pop()
-                _recentNotificationList.update{
+                _recentNotificationList.update {
                     stack.toList()
                 }
                 notificationRepository.insertGroup(
@@ -168,18 +239,39 @@ class LockScreenViewModel @Inject constructor(
                 existedRecentGroupNotificationList
             }
         }
-        setRecentNotificationUiFlagMap(notification.toModel(packageManager))
+        setRecentNotificationUiFlagMap(notification.toModel(packageManager).groupKey)
     }
 
-    private fun setRecentNotificationUiFlagMap(notification: Notification) = with(_recentNotificationUiFlagState.value) {
-        val key = notification.groupKey
+    /**
+     * RecentNotificationUiFlagMap에 저장된 state(clickable)를 수정합니다.
+     *
+     * * RecentNotificationUiFlagMap[[key]]로 접근하여, 현재의 size를 가져와 2이상이면 clickable을 true로 설정합니다.
+     * * 사이즈가 0이라면 Map에서 제거합니다.
+     * * clickable이 true일 경우, LockScreenNotiItem의 expandable Icon이 보이게 됩니다.
+     *
+     * @param key 수정할 Notification이 속한 그룹의 key입니다.
+     */
+    private fun setRecentNotificationUiFlagMap(key: String) = with(_recentNotificationUiFlagState.value) {
         if (this.containsKey(key).not()) {
             this[key] = NotificationUiFlagState(clickable = false)
         } else {
-            val currentNotificationListSize = _recentNotificationList.value.filter { groupWithNotification: GroupWithNotification -> groupWithNotification.group.key == notification.groupKey }[0].notifications.size
+            val currentNotificationList = _recentNotificationList.value.filter { groupWithNotification: GroupWithNotification -> groupWithNotification.group.key == key }
+
+            val currentNotificationListSize = if (currentNotificationList.isNotEmpty()) {
+                currentNotificationList[0].notifications.size
+            } else {
+                0
+            }
+            if (currentNotificationListSize == 0) {
+                removeRecentNotificationUiFlag(key)
+                return@with
+            }
+
             this[key]?.let { uiFlag ->
                 if (currentNotificationListSize >= 2) {
                     this[key] = uiFlag.copy(clickable = true)
+                } else {
+                    this[key] = uiFlag.copy(clickable = false)
                 }
             }
         }
@@ -203,6 +295,7 @@ class LockScreenViewModel @Inject constructor(
             }
         }
     }
+
     fun updateRecentNotificationExpandable(key: String) = with(_recentNotificationUiFlagState.value) {
         if (this.containsKey(key).not()) {
             this[key] = NotificationUiFlagState()
