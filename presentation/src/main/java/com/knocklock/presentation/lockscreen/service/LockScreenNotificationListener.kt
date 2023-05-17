@@ -19,10 +19,8 @@ import androidx.core.app.NotificationCompat
 import com.knocklock.domain.repository.NotificationRepository
 import com.knocklock.presentation.MainActivity
 import com.knocklock.presentation.lockscreen.LockScreenActivity
-import com.knocklock.presentation.lockscreen.mapper.getDatabaseKey
 import com.knocklock.presentation.lockscreen.mapper.isNotEmptyTitleOrContent
 import com.knocklock.presentation.lockscreen.mapper.toModel
-import com.knocklock.presentation.lockscreen.model.Group
 import com.knocklock.presentation.lockscreen.receiver.NotificationPostedReceiver.Companion.PostedAction
 import com.knocklock.presentation.lockscreen.receiver.NotificationPostedReceiver.Companion.PostedNotification
 import com.knocklock.presentation.lockscreen.receiver.OnScreenEventListener
@@ -106,16 +104,6 @@ class LockScreenNotificationListener :
         }
     }
 
-    override fun onNotificationRemoved(sbn: StatusBarNotification?) {
-        super.onNotificationRemoved(sbn)
-        val packageName = sbn?.packageName
-        if (sbn != null && !TextUtils.isEmpty(packageName)) {
-            notificationScope.launch {
-                notificationRepository.removeNotificationsWithId(sbn.key)
-            }
-        }
-    }
-
     override fun onCreate() {
         super.onCreate()
         registerSystemBarEventReceiver()
@@ -126,24 +114,6 @@ class LockScreenNotificationListener :
         /*
         TODO 맨처음 초기에만 진행되도록 변경할 예정
          */
-//        notificationScope.launch {
-//            val copyActiveNotification = activeNotifications.toList().toTypedArray()
-//            copyActiveNotification.forEach { notification ->
-//                launch {
-//                    notification.getDatabaseKey(packageManager)?.let { key ->
-//                        notificationRepository.insertGroup(
-//                            Group(
-//                                key = key,
-//                            ).toModel(),
-//                        )
-//                    }
-//                }
-//            }
-//
-//            notificationRepository.insertNotifications(
-//                *toModel(copyActiveNotification, packageManager),
-//            )
-//        }
     }
 
     private fun addLockScreen() {
