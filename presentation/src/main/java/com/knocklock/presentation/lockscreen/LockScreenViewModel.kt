@@ -230,6 +230,7 @@ class LockScreenViewModel @Inject constructor(
                 add(notification.toModel(packageManager))
             }
             existedRecentGroupNotificationList.add(
+                0,
                 GroupWithNotification(
                     group = Group(notification.groupKey),
                     notifications = notificationList,
