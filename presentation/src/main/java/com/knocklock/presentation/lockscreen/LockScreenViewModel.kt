@@ -81,9 +81,9 @@ class LockScreenViewModel @Inject constructor(
     private val _composeScreenState = MutableStateFlow<ComposeScreenState>(ComposeScreenState.LockScreen)
     val composeScreenState = _composeScreenState.asStateFlow()
 
-    fun removeNotificationInDatabase(keys: Array<String>) {
+    fun removeNotificationInDatabase(removedNotifications: RemovedGroupNotification) {
         viewModelScope.launch {
-            notificationRepository.removeNotificationsWithId(*keys)
+            notificationRepository.removeNotifications(*removedNotifications.toModel().notifications.toTypedArray())
         }
     }
 
