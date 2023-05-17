@@ -27,6 +27,8 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
 import com.knocklock.presentation.lockscreen.model.GroupWithNotification
 import com.knocklock.presentation.lockscreen.model.RemovedGroupNotification
+import com.knocklock.presentation.lockscreen.model.RemovedType.Old
+import com.knocklock.presentation.lockscreen.model.RemovedType.Recent
 import com.knocklock.presentation.lockscreen.util.FractionalThreshold
 import com.knocklock.presentation.lockscreen.util.rememberSwipeableState
 import com.knocklock.presentation.lockscreen.util.swipeable
@@ -237,6 +239,7 @@ fun LockScreenNotificationListColumn(
                     clickableState = recentNotificationUiFlagState[item.group.key]?.clickable ?: false,
                     expandableState = recentNotificationUiFlagState[item.group.key]?.expandable ?: false,
                     groupNotification = item.notifications.toImmutableList(),
+                    type = Recent,
                 )
             }
             if (recentNotificationUiFlagState.containsKey(item.group.key) && recentNotificationUiFlagState[item.group.key]!!.expandable && item.notifications.size != 1) {
@@ -249,6 +252,7 @@ fun LockScreenNotificationListColumn(
                         notificationSize = 0,
                         clickableState = false,
                         expandableState = recentNotificationUiFlagState[item.group.key]?.expandable ?: false,
+                        type = Recent,
                     )
                 }
             }
@@ -283,6 +287,7 @@ fun LockScreenNotificationListColumn(
                     expandableState = oldNotificationUiFlagState[item.group.key]?.expandable ?: false,
                     groupNotification = item.notifications.toImmutableList(),
                     onNotificationClicked = onNotificationClicked,
+                    type = Old,
                 )
             }
             if (oldNotificationUiFlagState.containsKey(item.group.key) && oldNotificationUiFlagState[item.group.key]!!.expandable && item.notifications.size != 1) {
@@ -297,6 +302,7 @@ fun LockScreenNotificationListColumn(
                         notificationSize = item.notifications.size,
                         clickableState = false,
                         expandableState = oldNotificationUiFlagState[item.group.key]?.expandable ?: false,
+                        type = Old,
                     )
                 }
             }
