@@ -114,6 +114,8 @@ dependencies {
 
     implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.5")
 
+    implementation "androidx.constraintlayout:constraintlayout-compose:1.0.1"
+
     // TedPermission
     implementation "io.github.ParkSangGwon:tedpermission-normal:3.3.0"
 

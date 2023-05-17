@@ -1,27 +1,19 @@
 package com.knocklock.presentation.lockscreen.password
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -82,11 +74,6 @@ fun PassWordScreen(
     removePassWord: () -> Unit,
     updatePassWordState: (String) -> Unit,
 ) {
-    val passWordSpace = 50.dp
-    val contentPadding = passWordSpace / 2
-    val screenWidthDp = LocalConfiguration.current.screenWidthDp.dp - passWordSpace * 3
-    val circlePassWordNumberSize = screenWidthDp / 3
-
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -105,44 +92,12 @@ fun PassWordScreen(
                 inputPassWordState = inputPassWordState,
             )
         }
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(3),
-            contentPadding = PaddingValues(contentPadding),
-            verticalArrangement = Arrangement.spacedBy(passWordSpace),
-            horizontalArrangement = Arrangement.spacedBy(passWordSpace),
-        ) {
-            itemsIndexed(items = passWordList) { index: Int, passWord: PassWord ->
-                if (passWord.number.isEmpty() && index != passWordList.size - 1) {
-                    CirclePassWordNumber(
-                        modifier = Modifier.size(circlePassWordNumberSize),
-                        passWord = passWord,
-                        onPassWordClick = { },
-                    )
-                } else if (index == passWordList.size - 1) {
-                    BackButton(
-                        modifier = Modifier.size(circlePassWordNumberSize).clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null,
-                            onClick = {
-                                removePassWord()
-                            },
-                        ),
-                    )
-                } else {
-                    CirclePassWordNumber(
-                        modifier = Modifier.size(circlePassWordNumberSize).background(
-                            color = Color.LightGray.copy(alpha = 0.3f),
-                            shape = CircleShape,
-                        ).clip(
-                            CircleShape,
-                        ),
-                        passWord = passWord,
-                        onPassWordClick = updatePassWordState,
-                    )
-                }
-            }
-        }
-        Spacer(modifier = Modifier.height(50.dp))
+        CirclePassWordBoard(
+            modifier = Modifier.fillMaxSize(),
+            passWordList = passWordList,
+            onPassWordClick = updatePassWordState,
+            removePassWord = removePassWord,
+        )
     }
 }
 
