@@ -5,8 +5,8 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalContext
-import com.knocklock.presentation.constant.MAX_PASSWORD_LENGTH
 import com.knocklock.domain.usecase.setting.GetUserUseCase
+import com.knocklock.presentation.constant.MAX_PASSWORD_LENGTH
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
@@ -24,6 +24,7 @@ class PassWordScreenStateHolder(
     context: Context,
     private val returnLockScreen: () -> Unit,
     private val unLockPassWordScreen: () -> Unit,
+    private val onPasswordValidateFailed: () -> Unit,
     private val scope: CoroutineScope
 ) {
 
@@ -52,7 +53,7 @@ class PassWordScreenStateHolder(
     fun updatePassWordState(passWord: String) {
         if (insertPassWordIndex <= MAX_PASSWORD_LENGTH - 1) {
             passWordState[insertPassWordIndex] = passWordState[insertPassWordIndex].copy(number = passWord)
-            if (insertPassWordIndex != MAX_PASSWORD_LENGTH -1) {
+            if (insertPassWordIndex != MAX_PASSWORD_LENGTH - 1) {
                 insertPassWordIndex += 1
             }
             removePassWordIndex = if (insertPassWordIndex == MAX_PASSWORD_LENGTH - 1) {
@@ -69,6 +70,8 @@ class PassWordScreenStateHolder(
                         }.joinToString("") { it }
                         if (savedPassWord == inputPassWord) {
                             unLockPassWordScreen()
+                        } else {
+                            resetPasswordIndex()
                         }
                     }
                 }
@@ -92,18 +95,35 @@ class PassWordScreenStateHolder(
         }
     }
 
+    private fun resetPasswordIndex() {
+        insertPassWordIndex = 0
+        removePassWordIndex = 0
+        passWordState.replaceAll { PassWord("") }
+
+    }
+
     fun getPassWordList(): List<PassWord> {
         return PassWord.getPassWordList()
     }
+
     companion object {
         fun Saver(
             context: Context,
             returnLockScreen: () -> Unit,
             unLockPassWordScreen: () -> Unit,
+            onPasswordValidateFailed: () -> Unit,
             coroutineScope: CoroutineScope
         ) = Saver<PassWordScreenStateHolder, Any>(
             save = { listOf(it.passWordState, it.insertPassWordIndex, it.removePassWordIndex) },
-            restore = { PassWordScreenStateHolder(returnLockScreen = returnLockScreen, unLockPassWordScreen = unLockPassWordScreen, context = context, scope = coroutineScope) }
+            restore = {
+                PassWordScreenStateHolder(
+                    returnLockScreen = returnLockScreen,
+                    unLockPassWordScreen = unLockPassWordScreen,
+                    context = context,
+                    scope = coroutineScope,
+                    onPasswordValidateFailed = onPasswordValidateFailed
+                )
+            }
         )
     }
 }
@@ -113,12 +133,14 @@ fun rememberPassWordScreenState(
     context: Context = LocalContext.current,
     returnLockScreen: () -> Unit,
     unLockPassWordScreen: () -> Unit,
+    onPasswordValidateFailed: () -> Unit,
     coroutineScope: CoroutineScope = rememberCoroutineScope()
 ) = rememberSaveable(
     saver = PassWordScreenStateHolder.Saver(
         context = context,
         returnLockScreen = returnLockScreen,
         unLockPassWordScreen = unLockPassWordScreen,
+        onPasswordValidateFailed = onPasswordValidateFailed,
         coroutineScope = coroutineScope
     )
 ) {
@@ -126,6 +148,7 @@ fun rememberPassWordScreenState(
         context = context,
         returnLockScreen = returnLockScreen,
         unLockPassWordScreen = unLockPassWordScreen,
+        onPasswordValidateFailed = onPasswordValidateFailed,
         scope = coroutineScope
     )
 }
