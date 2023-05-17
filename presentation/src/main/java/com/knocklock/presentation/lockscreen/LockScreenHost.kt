@@ -22,6 +22,7 @@ import com.knocklock.domain.model.AuthenticationType
 import com.knocklock.presentation.R
 import com.knocklock.presentation.lockscreen.model.LockScreen
 import com.knocklock.presentation.lockscreen.model.LockScreenBackground
+import com.knocklock.presentation.lockscreen.model.RemovedGroupNotification
 import com.knocklock.presentation.lockscreen.password.PassWordRoute
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.collections.immutable.toImmutableList
@@ -34,7 +35,7 @@ import kotlinx.collections.immutable.toImmutableMap
 @Composable
 fun LockScreenHost(
     onFinish: () -> Unit,
-    onRemoveNotifications: (Array<String>) -> Unit,
+    onRemoveNotifications: (RemovedGroupNotification) -> Unit,
     modifier: Modifier = Modifier,
     lockScreenViewModel: LockScreenViewModel,
 
@@ -88,7 +89,7 @@ fun LockScreenHost(
                         }
                     }
                 },
-                onRemoveNotification = { keys -> onRemoveNotifications(keys.toTypedArray()) },
+                onRemoveNotification = onRemoveNotifications,
                 onNotificationClicked = { intent ->
                     currentUserState?.let { user ->
                         when (user.authenticationType) {

@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import com.knocklock.presentation.lockscreen.model.Notification
+import com.knocklock.presentation.lockscreen.model.RemovedGroupNotification
 import com.knocklock.presentation.lockscreen.util.DismissValue
 import com.knocklock.presentation.lockscreen.util.FractionalThreshold
 import com.knocklock.presentation.lockscreen.util.SwipeToDismiss
@@ -42,7 +43,7 @@ import kotlinx.collections.immutable.ImmutableList
 fun SwipeToDismissLockNotiItem(
     modifier: Modifier = Modifier,
     onNotificationClicked: (PendingIntent) -> Unit,
-    onRemoveNotification: (List<String>) -> Unit,
+    onRemoveNotification: (RemovedGroupNotification) -> Unit,
     notification: Notification,
     notificationSize: Int,
     clickableState: Boolean,
@@ -62,17 +63,18 @@ fun SwipeToDismissLockNotiItem(
                     false
                 }
                 DismissValue.DismissedToEnd -> {
-                    if (updateExpandableState) {
-                        onRemoveNotification(listOf(updateNotification.id))
-                    } else {
-                        updateGroupNotification?.let { childNotificationList ->
-                            onRemoveNotification(
-                                childNotificationList.map { notification ->
-                                    notification.id
-                                },
-                            )
-                        }
-                    }
+                    onRemoveNotification(
+                        RemovedGroupNotification(
+                            key = updateNotification.groupKey,
+                            removedNotifications = if (updateExpandableState) {
+                                listOf(
+                                    updateNotification,
+                                )
+                            } else {
+                                updateGroupNotification?.toList() ?: emptyList()
+                            },
+                        ),
+                    )
                     true
                 }
             }

@@ -22,3 +22,8 @@ data class Notification(
     val intent: PendingIntent? = null,
     val packageName: String? = null,
 )
+
+data class RemovedGroupNotification(
+    val key: String,
+    val removedNotifications: List<Notification>,
+)
