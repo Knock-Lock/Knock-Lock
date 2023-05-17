@@ -32,8 +32,8 @@ class PassWordViewModel @Inject constructor(
 
     var isPlaying by mutableStateOf(false)
 
-    var insertPassWordIndex by mutableStateOf(0)
-    var removePassWordIndex by mutableStateOf(0)
+    private var insertPassWordIndex by mutableStateOf(0)
+    private var removePassWordIndex by mutableStateOf(0)
 
     private val _eventState = MutableSharedFlow<Event>()
     val eventState = _eventState.asSharedFlow()
@@ -58,7 +58,6 @@ class PassWordViewModel @Inject constructor(
                         }.joinToString("") { it }
                         if (savedPassWord == inputPassWord) {
                             _eventState.emit(UNLOCK)
-//                            unLockPassWordScreen()
                         }
                     }
                 }
@@ -75,12 +74,10 @@ class PassWordViewModel @Inject constructor(
                     removePassWordIndex -= 1
                 } else {
                     _eventState.emit(RETURN)
-//                    returnLockScreen()
                 }
             } else {
                 if (removePassWordIndex == 0) {
                     _eventState.emit(RETURN)
-//                    returnLockScreen()
                 }
             }
         }
@@ -92,5 +89,5 @@ class PassWordViewModel @Inject constructor(
 }
 
 enum class Event {
-    RETURN, UNLOCK, Nothing
+    RETURN, UNLOCK, NOTHING
 }
