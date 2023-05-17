@@ -89,16 +89,13 @@ class LockScreenActivity : ComponentActivity() {
                         lockScreenViewModel.saveRecentNotificationToDatabase()
                         this@LockScreenActivity.finish()
                     },
-                    onRemoveNotifications = { removedGroupNotificaiton: RemovedGroupNotification ->
-                        /*
-                        Todo 삭제가 안되는문제 발생
-                         */
-                        when (removedGroupNotificaiton.type) {
+                    onRemoveNotifications = { removedGroupNotification: RemovedGroupNotification ->
+                        when (removedGroupNotification.type) {
                             Recent -> {
-                                lockScreenViewModel.removeNotificationInState(removedGroupNotificaiton)
+                                lockScreenViewModel.removeNotificationInState(removedGroupNotification)
                             }
                             Old -> {
-                                lockScreenViewModel.removeNotificationInDatabase(removedGroupNotificaiton)
+                                lockScreenViewModel.removeNotificationInDatabase(removedGroupNotification)
                             }
                         }
                     },
