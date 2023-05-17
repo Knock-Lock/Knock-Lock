@@ -97,7 +97,7 @@ fun LockScreenHost(
                         }
                     }
                 },
-                updateNotificationExpandableFlag = vm::updateExpandable
+                updateNotificationExpandableFlag = vm::updateExpandable,
             )
         }
 
@@ -108,11 +108,9 @@ fun LockScreenHost(
         ) {
             PassWordRoute(
                 unLockPassWordScreen = {
-                    vm.setComposeScreenState(ComposeScreenState.LockScreen)
                     onFinish()
                 },
                 returnLockScreen = {
-                    println("here in ")
                     vm.setComposeScreenState(ComposeScreenState.LockScreen)
                 },
             )
