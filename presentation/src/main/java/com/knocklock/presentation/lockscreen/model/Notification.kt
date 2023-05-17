@@ -25,5 +25,10 @@ data class Notification(
 
 data class RemovedGroupNotification(
     val key: String,
+    val type: RemovedType,
     val removedNotifications: List<Notification>,
 )
+
+enum class RemovedType {
+    Recent, Old
+}
