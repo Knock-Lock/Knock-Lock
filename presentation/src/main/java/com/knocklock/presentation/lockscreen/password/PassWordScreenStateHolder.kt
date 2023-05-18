@@ -99,7 +99,7 @@ class PassWordScreenStateHolder(
         insertPassWordIndex = 0
         removePassWordIndex = 0
         passWordState.replaceAll { PassWord("") }
-
+        onPasswordValidateFailed()
     }
 
     fun getPassWordList(): List<PassWord> {
