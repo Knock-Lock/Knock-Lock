@@ -57,7 +57,8 @@ class MainActivity : ComponentActivity() {
                 .setDeniedMessage("잠금 화면 스크린 사용을 위한 권한을 허용해주세요")
                 .setPermissions(
                     Manifest.permission.FOREGROUND_SERVICE,
-                    Manifest.permission.SYSTEM_ALERT_WINDOW
+                    Manifest.permission.SYSTEM_ALERT_WINDOW,
+                    Manifest.permission.READ_PHONE_STATE
                 ).check()
         } else {
             TedPermission.create()
@@ -75,7 +76,8 @@ class MainActivity : ComponentActivity() {
                 })
                 .setDeniedMessage("권한을 허용해주세요")
                 .setPermissions(
-                    Manifest.permission.SYSTEM_ALERT_WINDOW
+                    Manifest.permission.SYSTEM_ALERT_WINDOW,
+                    Manifest.permission.READ_PHONE_STATE
                 ).check()
         }
     }

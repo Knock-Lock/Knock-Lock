@@ -10,6 +10,12 @@ import android.graphics.Point
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
+import android.telephony.PhoneStateListener
+import android.telephony.TelephonyCallback
+import android.telephony.TelephonyManager
+import android.telephony.TelephonyManager.CALL_STATE_IDLE
+import android.telephony.TelephonyManager.CALL_STATE_OFFHOOK
+import android.telephony.TelephonyManager.CALL_STATE_RINGING
 import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
@@ -50,9 +56,17 @@ class LockScreenActivity : ComponentActivity() {
         }
     }
 
+    private val telephonyMananger by lazy {
+        this.applicationContext.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+    }
+
+    private var callState = CALL_STATE_IDLE
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        println("OnCreate")
         getWindowSize()
+        setTelephonyCallBack()
         composeView = ComposeView(this).apply {
             val parent = this.compositionContext
             setParentCompositionContext(parent)
@@ -86,6 +100,7 @@ class LockScreenActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        println("OnDestroy")
         window.removeViewImmediate(composeView)
         notificationListener = null
         composeView = null
@@ -121,6 +136,7 @@ class LockScreenActivity : ComponentActivity() {
         }
 
         val flags = (
+            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
                 WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
                 WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
                 WindowManager.LayoutParams.FLAG_FULLSCREEN or
@@ -158,5 +174,56 @@ class LockScreenActivity : ComponentActivity() {
                 or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
             )
         return params
+    }
+
+    private fun setTelephonyCallBack() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            telephonyMananger.registerTelephonyCallback(
+                mainExecutor,
+                object : TelephonyCallback(), TelephonyCallback.CallStateListener {
+                    override fun onCallStateChanged(state: Int) {
+                        when (state) {
+                            CALL_STATE_RINGING -> {
+                                println("ringing")
+                                callState = CALL_STATE_RINGING
+                                if (composeView != null) {
+                                    window.removeViewImmediate(composeView)
+                                }
+                            }
+                            CALL_STATE_OFFHOOK -> {
+                                callState = CALL_STATE_OFFHOOK
+                            }
+                            CALL_STATE_IDLE -> {
+                                println("idle")
+                                if (callState != CALL_STATE_IDLE) {
+                                    window.addView(composeView, getWindowManagerLayoutParams())
+                                }
+//
+                            }
+                        }
+                    }
+                },
+            )
+        } else {
+            telephonyMananger.listen(
+                object : PhoneStateListener() {
+                    override fun onCallStateChanged(state: Int, phoneNumber: String?) {
+                        when (state) {
+                            CALL_STATE_RINGING -> {
+                                println("ringing")
+                                window.removeViewImmediate(composeView)
+                            }
+//                            CALL_STATE_OFFHOOK -> {
+//                            }
+                            CALL_STATE_IDLE -> {
+                                println("idle")
+                                window.addView(composeView, getWindowManagerLayoutParams())
+                            }
+                        }
+                    }
+                },
+                PhoneStateListener.LISTEN_CALL_STATE,
+            )
+        }
     }
 }
