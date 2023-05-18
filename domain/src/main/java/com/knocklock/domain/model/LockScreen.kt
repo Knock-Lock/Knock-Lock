@@ -1,7 +1,8 @@
 package com.knocklock.domain.model
 
 data class LockScreen(
-    val background: LockScreenBackground
+    val background: LockScreenBackground = LockScreenBackground.DefaultWallPaper,
+    val timeFormat: TimeFormat = TimeFormat.DEFAULT_TIME_FORMAT
 )
 
 

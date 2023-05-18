@@ -5,9 +5,11 @@ import androidx.lifecycle.viewModelScope
 import com.knocklock.domain.model.LockScreen
 import com.knocklock.domain.model.LockScreenBackground
 import com.knocklock.domain.usecase.lockscreen.GetLockScreenUseCase
-import com.knocklock.domain.usecase.lockscreen.SaveWallPaperUseCase
+import com.knocklock.domain.usecase.lockscreen.SaveLockScreenCase
 import com.knocklock.presentation.home.menu.HomeMenu
+import com.knocklock.domain.model.TimeFormat
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.util.concurrent.locks.Lock
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,11 +18,15 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.update
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     getLockScreenUseCase: GetLockScreenUseCase,
-    private val saveWallPaperUseCase: SaveWallPaperUseCase
+    private val saveLockScreenCase: SaveLockScreenCase
 ) : ViewModel() {
     private val initHomeMenuList = listOf(HomeMenu.SETTING, HomeMenu.EDIT, HomeMenu.SAVE)
 
@@ -29,7 +35,12 @@ class HomeViewModel @Inject constructor(
     private val tmpHomeScreen: MutableStateFlow<TmpScreenState> =
         MutableStateFlow(TmpScreenState.None)
 
-    private val savedHomeScreenState = getLockScreenUseCase()
+    private val savedHomeScreenState: StateFlow<LockScreen> = getLockScreenUseCase()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = LockScreen()
+        )
 
     val homeScreenUiState = combine(
         homeMenuList,
@@ -46,19 +57,41 @@ class HomeViewModel @Inject constructor(
         initialValue = HomeScreenUiState.Loading
     )
 
-    fun saveWallPaper() {
+    fun saveLockScreen() {
         viewModelScope.launch {
             val value = tmpHomeScreen.value
             if (value is TmpScreenState.Custom) {
-                saveWallPaperUseCase((value.screen.background as? LockScreenBackground.LocalImage)?.imageUri ?: return@launch)
+                saveLockScreenCase(value.screen)
             }
         }
     }
 
-    fun saveTmpWallPaper(uri: String) {
+    fun setWallPaper(uri: String) {
         viewModelScope.launch {
-            tmpHomeScreen.value =
-                TmpScreenState.Custom(LockScreen(LockScreenBackground.LocalImage(uri)))
+            tmpHomeScreen.update { state ->
+                val background = LockScreenBackground.LocalImage(uri)
+                if (state is TmpScreenState.Custom) {
+                    state.copy(state.screen.copy(background = background))
+                } else {
+                    TmpScreenState.Custom(
+                        screen = savedHomeScreenState.value.copy(background = background)
+                    )
+                }
+            }
+        }
+    }
+
+    fun setTimeFormat(format: TimeFormat) {
+        viewModelScope.launch {
+            tmpHomeScreen.update { state ->
+                if (state is TmpScreenState.Custom) {
+                    state.copy(state.screen.copy(timeFormat = format))
+                } else {
+                    TmpScreenState.Custom(
+                        screen = savedHomeScreenState.value.copy(timeFormat = format)
+                    )
+                }
+            }
         }
     }
 }
@@ -75,5 +108,7 @@ sealed interface HomeScreenUiState {
 sealed interface TmpScreenState {
     object None : TmpScreenState
 
-    data class Custom(val screen: LockScreen) : TmpScreenState
+    data class Custom(
+        val screen: LockScreen
+    ) : TmpScreenState
 }
