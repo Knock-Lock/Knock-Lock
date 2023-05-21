@@ -7,12 +7,10 @@ import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.view.WindowCompat
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.normal.TedPermission
@@ -21,19 +19,14 @@ import com.knocklock.presentation.navigation.KnockLockNavHost
 import com.knocklock.presentation.ui.theme.KnockLockTheme
 import com.knocklock.presentation.util.showShortToastMessage
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private val mainViewModel: MainViewModel by viewModels()
-
-    private val serviceIntent = Intent(this, LockScreenNotificationListener::class.java)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         requestPermission()
-        collectLockState()
 
         setContent {
             KnockLockTheme {
@@ -101,21 +94,9 @@ class MainActivity : ComponentActivity() {
 
     private fun startService() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(serviceIntent)
+            startForegroundService(Intent(this, LockScreenNotificationListener::class.java))
         } else {
-            startService(serviceIntent)
-        }
-    }
-
-    private fun collectLockState() {
-        lifecycleScope.launch {
-            mainViewModel.isLockActivated.collect { isLockActivated ->
-                if (isLockActivated) {
-                    startService()
-                }else{
-                    stopService(serviceIntent)
-                }
-            }
+            startService(Intent(this, LockScreenNotificationListener::class.java))
         }
     }
 
