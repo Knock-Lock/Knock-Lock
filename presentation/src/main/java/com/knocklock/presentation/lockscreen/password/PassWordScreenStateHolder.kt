@@ -51,17 +51,17 @@ class PassWordScreenStateHolder(
     var isPlaying by mutableStateOf(false)
 
     fun updatePassWordState(passWord: String) {
-        if (insertPassWordIndex <= MAX_PASSWORD_LENGTH - 1) {
+        if (insertPassWordIndex <= MAX_PASSWORD_LENGTH) {
             passWordState[insertPassWordIndex] = passWordState[insertPassWordIndex].copy(number = passWord)
-            if (insertPassWordIndex != MAX_PASSWORD_LENGTH - 1) {
+            if (insertPassWordIndex != MAX_PASSWORD_LENGTH) {
                 insertPassWordIndex += 1
             }
-            removePassWordIndex = if (insertPassWordIndex == MAX_PASSWORD_LENGTH - 1) {
+            removePassWordIndex = if (insertPassWordIndex == MAX_PASSWORD_LENGTH) {
                 insertPassWordIndex
             } else {
                 insertPassWordIndex - 1
             }
-            if (insertPassWordIndex == MAX_PASSWORD_LENGTH - 1) {
+            if (insertPassWordIndex == MAX_PASSWORD_LENGTH) {
                 scope.launch {
                     useCaseEntryPoint.getUserUseCase().invoke().collect { user ->
                         val savedPassWord = user.password
