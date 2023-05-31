@@ -24,11 +24,7 @@ fun HomeEditContentDialog(
     clickListener: (HomeEditType) -> Unit = {},
     onDismiss: () -> Unit = {}
 ) {
-    BottomSheetDialog(
-        onDismissRequest = {
-            onDismiss()
-        }
-    ) {
+    BottomSheetDialog(onDismissRequest = onDismiss) {
         Column(
             modifier = modifier
                 .background(color = Color.DarkGray)
@@ -46,7 +42,10 @@ fun HomeEditContentDialog(
                     HomeEditTypeItem(
                         modifier = Modifier.fillMaxSize(),
                         editType = type,
-                        clickListener = clickListener,
+                        clickListener = {
+                            clickListener(it)
+                            onDismiss()
+                        }
                     )
                 }
             }

@@ -1,10 +1,27 @@
 package com.knocklock.presentation.lockscreen.password
 
+import android.os.Build
+import android.util.Log
+import android.view.HapticFeedbackConstants
+import android.view.View
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector1D
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.keyframes
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -14,6 +31,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -24,12 +42,12 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.knocklock.presentation.R
-import com.knocklock.presentation.lockscreen.password.Event.NOTHING
-import com.knocklock.presentation.lockscreen.password.Event.RETURN
-import com.knocklock.presentation.lockscreen.password.Event.UNLOCK
+import com.knocklock.presentation.lockscreen.password.Event.*
 import com.knocklock.presentation.ui.theme.KnockLockTheme
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 /**
  * @Created by 김현국 2023/01/09
@@ -46,6 +64,9 @@ fun PassWordRoute(
     val isPlaying = passWordViewModel.isPlaying
     val inputPassWordState = passWordViewModel.passWordState.toImmutableList()
     val passWordList = passWordViewModel.getPassWordList().toImmutableList()
+    val scope = rememberCoroutineScope()
+    val offsetX = remember { Animatable(0F) }
+    val view = LocalView.current
     LaunchedEffect(eventState) {
         when (eventState) {
             UNLOCK -> {
@@ -53,6 +74,13 @@ fun PassWordRoute(
             }
             RETURN -> {
                 returnLockScreen()
+            }
+            VIBRATE -> {
+                val TAG = "TwoToo PassWordRoute()"
+                Log.d(TAG, "Vibrate")
+                wigglePassword(offset = offsetX, coroutineScope = scope, view = view, resetEvent = {
+                    passWordViewModel.resetState()
+                })
             }
             else -> null
         }
@@ -63,6 +91,7 @@ fun PassWordRoute(
         passWordList = passWordList,
         removePassWord = passWordViewModel::removePassWord,
         updatePassWordState = passWordViewModel::updatePassWordState,
+        offsetX = offsetX,
     )
 }
 
@@ -73,6 +102,7 @@ fun PassWordScreen(
     passWordList: ImmutableList<PassWord>,
     removePassWord: () -> Unit,
     updatePassWordState: (String) -> Unit,
+    offsetX: Animatable<Float, AnimationVector1D>,
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -88,7 +118,10 @@ fun PassWordScreen(
             InsertPassWordText()
             Spacer(modifier = Modifier.height(40.dp))
             InsertPassWordRow(
-                modifier = Modifier.padding(horizontal = 50.dp).fillMaxWidth(),
+                modifier = Modifier
+                    .offset(offsetX.value.dp, 0.dp)
+                    .padding(horizontal = 50.dp)
+                    .fillMaxWidth(),
                 inputPassWordState = inputPassWordState,
             )
         }
@@ -98,6 +131,42 @@ fun PassWordScreen(
             onPassWordClick = updatePassWordState,
             removePassWord = removePassWord,
         )
+    }
+}
+
+private val shakeKeyFrames = keyframes {
+    durationMillis = 800
+    val easing = FastOutLinearInEasing
+    for (i in 1..8) {
+        val x = when (i % 3) {
+            0 -> 4f
+            1 -> -4f
+            else -> 0f
+        }
+        x at durationMillis / 10 * i with easing
+    }
+}
+
+private fun wigglePassword(
+    offset: Animatable<Float, AnimationVector1D>,
+    coroutineScope: CoroutineScope,
+    resetEvent: () -> Unit,
+    view: View? = null,
+) {
+    coroutineScope.launch {
+        offset.animateTo(
+            targetValue = 0f,
+            animationSpec = shakeKeyFrames,
+        )
+    }.invokeOnCompletion {
+        resetEvent()
+    }
+    view?.let {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            view.performHapticFeedback(HapticFeedbackConstants.REJECT)
+        } else {
+            view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+        }
     }
 }
 
@@ -220,6 +289,7 @@ private fun PreviewPassWordScreen() {
             passWordList = PassWord.getPassWordList().toImmutableList(),
             removePassWord = {},
             updatePassWordState = { },
+            offsetX = remember { Animatable(0F) },
         )
     }
 }
@@ -234,6 +304,7 @@ private fun PreviewPassWordScreen2() {
             passWordList = PassWord.getPassWordList().toImmutableList(),
             removePassWord = {},
             updatePassWordState = { },
+            offsetX = remember { Animatable(0F) },
         )
     }
 }

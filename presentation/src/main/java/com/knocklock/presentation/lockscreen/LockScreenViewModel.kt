@@ -104,6 +104,15 @@ class LockScreenViewModel @Inject constructor(
             }
         }
     }
+    fun updateClickable(key: String, state: Boolean) = with(_notificationUiFlagStateState.value) {
+        if (this.containsKey(key).not()) {
+            this[key] = NotificationUiFlagState()
+        } else {
+            this[key]?.let { uiFlag ->
+                this[key] = uiFlag.copy(clickable = state)
+            }
+        }
+    }
 }
 
 sealed class ComposeScreenState {

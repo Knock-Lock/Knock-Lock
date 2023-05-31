@@ -6,7 +6,7 @@ import com.knocklock.presentation.R
 enum class HomeEditType(
     @StringRes val labelRes: Int
 ) {
-    CLOCK(
+    TimeFormat(
         labelRes = R.string.home_edit_clock_type
     ),
 

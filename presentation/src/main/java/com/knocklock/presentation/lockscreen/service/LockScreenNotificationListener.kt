@@ -17,6 +17,7 @@ import android.text.TextUtils
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.knocklock.domain.repository.NotificationRepository
+import com.knocklock.domain.repository.UserRepository
 import com.knocklock.presentation.MainActivity
 import com.knocklock.presentation.lockscreen.LockScreenActivity
 import com.knocklock.presentation.lockscreen.mapper.getDatabaseKey
@@ -29,7 +30,11 @@ import com.knocklock.presentation.lockscreen.receiver.OnSystemBarEventListener
 import com.knocklock.presentation.lockscreen.receiver.ScreenEventReceiver
 import com.knocklock.presentation.lockscreen.receiver.SystemBarEventReceiver
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
@@ -44,12 +49,17 @@ class LockScreenNotificationListener :
     @Inject
     lateinit var notificationRepository: NotificationRepository
 
+    @Inject
+    lateinit var userRepository: UserRepository
+
     private val notificationManager by lazy { getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager }
 
     private val job by lazy { SupervisorJob() }
     private val notificationScope by lazy { CoroutineScope(job + Dispatchers.Default) }
 
     private val binder = LocalBinder()
+
+    private val isLockActivated = MutableStateFlow(false)
 
     inner class LocalBinder : Binder() {
         fun getService(): LockScreenNotificationListener = this@LockScreenNotificationListener
@@ -69,7 +79,9 @@ class LockScreenNotificationListener :
             context = this,
             onScreenEventListener = object : OnScreenEventListener {
                 override fun openLockScreenByIntent() {
-                    addLockScreen()
+                    if (isLockActivated.value) {
+                        addLockScreen()
+                    }
                 }
             },
         )
@@ -118,6 +130,7 @@ class LockScreenNotificationListener :
         super.onCreate()
         registerSystemBarEventReceiver()
         registerScreenEventReceiver()
+        collectFlow()
     }
 
     private fun initNotificationsToLockScreen() {
@@ -178,6 +191,14 @@ class LockScreenNotificationListener :
         createNotificationChannel()
         startForeground(9999, createNotification())
         return START_REDELIVER_INTENT
+    }
+
+    private fun collectFlow() {
+        notificationScope.launch {
+            userRepository.getUser().collect {
+                isLockActivated.value = it.isLockActivated
+            }
+        }
     }
 
     override fun onDestroy() {
