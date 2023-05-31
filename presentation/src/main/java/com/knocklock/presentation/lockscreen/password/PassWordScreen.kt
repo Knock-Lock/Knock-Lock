@@ -192,7 +192,7 @@ fun BackButton(
 
 @Preview
 @Composable
-fun PreviewLocker() {
+private fun PreviewLocker() {
     KnockLockTheme {
         Locker(isPlaying = false)
     }
@@ -200,7 +200,7 @@ fun PreviewLocker() {
 
 @Preview
 @Composable
-fun PreviewCirclePassWordNumber() {
+private fun PreviewCirclePassWordNumber() {
     KnockLockTheme {
         CirclePassWordNumber(
             passWord = PassWord.getPassWordList()[1],
@@ -212,7 +212,7 @@ fun PreviewCirclePassWordNumber() {
 
 @Preview(widthDp = 600, heightDp = 900)
 @Composable
-fun PreviewPassWordScreen() {
+private fun PreviewPassWordScreen() {
     KnockLockTheme {
         PassWordScreen(
             isPlaying = false,
@@ -226,7 +226,7 @@ fun PreviewPassWordScreen() {
 
 @Preview(widthDp = 840, heightDp = 2080)
 @Composable
-fun PreviewPassWordScreen2() {
+private fun PreviewPassWordScreen2() {
     KnockLockTheme {
         PassWordScreen(
             isPlaying = false,
