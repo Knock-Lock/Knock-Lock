@@ -14,12 +14,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -104,34 +101,15 @@ fun PassWordScreen(
     updatePassWordState: (String) -> Unit,
     offsetX: Animatable<Float, AnimationVector1D>,
 ) {
-    Column(
+    CirclePassWordBoard(
         modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceBetween,
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Spacer(modifier = Modifier.height(50.dp))
-            Locker(
-                modifier = Modifier.size(50.dp),
-                isPlaying = isPlaying,
-            )
-            InsertPassWordText()
-            Spacer(modifier = Modifier.height(40.dp))
-            InsertPassWordRow(
-                modifier = Modifier
-                    .offset(offsetX.value.dp, 0.dp)
-                    .padding(horizontal = 50.dp)
-                    .fillMaxWidth(),
-                inputPassWordState = inputPassWordState,
-            )
-        }
-        CirclePassWordBoard(
-            modifier = Modifier.fillMaxSize(),
-            passWordList = passWordList,
-            onPassWordClick = updatePassWordState,
-            removePassWord = removePassWord,
-        )
-    }
+        passWordList = passWordList,
+        onPassWordClick = updatePassWordState,
+        removePassWord = removePassWord,
+        isPlaying = isPlaying,
+        offsetX = offsetX,
+        inputPassWordState = inputPassWordState,
+    )
 }
 
 private val shakeKeyFrames = keyframes {
@@ -259,29 +237,9 @@ fun BackButton(
     }
 }
 
-@Preview
+@Preview(widthDp = 360, heightDp = 640, showSystemUi = false, showBackground = true)
 @Composable
-private fun PreviewLocker() {
-    KnockLockTheme {
-        Locker(isPlaying = false)
-    }
-}
-
-@Preview
-@Composable
-private fun PreviewCirclePassWordNumber() {
-    KnockLockTheme {
-        CirclePassWordNumber(
-            passWord = PassWord.getPassWordList()[1],
-            onPassWordClick = {},
-
-        )
-    }
-}
-
-@Preview(widthDp = 600, heightDp = 900)
-@Composable
-private fun PreviewPassWordScreen() {
+private fun PreviewPassWordScreen360640() {
     KnockLockTheme {
         PassWordScreen(
             isPlaying = false,
@@ -294,9 +252,9 @@ private fun PreviewPassWordScreen() {
     }
 }
 
-@Preview(widthDp = 840, heightDp = 2080)
+@Preview(widthDp = 480, heightDp = 800, showSystemUi = false, showBackground = true)
 @Composable
-private fun PreviewPassWordScreen2() {
+private fun PreviewPassWordScreen480800() {
     KnockLockTheme {
         PassWordScreen(
             isPlaying = false,
