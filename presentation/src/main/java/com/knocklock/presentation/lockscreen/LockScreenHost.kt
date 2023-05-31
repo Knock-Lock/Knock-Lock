@@ -16,10 +16,10 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.renderscript.Toolkit
 import com.knocklock.domain.model.AuthenticationType
+import com.knocklock.domain.model.User
 import com.knocklock.presentation.R
 import com.knocklock.presentation.lockscreen.model.LockScreen
 import com.knocklock.presentation.lockscreen.model.LockScreenBackground
@@ -35,7 +35,8 @@ import kotlinx.collections.immutable.toImmutableMap
 fun LockScreenHost(
     modifier: Modifier = Modifier,
     onFinish: () -> Unit,
-    vm: LockScreenViewModel = hiltViewModel(),
+    vm: LockScreenViewModel,
+    currentUserState: User?,
     onRemoveNotifications: (Array<String>) -> Unit,
 ) {
     val packageManager = LocalContext.current.packageManager
@@ -46,7 +47,6 @@ fun LockScreenHost(
     val backgroundState by vm.currentBackground.collectAsStateWithLifecycle()
     val composeScreenState by vm.composeScreenState.collectAsStateWithLifecycle()
     val notificationUiState by vm.notificationList.collectAsStateWithLifecycle()
-    val currentUserState by vm.currentLockState.collectAsStateWithLifecycle()
     val notificationUiFlagState by vm.notificationUiFlagState.collectAsStateWithLifecycle()
 
     val animateRadiusState by animateIntAsState(
@@ -97,7 +97,7 @@ fun LockScreenHost(
                         }
                     }
                 },
-                updateNotificationExpandableFlag = vm::updateExpandable
+                updateNotificationExpandableFlag = vm::updateExpandable,
             )
         }
 
