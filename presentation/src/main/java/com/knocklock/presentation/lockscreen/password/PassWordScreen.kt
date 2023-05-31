@@ -218,7 +218,7 @@ fun PreviewPassWordScreen() {
             isPlaying = false,
             inputPassWordState = PassWord.getPassWordList().take(6).toImmutableList(),
             passWordList = PassWord.getPassWordList().toImmutableList(),
-            removePassWord = { /*TODO*/ },
+            removePassWord = {},
             updatePassWordState = { },
         )
     }
@@ -232,7 +232,7 @@ fun PreviewPassWordScreen2() {
             isPlaying = false,
             inputPassWordState = PassWord.getPassWordList().take(6).toImmutableList(),
             passWordList = PassWord.getPassWordList().toImmutableList(),
-            removePassWord = { /*TODO*/ },
+            removePassWord = {},
             updatePassWordState = { },
         )
     }
