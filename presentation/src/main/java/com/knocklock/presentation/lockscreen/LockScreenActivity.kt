@@ -1,5 +1,6 @@
 package com.knocklock.presentation.lockscreen
 
+import android.app.ActivityManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -10,35 +11,48 @@ import android.graphics.Point
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
-import android.telephony.PhoneStateListener
-import android.telephony.TelephonyCallback
-import android.telephony.TelephonyManager
-import android.telephony.TelephonyManager.CALL_STATE_IDLE
-import android.telephony.TelephonyManager.CALL_STATE_OFFHOOK
-import android.telephony.TelephonyManager.CALL_STATE_RINGING
 import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.activity.setViewTreeOnBackPressedDispatcherOwner
+import androidx.activity.viewModels
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.compositionContext
 import androidx.compose.ui.platform.createLifecycleAwareWindowRecomposer
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import com.knocklock.domain.model.AuthenticationType
+import com.knocklock.presentation.lockscreen.receiver.OnSystemBarEventListener
+import com.knocklock.presentation.lockscreen.receiver.SystemBarEventReceiver
 import com.knocklock.presentation.lockscreen.service.LockScreenNotificationListener
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class LockScreenActivity : ComponentActivity() {
 
     private var composeView: ComposeView? = null
 
-    private val window by lazy {
+    private val manager by lazy {
         this.applicationContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     }
+
+    private val lockScreenViewModel by viewModels<LockScreenViewModel>()
 
     private val point by lazy { Point() }
     private var notificationListener: LockScreenNotificationListener? = null
@@ -56,25 +70,60 @@ class LockScreenActivity : ComponentActivity() {
         }
     }
 
-    private val telephonyMananger by lazy {
-        this.applicationContext.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+    private val activityManager by lazy {
+        this.applicationContext.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
     }
 
-    private var callState = CALL_STATE_IDLE
+    private val _systembarEvent = MutableSharedFlow<Unit>()
+    private val sendSystemEventJob = Job()
+    private val scope = CoroutineScope(sendSystemEventJob + Dispatchers.Default)
+    private val systemBarEventReceiver by lazy {
+        SystemBarEventReceiver(
+            context = this,
+            onSystemBarEventListener = object : OnSystemBarEventListener {
+                override fun onSystemBarClicked() {
+                    scope.launch {
+                        _systembarEvent.emit(Unit)
+                    }
+                }
+            },
+        )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        println("OnCreate")
         getWindowSize()
-        setTelephonyCallBack()
+
         composeView = ComposeView(this).apply {
             val parent = this.compositionContext
             setParentCompositionContext(parent)
+
             setContent {
+                val lifecycle = LocalLifecycleOwner.current.lifecycle
+                val currentUserState by lockScreenViewModel.currentLockState.collectAsStateWithLifecycle()
+                LaunchedEffect(Unit) {
+                    lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                        _systembarEvent.collectLatest {
+                            currentUserState?.let { user ->
+                                when (user.authenticationType) {
+                                    AuthenticationType.GESTURE -> {
+//                                        this@LockScreenActivity.finish()
+                                    }
+
+                                    AuthenticationType.PASSWORD -> {
+                                        lockScreenViewModel.setComposeScreenState(ComposeScreenState.PassWordScreen)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
                 LockScreenHost(
+                    vm = lockScreenViewModel,
                     onFinish = {
                         this@LockScreenActivity.finish()
                     },
+                    currentUserState = currentUserState,
                     onRemoveNotifications = { keys ->
                         if (mBound) notificationListener?.cancelNotifications(keys)
                     },
@@ -82,7 +131,8 @@ class LockScreenActivity : ComponentActivity() {
             }
             initViewTreeOwner(this)
         }
-        window.addView(composeView, getWindowManagerLayoutParams())
+        manager.addView(composeView, getWindowManagerLayoutParams())
+        registerSystemBarEventReceiver()
     }
 
     override fun onStart() {
@@ -96,14 +146,19 @@ class LockScreenActivity : ComponentActivity() {
         super.onStop()
         unbindService(connection)
         mBound = false
+        activityManager.moveTaskToFront(taskId, 0)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        println("OnDestroy")
-        window.removeViewImmediate(composeView)
+        manager.removeViewImmediate(composeView)
+        composeView?.let {
+            removeViewTreeOwner(it)
+        }
+        unregisterSystemBarEventReceiver()
         notificationListener = null
         composeView = null
+        sendSystemEventJob.cancel()
     }
 
     @OptIn(ExperimentalComposeUiApi::class)
@@ -117,12 +172,21 @@ class LockScreenActivity : ComponentActivity() {
         }
     }
 
+    private fun removeViewTreeOwner(composeView: ComposeView) {
+        composeView.apply {
+            setViewTreeLifecycleOwner(null)
+            setViewTreeViewModelStoreOwner(null)
+            setViewTreeSavedStateRegistryOwner(null)
+            compositionContext = null
+        }
+    }
+
     private fun getWindowSize() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            point.x = window.maximumWindowMetrics.bounds.width()
-            point.y = window.maximumWindowMetrics.bounds.height()
+            point.x = manager.maximumWindowMetrics.bounds.width()
+            point.y = manager.maximumWindowMetrics.bounds.height()
         } else {
-            window.defaultDisplay.getRealSize(point)
+            manager.defaultDisplay.getRealSize(point)
         }
     }
 
@@ -176,54 +240,11 @@ class LockScreenActivity : ComponentActivity() {
         return params
     }
 
-    private fun setTelephonyCallBack() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            telephonyMananger.registerTelephonyCallback(
-                mainExecutor,
-                object : TelephonyCallback(), TelephonyCallback.CallStateListener {
-                    override fun onCallStateChanged(state: Int) {
-                        when (state) {
-                            CALL_STATE_RINGING -> {
-                                println("ringing")
-                                callState = CALL_STATE_RINGING
-                                if (composeView != null) {
-                                    window.removeViewImmediate(composeView)
-                                }
-                            }
-                            CALL_STATE_OFFHOOK -> {
-                                callState = CALL_STATE_OFFHOOK
-                            }
-                            CALL_STATE_IDLE -> {
-                                println("idle")
-                                if (callState != CALL_STATE_IDLE) {
-                                    window.addView(composeView, getWindowManagerLayoutParams())
-                                }
-//
-                            }
-                        }
-                    }
-                },
-            )
-        } else {
-            telephonyMananger.listen(
-                object : PhoneStateListener() {
-                    override fun onCallStateChanged(state: Int, phoneNumber: String?) {
-                        when (state) {
-                            CALL_STATE_RINGING -> {
-                                println("ringing")
-                                window.removeViewImmediate(composeView)
-                            }
-//                            CALL_STATE_OFFHOOK -> {
-//                            }
-                            CALL_STATE_IDLE -> {
-                                println("idle")
-                                window.addView(composeView, getWindowManagerLayoutParams())
-                            }
-                        }
-                    }
-                },
-                PhoneStateListener.LISTEN_CALL_STATE,
-            )
-        }
+    private fun registerSystemBarEventReceiver() {
+        systemBarEventReceiver.registerReceiver()
+    }
+
+    private fun unregisterSystemBarEventReceiver() {
+        systemBarEventReceiver.unregisterReceiver()
     }
 }

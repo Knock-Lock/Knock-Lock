@@ -25,9 +25,7 @@ import com.knocklock.presentation.lockscreen.mapper.toModel
 import com.knocklock.presentation.lockscreen.model.Group
 import com.knocklock.presentation.lockscreen.model.toModel
 import com.knocklock.presentation.lockscreen.receiver.OnScreenEventListener
-import com.knocklock.presentation.lockscreen.receiver.OnSystemBarEventListener
 import com.knocklock.presentation.lockscreen.receiver.ScreenEventReceiver
-import com.knocklock.presentation.lockscreen.receiver.SystemBarEventReceiver
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import javax.inject.Inject
@@ -75,17 +73,6 @@ class LockScreenNotificationListener :
         )
     }
 
-    private val systemBarEventReceiver by lazy {
-        SystemBarEventReceiver(
-            context = this,
-            onSystemBarEventListener = object : OnSystemBarEventListener {
-                override fun onSystemBarClicked() {
-                    // Todo 현재 PassWordScreen이 열려있는지
-                }
-            },
-        )
-    }
-
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         super.onNotificationPosted(sbn)
         val packageName = sbn?.packageName
@@ -116,7 +103,6 @@ class LockScreenNotificationListener :
 
     override fun onCreate() {
         super.onCreate()
-        registerSystemBarEventReceiver()
         registerScreenEventReceiver()
     }
 
@@ -182,7 +168,6 @@ class LockScreenNotificationListener :
 
     override fun onDestroy() {
         super.onDestroy()
-        unregisterSystemBarEventReceiver()
         unregisterScreenEventReceiver()
         job.cancel()
     }
@@ -214,14 +199,6 @@ class LockScreenNotificationListener :
             .setContentIntent(contentPendingIntent)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .build()
-    }
-
-    private fun registerSystemBarEventReceiver() {
-        systemBarEventReceiver.registerReceiver()
-    }
-
-    private fun unregisterSystemBarEventReceiver() {
-        systemBarEventReceiver.unregisterReceiver()
     }
 
     private fun registerScreenEventReceiver() {
