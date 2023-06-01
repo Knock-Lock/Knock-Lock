@@ -20,11 +20,10 @@ import com.knocklock.domain.repository.NotificationRepository
 import com.knocklock.domain.repository.UserRepository
 import com.knocklock.presentation.MainActivity
 import com.knocklock.presentation.lockscreen.LockScreenActivity
-import com.knocklock.presentation.lockscreen.mapper.getDatabaseKey
 import com.knocklock.presentation.lockscreen.mapper.isNotEmptyTitleOrContent
 import com.knocklock.presentation.lockscreen.mapper.toModel
-import com.knocklock.presentation.lockscreen.model.Group
-import com.knocklock.presentation.lockscreen.model.toModel
+import com.knocklock.presentation.lockscreen.receiver.NotificationPostedReceiver.Companion.PostedAction
+import com.knocklock.presentation.lockscreen.receiver.NotificationPostedReceiver.Companion.PostedNotification
 import com.knocklock.presentation.lockscreen.receiver.OnScreenEventListener
 import com.knocklock.presentation.lockscreen.receiver.OnSystemBarEventListener
 import com.knocklock.presentation.lockscreen.receiver.ScreenEventReceiver
@@ -35,6 +34,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 /**
@@ -105,23 +106,12 @@ class LockScreenNotificationListener :
             notificationScope.launch {
                 if (sbn.isNotEmptyTitleOrContent()) {
                     val notification = sbn.toModel(packageManager)
-                    notificationRepository.insertGroup(
-                        Group(
-                            key = notification.groupKey,
-                        ).toModel(),
-                    )
-                    notificationRepository.insertNotifications(notification)
+                    val intent = Intent().apply {
+                        action = PostedAction
+                        putExtra(PostedNotification, Json.encodeToString(notification))
+                    }
+                    this@LockScreenNotificationListener.sendBroadcast(intent)
                 }
-            }
-        }
-    }
-
-    override fun onNotificationRemoved(sbn: StatusBarNotification?) {
-        super.onNotificationRemoved(sbn)
-        val packageName = sbn?.packageName
-        if (sbn != null && !TextUtils.isEmpty(packageName)) {
-            notificationScope.launch {
-                notificationRepository.removeNotificationsWithId(sbn.key)
             }
         }
     }
@@ -134,24 +124,9 @@ class LockScreenNotificationListener :
     }
 
     private fun initNotificationsToLockScreen() {
-        notificationScope.launch {
-            val copyActiveNotification = activeNotifications.toList().toTypedArray()
-            copyActiveNotification.forEach { notification ->
-                launch {
-                    notification.getDatabaseKey(packageManager)?.let { key ->
-                        notificationRepository.insertGroup(
-                            Group(
-                                key = key,
-                            ).toModel(),
-                        )
-                    }
-                }
-            }
-
-            notificationRepository.insertNotifications(
-                *toModel(copyActiveNotification, packageManager),
-            )
-        }
+        /*
+        TODO 맨처음 초기에만 진행되도록 변경할 예정
+         */
     }
 
     private fun addLockScreen() {

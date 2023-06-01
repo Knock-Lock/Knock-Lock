@@ -17,7 +17,7 @@ import javax.inject.Inject
  */
 class NotificationRepositoryImpl @Inject constructor(
     private val groupDao: GroupDao,
-    private val notificationDao: NotificationDao
+    private val notificationDao: NotificationDao,
 ) : NotificationRepository {
     override suspend fun insertGroup(group: Group) {
         groupDao.insertGroup(group = group.toEntity())
@@ -27,7 +27,7 @@ class NotificationRepositoryImpl @Inject constructor(
         notificationDao.insertNotifications(
             *notifications.map { notification ->
                 notification.toEntity()
-            }.toTypedArray()
+            }.toTypedArray(),
         )
     }
 
@@ -44,18 +44,29 @@ class NotificationRepositoryImpl @Inject constructor(
             }.map { groupWithNotification ->
                 val notifications = groupWithNotification.notifications.sortedByDescending { it.postedTime }
                 groupWithNotification.copy(
-                    notifications = notifications
+                    notifications = notifications,
                 ).toModel()
             }.toList().sortedByDescending { it.notifications[0].postedTime }
         }
     }
 
-    override suspend fun removeNotificationsWithId(vararg ids: String) {
-        notificationDao.deleteNotificationsWithIds(*ids)
-    }
-
-    override suspend fun removeGroupWithNotifications(key: String) {
-        groupDao.deleteGroupWithKey(key)
-        notificationDao.deleteNotificationsWithGroupKey(key)
+    /**
+     * 제거하려는 notification의 size가 2이상이라면 그룹 제거로 간주합니다.
+     * 그룹일 경우 group Table에서의 제거와 해당 notification들을 제거합니다.
+     */
+    override suspend fun removeNotifications(vararg notification: Notification) {
+        kotlin.runCatching {
+            val isRemovedGroup = notification.size >= 2
+            if (isRemovedGroup) {
+                notificationDao.deleteNotificationsWithGroupKey(notification[0].groupKey)
+            }
+            notificationDao.deleteNotificationsWithIds(
+                *notification.map {
+                    it.toEntity()
+                }.toTypedArray(),
+            )
+        }.onFailure {
+            println("exception $it")
+        }
     }
 }

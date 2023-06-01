@@ -16,7 +16,5 @@ interface NotificationRepository {
 
     fun getGroupWithNotificationsWithSorted(): Flow<List<GroupWithNotification>>
 
-    suspend fun removeNotificationsWithId(vararg ids: String)
-
-    suspend fun removeGroupWithNotifications(key: String)
+    suspend fun removeNotifications(vararg notification: Notification)
 }
