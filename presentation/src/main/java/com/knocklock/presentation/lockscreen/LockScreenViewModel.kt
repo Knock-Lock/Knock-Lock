@@ -197,9 +197,9 @@ class LockScreenViewModel @Inject constructor(
     }
 
     fun addRecentNotification(notification: NotificationModel, packageManager: PackageManager) {
-        val isExisted = _recentNotificationList.value.count {
+        val isExisted = _recentNotificationList.value.any {
             it.group.key == notification.groupKey
-        } == 1
+        }
 
         if (isExisted) {
             val existedGroupNotificationList = _recentNotificationList.value.map { groupWithNotification ->
