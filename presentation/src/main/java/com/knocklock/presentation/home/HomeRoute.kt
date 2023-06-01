@@ -5,22 +5,15 @@ import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.BottomSheetScaffold
-import androidx.compose.material.BottomSheetValue
-import androidx.compose.material.rememberBottomSheetScaffoldState
-import androidx.compose.material.rememberBottomSheetState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.knocklock.presentation.home.editcontent.HomeEditContentDialog
+import com.knocklock.presentation.home.editcontent.HomeEditTimeFormatDialog
 import com.knocklock.presentation.home.editcontent.HomeEditType
 import com.knocklock.presentation.home.menu.HomeMenu
 import com.knocklock.presentation.util.getGalleryIntent
-import kotlinx.coroutines.launch
 
 @Composable
 fun HomeRoute(
@@ -30,7 +23,8 @@ fun HomeRoute(
 ) {
     val homeScreenUiState by viewModel.homeScreenUiState.collectAsState(HomeScreenUiState.Loading)
 
-    var isShowHomeEditContent by remember { mutableStateOf(false) }
+    var isShowHomeEditContentDialog by remember { mutableStateOf(false) }
+    var isShowHomeEditTimeFormatDialog by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     val galleryLauncher =
@@ -41,7 +35,7 @@ fun HomeRoute(
                         uri,
                         Intent.FLAG_GRANT_READ_URI_PERMISSION
                     )
-                    viewModel.saveTmpWallPaper(uri.toString())
+                    viewModel.setWallPaper(uri.toString())
                 }
             }
         }
@@ -56,10 +50,10 @@ fun HomeRoute(
                         onClickSetting()
                     }
                     HomeMenu.EDIT -> {
-                        isShowHomeEditContent = true
+                        isShowHomeEditContentDialog = true
                     }
                     HomeMenu.SAVE -> {
-                        viewModel.saveWallPaper()
+                        viewModel.saveLockScreen()
                     }
                     HomeMenu.CLEAR -> {
                     }
@@ -67,19 +61,32 @@ fun HomeRoute(
             }
         )
 
-        if (isShowHomeEditContent) {
+        if (isShowHomeEditContentDialog) {
             HomeEditContentDialog(
+                modifier = Modifier.fillMaxWidth(),
                 clickListener = { editType ->
                     when (editType) {
                         HomeEditType.BACKGROUND -> {
                             galleryLauncher.launch(getGalleryIntent())
                         }
 
+                        HomeEditType.TimeFormat -> {
+                            isShowHomeEditTimeFormatDialog = true
+                        }
+
                         else -> {}
                     }
-                    isShowHomeEditContent = false
                 },
-                onDismiss = { isShowHomeEditContent = false }
+                onDismiss = { isShowHomeEditContentDialog = false }
+            )
+        }
+
+        if (isShowHomeEditTimeFormatDialog) {
+            HomeEditTimeFormatDialog(
+                modifier = Modifier.fillMaxWidth(),
+                selectedTimeFormat = (homeScreenUiState as? HomeScreenUiState.Success)?.lockScreen?.timeFormat,
+                clickListener = viewModel::setTimeFormat,
+                onDismiss = { isShowHomeEditTimeFormatDialog = false }
             )
         }
     }

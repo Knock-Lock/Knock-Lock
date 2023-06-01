@@ -103,6 +103,7 @@ fun LockScreenHost(
                 },
                 updateOldNotificationExpandableFlag = lockScreenViewModel::updateOldNotificationExpandable,
                 updateRecentNotificationExpandableFlag = lockScreenViewModel::updateRecentNotificationExpandable,
+                updateNotificationClickableFlag = lockScreenViewModel::updateClickable,
             )
         }
 

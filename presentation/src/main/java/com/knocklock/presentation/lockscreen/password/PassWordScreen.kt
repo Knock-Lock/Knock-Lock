@@ -1,10 +1,27 @@
 package com.knocklock.presentation.lockscreen.password
 
+import android.os.Build
+import android.view.HapticFeedbackConstants
+import android.view.View
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector1D
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.keyframes
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -12,7 +29,12 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,6 +43,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -32,6 +55,8 @@ import com.knocklock.presentation.R
 import com.knocklock.presentation.ui.theme.KnockLockTheme
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 /**
  * @Created by 김현국 2023/01/09
@@ -45,7 +70,7 @@ fun PassWordRoute(
 ) {
     PassWordScreen(
         unLockPassWordScreen = unLockPassWordScreen,
-        returnLockScreen = returnLockScreen
+        returnLockScreen = returnLockScreen,
     )
 }
 
@@ -59,9 +84,18 @@ fun PassWordScreen(
     val screenWidthDp = LocalConfiguration.current.screenWidthDp.dp - passWordSpace * 3
     val circlePassWordNumberSize = screenWidthDp / 3
 
+    var isPasswordFailed by remember { mutableStateOf(false) }
+
+    val scope = rememberCoroutineScope()
+    val offsetX = remember { Animatable(0F) }
+
+    val view = LocalView.current
     val passWordScreenState = rememberPassWordScreenState(
         returnLockScreen = returnLockScreen,
-        unLockPassWordScreen = unLockPassWordScreen
+        unLockPassWordScreen = unLockPassWordScreen,
+        onPasswordValidateFailed = {
+            wigglePassword(offsetX, scope, view)
+        }
     )
 
     Column(
@@ -75,8 +109,12 @@ fun PassWordScreen(
         )
         InsertPassWordText()
         Spacer(modifier = Modifier.height(40.dp))
+
         InsertPassWordRow(
-            modifier = Modifier.padding(horizontal = 50.dp).fillMaxWidth(),
+            modifier = Modifier
+                .offset(offsetX.value.dp, 0.dp)
+                .padding(horizontal = 50.dp)
+                .fillMaxWidth(),
             inputPassWordState = passWordScreenState.passWordState.toImmutableList()
         )
         Spacer(modifier = Modifier.height(100.dp))
@@ -95,12 +133,15 @@ fun PassWordScreen(
                     )
                 } else {
                     CirclePassWordNumber(
-                        modifier = Modifier.size(circlePassWordNumberSize).background(
-                            color = Color.LightGray.copy(alpha = 0.3f),
-                            shape = CircleShape
-                        ).clip(
-                            CircleShape
-                        ),
+                        modifier = Modifier
+                            .size(circlePassWordNumberSize)
+                            .background(
+                                color = Color.LightGray.copy(alpha = 0.3f),
+                                shape = CircleShape
+                            )
+                            .clip(
+                                CircleShape
+                            ),
                         passWord = passWord,
                         onPassWordClick = passWordScreenState::updatePassWordState
                     )
@@ -108,14 +149,51 @@ fun PassWordScreen(
             }
         }
         BackButton(
-            modifier = Modifier.align(Alignment.End).padding(end = contentPadding).size(circlePassWordNumberSize).clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClick = {
-                    passWordScreenState.removePassWord()
-                }
-            )
+            modifier = Modifier
+                .align(Alignment.End)
+                .padding(end = contentPadding)
+                .size(circlePassWordNumberSize)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = {
+                        passWordScreenState.removePassWord()
+                    }
+                )
         )
+    }
+}
+
+private val shakeKeyFrames = keyframes {
+    durationMillis = 800
+    val easing = FastOutLinearInEasing
+    for (i in 1..8) {
+        val x = when (i % 3) {
+            0 -> 4f
+            1 -> -4f
+            else -> 0f
+        }
+        x at durationMillis / 10 * i with easing
+    }
+}
+
+private fun wigglePassword(
+    offset: Animatable<Float, AnimationVector1D>,
+    coroutineScope: CoroutineScope,
+    view: View? = null,
+) {
+    coroutineScope.launch {
+        offset.animateTo(
+            targetValue = 0f,
+            animationSpec = shakeKeyFrames
+        )
+    }
+    view?.let {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            view.performHapticFeedback(HapticFeedbackConstants.REJECT)
+        } else {
+            view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+        }
     }
 }
 
