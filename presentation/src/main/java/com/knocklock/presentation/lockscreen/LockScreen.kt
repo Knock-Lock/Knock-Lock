@@ -273,7 +273,6 @@ fun LockScreenNotificationListColumn(
                     }.collectLatest { offset ->
                         currentOffset = if (threshold < offset) threshold / offset else 1f
                         isNotVisible = currentOffset !in 0.8f..1f
-                        println("로그 threshold = $threshold item = ${item.notifications[0].appTitle} offset $offset currentOffset $currentOffset isNotVisible $isNotVisible")
                         updateNotificationClickableFlag(item.group.key, (item.notifications.size >= 2 && offset < threshold))
                     }
                 }
