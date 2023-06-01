@@ -159,15 +159,20 @@ fun UnLockSwipeBar(
         label = "",
     )
 
-    val targetValue by remember(swipeableState) {
+    val targetValue by remember {
         derivedStateOf {
-            swipeableState.targetValue == 1
+            swipeableState.targetValue
         }
     }
+
+
     LaunchedEffect(targetValue) {
-        if (targetValue) {
-            userSwipe()
-        }
+        snapshotFlow { targetValue }
+            .collect {
+                if (targetValue == 1) {
+                    userSwipe()
+                }
+            }
     }
 
     Box(

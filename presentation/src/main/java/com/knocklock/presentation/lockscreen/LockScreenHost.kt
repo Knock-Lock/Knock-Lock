@@ -114,7 +114,6 @@ fun LockScreenHost(
         ) {
             PassWordRoute(
                 unLockPassWordScreen = {
-                    lockScreenViewModel.setComposeScreenState(ComposeScreenState.LockScreen)
                     onFinish()
                 },
                 returnLockScreen = {
