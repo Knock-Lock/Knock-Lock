@@ -70,7 +70,7 @@ fun StatusBarNotification.toModel(packageManager: PackageManager): NotificationM
         title = title,
         content = content,
         isClearable = isClearable,
-        groupKey = if (subText.isEmpty()) getGroupKey(packageName, appTitle, title) else getGroupKey(packageName, appTitle, subText)
+        groupKey = if (subText.isEmpty()) getGroupKey(packageName, appTitle, title) else getGroupKey(packageName, appTitle, subText),
     )
 }
 
@@ -131,9 +131,22 @@ fun NotificationModel.toModel(packageManager: PackageManager): Notification {
         content = this.content,
         isClearable = this.isClearable,
         intent = null,
-        packageName = this.packageName
+        packageName = this.packageName,
+        groupKey = this.groupKey,
     )
 }
+
+fun Notification.toModel() = NotificationModel(
+    id = this.id,
+    packageName = this.packageName ?: "",
+    appTitle = this.appTitle,
+    postedTime = this.postedTime,
+    title = this.title,
+    content = this.content,
+    isClearable = this.isClearable,
+    groupKey = this.groupKey,
+
+)
 
 /**
  * PackageManager를 사용하여 AppTitle과 Drawable을 얻습니다.
@@ -149,7 +162,7 @@ fun getDrawableAndAppTitle(packageManager: PackageManager, packageName: String):
         applicationInfo = runCatching {
             packageManager.getApplicationInfo(
                 packageName,
-                PackageManager.ApplicationInfoFlags.of(PackageManager.GET_META_DATA.toLong())
+                PackageManager.ApplicationInfoFlags.of(PackageManager.GET_META_DATA.toLong()),
             )
         }.onSuccess { info ->
             appTitle = packageManager.getApplicationLabel(info).toString()
@@ -164,7 +177,9 @@ fun getDrawableAndAppTitle(packageManager: PackageManager, packageName: String):
 
     val icon: Drawable? = if (applicationInfo != null) {
         packageManager.getApplicationIcon(applicationInfo)
-    } else null
+    } else {
+        null
+    }
 
     return Pair(appTitle, icon)
 }

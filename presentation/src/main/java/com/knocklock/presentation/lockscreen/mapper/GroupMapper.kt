@@ -8,5 +8,9 @@ import com.knocklock.domain.model.Group as GroupModel
  */
 
 fun GroupModel.toModel() = Group(
-    key = this.key
+    key = this.key,
+)
+
+fun Group.toModel() = GroupModel(
+    key = this.key,
 )
