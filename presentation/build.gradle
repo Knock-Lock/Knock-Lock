@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.hilt)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -110,6 +111,8 @@ dependencies {
 
     implementation libs.kotlinx.collections.immutable
 
+    implementation "androidx.constraintlayout:constraintlayout-compose:1.0.1"
+
     // TedPermission
     implementation libs.tedPermission
 
@@ -124,4 +127,5 @@ dependencies {
     implementation libs.compose.lottie
     implementation libs.compose.glide
     implementation libs.compose.bottomsheet
+    implementation libs.kotlinx.serialization.json
 }
