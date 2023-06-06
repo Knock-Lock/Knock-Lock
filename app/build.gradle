@@ -32,6 +32,10 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+    lintOptions {
+        // https://github.com/bumptech/glide/issues/4940
+        lintConfig = file("$rootDir/android-lint.xml")
+    }
 }
 
 dependencies {
