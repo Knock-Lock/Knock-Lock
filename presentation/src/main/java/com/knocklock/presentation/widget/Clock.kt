@@ -53,18 +53,18 @@ fun ClockWidget(
 
 @Preview
 @Composable
-fun PreviewClockOne() {
+private fun PreviewClockOne() {
     ClockWidget(timeFormat = TimeFormat.TimeWithNoSecondFormat)
 }
 
 @Preview
 @Composable
-fun PreviewClockTwo() {
+private fun PreviewClockTwo() {
     ClockWidget(timeFormat = TimeFormat.TimeWithSecondFormat)
 }
 
 @Preview
 @Composable
-fun PreviewClockThird() {
+private fun PreviewClockThird() {
     ClockWidget(timeFormat = TimeFormat.TimeVerticalFormat)
 }

@@ -23,6 +23,7 @@ import com.knocklock.presentation.util.getPalette
 
 @Composable
 fun HomeBackground(
+    scale: Float,
     modifier: Modifier = Modifier,
     lockScreenBackground: LockScreenBackground
 ) {
@@ -68,7 +69,7 @@ fun HomeBackground(
         )
         Image(
             modifier = Modifier
-                .fillMaxSize(0.75f)
+                .fillMaxSize(scale)
                 .align(Alignment.Center),
             painter = imagePainter,
             contentDescription = null,
