@@ -30,11 +30,6 @@ import com.knocklock.presentation.lockscreen.receiver.NotificationPostedListener
 import com.knocklock.presentation.lockscreen.receiver.NotificationPostedReceiver
 import com.knocklock.presentation.lockscreen.service.LockScreenNotificationListener
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import com.knocklock.domain.model.Notification as NotificationModel
@@ -80,8 +75,6 @@ class LockScreenActivity : ComponentActivity() {
         }
     }
 
-    val recentNotificationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         getWindowSize()
@@ -93,18 +86,12 @@ class LockScreenActivity : ComponentActivity() {
             setContent {
                 LockScreenHost(
                     onFinish = {
-                        recentNotificationScope.launch {
-                            val copyList = lockScreenViewModel.recentNotificationList.value.map {
-                                it.copy()
-                            }
-                            notificationListener?.saveRecentNotificationToDatabase(copyList)
-                        }.invokeOnCompletion {
-                            lockScreenViewModel.clearRecentNotificationList()
-                            this@LockScreenActivity.finish()
+                        val copyList = lockScreenViewModel.recentNotificationList.value.map {
+                            it.copy()
                         }
-                        composeView?.let {
-                            windowManager.removeViewImmediate(it)
-                        }
+                        lockScreenViewModel.clearRecentNotificationList()
+                        notificationListener?.saveRecentNotificationToDatabase(copyList)
+                        this@LockScreenActivity.finish()
                     },
                     onRemoveNotifications = { removedGroupNotification: RemovedGroupNotification ->
                         when (removedGroupNotification.type) {
@@ -146,8 +133,8 @@ class LockScreenActivity : ComponentActivity() {
         super.onDestroy()
         composeView?.let {
             removeViewTreeOwner(it)
+            windowManager.removeViewImmediate(it)
         }
-        recentNotificationScope.cancel()
         unregisterNotificationPostedReceiver()
         notificationListener = null
         composeView = null
