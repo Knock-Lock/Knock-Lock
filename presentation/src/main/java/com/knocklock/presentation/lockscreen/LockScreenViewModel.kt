@@ -25,7 +25,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.util.Stack
 import javax.inject.Inject
 import com.knocklock.domain.model.Notification as NotificationModel
 
@@ -168,26 +167,10 @@ class LockScreenViewModel @Inject constructor(
             }
         }
     }
-
-    fun saveRecentNotificationToDatabase() {
+    fun clearRecentNotificationList() {
         viewModelScope.launch {
-            val stack = Stack<GroupWithNotification>()
-            _recentNotificationList.value.forEach {
-                stack.add(it)
-            }
-            while (stack.isNotEmpty()) {
-                val groupWithNotificationStack = stack.pop()
-                _recentNotificationList.update {
-                    stack.toList()
-                }
-                notificationRepository.insertGroup(
-                    groupWithNotificationStack.toModel().group,
-                )
-                notificationRepository.insertNotifications(
-                    *groupWithNotificationStack.notifications.map { notification ->
-                        notification.toModel()
-                    }.toTypedArray(),
-                )
+            _recentNotificationList.update {
+                emptyList()
             }
         }
     }
@@ -307,7 +290,6 @@ class LockScreenViewModel @Inject constructor(
         }
     }
     fun updateClickable(key: String, state: Boolean) {
-
 //        with(_notificationUiFlagStateState.value) {
 //        if (this.containsKey(key).not()) {
 //            this[key] = NotificationUiFlagState()
