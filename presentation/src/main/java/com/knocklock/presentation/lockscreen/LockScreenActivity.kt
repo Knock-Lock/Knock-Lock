@@ -30,6 +30,11 @@ import com.knocklock.presentation.lockscreen.receiver.NotificationPostedListener
 import com.knocklock.presentation.lockscreen.receiver.NotificationPostedReceiver
 import com.knocklock.presentation.lockscreen.service.LockScreenNotificationListener
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import com.knocklock.domain.model.Notification as NotificationModel
@@ -75,6 +80,8 @@ class LockScreenActivity : ComponentActivity() {
         }
     }
 
+    val recentNotificationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         getWindowSize()
@@ -86,8 +93,18 @@ class LockScreenActivity : ComponentActivity() {
             setContent {
                 LockScreenHost(
                     onFinish = {
-                        lockScreenViewModel.saveRecentNotificationToDatabase()
-                        this@LockScreenActivity.finish()
+                        recentNotificationScope.launch {
+                            val copyList = lockScreenViewModel.recentNotificationList.value.map {
+                                it.copy()
+                            }
+                            notificationListener?.saveRecentNotificationToDatabase(copyList)
+                        }.invokeOnCompletion {
+                            lockScreenViewModel.clearRecentNotificationList()
+                            this@LockScreenActivity.finish()
+                        }
+                        composeView?.let {
+                            windowManager.removeViewImmediate(it)
+                        }
                     },
                     onRemoveNotifications = { removedGroupNotification: RemovedGroupNotification ->
                         when (removedGroupNotification.type) {
@@ -114,6 +131,11 @@ class LockScreenActivity : ComponentActivity() {
         }
     }
 
+    override fun onPause() {
+        super.onPause()
+        overridePendingTransition(0, 0)
+    }
+
     override fun onStop() {
         super.onStop()
         unbindService(connection)
@@ -122,8 +144,11 @@ class LockScreenActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        composeView?.let {
+            removeViewTreeOwner(it)
+        }
+        recentNotificationScope.cancel()
         unregisterNotificationPostedReceiver()
-        window.removeViewImmediate(composeView)
         notificationListener = null
         composeView = null
     }
@@ -136,6 +161,15 @@ class LockScreenActivity : ComponentActivity() {
             setViewTreeSavedStateRegistryOwner(this@LockScreenActivity)
             setViewTreeOnBackPressedDispatcherOwner(this@LockScreenActivity)
             compositionContext = createLifecycleAwareWindowRecomposer(lifecycle = lifecycle)
+        }
+    }
+
+    private fun removeViewTreeOwner(composeView: ComposeView) {
+        composeView.apply {
+            compositionContext = null
+            setViewTreeLifecycleOwner(null)
+            setViewTreeViewModelStoreOwner(null)
+            setViewTreeSavedStateRegistryOwner(null)
         }
     }
 
