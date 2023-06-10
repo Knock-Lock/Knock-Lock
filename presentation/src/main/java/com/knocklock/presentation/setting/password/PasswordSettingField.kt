@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.sp
 import com.knocklock.presentation.ui.theme.KnockLockTheme
 
 @Composable
-fun PasswordInputField(
+fun PasswordSettingField(
     modifier: Modifier = Modifier,
     number: String
 ) {
@@ -49,7 +49,7 @@ fun PasswordInputField(
 }
 
 @Composable
-fun PasswordInputFieldLayout(
+fun PasswordSettingFieldLayout(
     modifier: Modifier = Modifier,
     password: String,
     maxPasswordLength: Int = 5
@@ -61,7 +61,7 @@ fun PasswordInputFieldLayout(
         for (index in 0..maxPasswordLength) {
             val number = password.getOrNull(index)?.toString() ?: ""
             key(index, number) {
-                PasswordInputField(
+                PasswordSettingField(
                     number = number,
                     modifier = Modifier.weight(1f)
                 )
@@ -73,10 +73,10 @@ fun PasswordInputFieldLayout(
 @Preview("DarkMode", uiMode = UI_MODE_NIGHT_YES)
 @Preview
 @Composable
-fun PasswordInputFieldPrev() {
+private fun PasswordSettingFieldPrev() {
     KnockLockTheme {
         Surface(color = MaterialTheme.colorScheme.primary) {
-            PasswordInputField(
+            PasswordSettingField(
                 number = "0"
             )
         }
@@ -86,10 +86,10 @@ fun PasswordInputFieldPrev() {
 @Preview("DarkMode", uiMode = UI_MODE_NIGHT_YES)
 @Preview
 @Composable
-fun PasswordInputFieldLayoutPrev() {
+private fun PasswordSettingFieldLayoutPrev() {
     KnockLockTheme {
         Surface(color = MaterialTheme.colorScheme.primary) {
-            PasswordInputFieldLayout(
+            PasswordSettingFieldLayout(
                 password = "123"
             )
         }

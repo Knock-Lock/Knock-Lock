@@ -1,14 +1,10 @@
 package com.knocklock.presentation.navigation
 
-import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context.CLIPBOARD_SERVICE
 import android.content.Intent
 import android.net.Uri
-import android.provider.MediaStore
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -24,12 +20,10 @@ import com.knocklock.presentation.MainActivity.Companion.KNOCK_LOCK_ACCOUNT
 import com.knocklock.presentation.MainActivity.Companion.KNOCK_LOCK_EMAIL_ADDRESS
 import com.knocklock.presentation.R
 import com.knocklock.presentation.home.HomeRoute
-import com.knocklock.presentation.home.HomeViewModel
-import com.knocklock.presentation.home.menu.HomeMenu
 import com.knocklock.presentation.setting.SettingRoute
 import com.knocklock.presentation.setting.credit.CreditRoute
 import com.knocklock.presentation.setting.credit.TextMenu
-import com.knocklock.presentation.setting.password.PasswordInputRoute
+import com.knocklock.presentation.setting.password.PasswordSettingRoute
 import com.knocklock.presentation.util.showShortToastMessage
 
 @Composable
@@ -99,9 +93,10 @@ fun NavGraphBuilder.settingGraph(
             )
         }
         composable(route = NavigationRoute.SettingGraph.Password.route) {
-            PasswordInputRoute(
+            PasswordSettingRoute(
                 modifier = modifier,
-                onSuccessChangePassword = { navController.popBackStack() }
+                onSuccessChangePassword = { navController.popBackStack() },
+                onClickBackButton = { navController.popBackStack() }
             )
         }
         composable(route = NavigationRoute.SettingGraph.Credit.route) {
