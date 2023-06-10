@@ -1,7 +1,6 @@
 package com.knocklock.presentation.setting.password
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -56,42 +55,13 @@ fun PasswordSettingContent(
 ) {
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.SpaceBetween
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        when (state) {
-            is PasswordInputState.PasswordNoneState -> {
-                PasswordSettingNoneContent(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 60.dp)
-                )
-            }
-            is PasswordInputState.PasswordConfirmState -> {
-                PasswordSettingConfirmContent(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 60.dp),
-                    state = state
-                )
-            }
-            is PasswordInputState.PasswordVerifyState -> {
-                PasswordSettingVerifyContent(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 60.dp),
-                    state = state
-                )
-            }
-        }
-
+        PasswordSettingTitle(state = state)
         PasswordSettingFieldLayout(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp)
-                .padding(top = 16.dp),
+            modifier = Modifier.padding(top = 32.dp),
             password = state.inputPassword
         )
-
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
@@ -116,7 +86,40 @@ fun PasswordSettingContent(
 }
 
 @Composable
-fun PasswordSettingNoneContent(
+fun PasswordSettingTitle(
+    state: PasswordInputState,
+) {
+    when (state) {
+        is PasswordInputState.PasswordNoneState -> {
+            PasswordSettingNoneTitle(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 60.dp)
+            )
+        }
+
+        is PasswordInputState.PasswordConfirmState -> {
+            PasswordSettingConfirmTitle(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 60.dp),
+                state = state
+            )
+        }
+
+        is PasswordInputState.PasswordVerifyState -> {
+            PasswordSettingVerifyTitle(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 60.dp),
+                state = state
+            )
+        }
+    }
+}
+
+@Composable
+fun PasswordSettingNoneTitle(
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -131,7 +134,7 @@ fun PasswordSettingNoneContent(
 }
 
 @Composable
-fun PasswordSettingVerifyContent(
+fun PasswordSettingVerifyTitle(
     modifier: Modifier = Modifier,
     state: PasswordInputState.PasswordVerifyState
 ) {
@@ -154,7 +157,7 @@ fun PasswordSettingVerifyContent(
 }
 
 @Composable
-fun PasswordSettingConfirmContent(
+fun PasswordSettingConfirmTitle(
     modifier: Modifier = Modifier,
     state: PasswordInputState.PasswordConfirmState
 ) {
@@ -178,6 +181,7 @@ fun PasswordSettingConfirmContent(
 
 
 @Preview("비밀번호 입력 화면")
+
 @Composable
 private fun PasswordSettingScreenPrev() {
     KnockLockTheme {
@@ -194,6 +198,7 @@ private fun PasswordSettingScreenPrev() {
 }
 
 @Preview("비밀번호 확인 화면")
+
 @Composable
 private fun PasswordSettingConfirmScreenPrev() {
     KnockLockTheme {
@@ -214,6 +219,7 @@ private fun PasswordSettingConfirmScreenPrev() {
 }
 
 @Preview("비밀번호 확인 화면 - 실패")
+
 @Composable
 private fun PasswordSettingConfirmFailedScreenPrev() {
     KnockLockTheme {
