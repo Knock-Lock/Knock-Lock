@@ -80,6 +80,8 @@ class LockScreenViewModel @Inject constructor(
     private val _composeScreenState = MutableStateFlow<ComposeScreenState>(ComposeScreenState.LockScreen)
     val composeScreenState = _composeScreenState.asStateFlow()
 
+    private val canCollect = MutableStateFlow(true)
+
     fun removeNotificationInDatabase(removedNotifications: RemovedGroupNotification) {
         viewModelScope.launch {
             notificationRepository.removeNotifications(*removedNotifications.toModel().notifications.toTypedArray())
@@ -152,27 +154,26 @@ class LockScreenViewModel @Inject constructor(
     fun getGroupNotifications(packageManager: PackageManager) {
         viewModelScope.launch {
             notificationRepository.getGroupWithNotificationsWithSorted().collect { groups ->
-                _oldNotificationList.value = NotificationUiState.Success(
-                    groups.map { it.toModel(packageManager) },
-                )
-                launch {
-                    groups.forEach { groupNotification ->
-                        launch {
-                            val key = groupNotification.group.key
-                            val flag = groupNotification.notifications.size >= 2
-                            setOldNotificationUiFlagMap(key, flag)
+                if (canCollect.value) {
+                    _oldNotificationList.value = NotificationUiState.Success(
+                        groups.map { it.toModel(packageManager) },
+                    )
+                    launch {
+                        groups.forEach { groupNotification ->
+                            launch {
+                                val key = groupNotification.group.key
+                                val flag = groupNotification.notifications.size >= 2
+                                setOldNotificationUiFlagMap(key, flag)
+                            }
                         }
                     }
                 }
             }
         }
     }
-    fun clearRecentNotificationList() {
-        viewModelScope.launch {
-            _recentNotificationList.update {
-                emptyList()
-            }
-        }
+
+    fun updateCollect() {
+        canCollect.value = false
     }
 
     fun setComposeScreenState(composeScreenState: ComposeScreenState) {

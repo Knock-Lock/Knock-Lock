@@ -18,6 +18,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.setViewTreeOnBackPressedDispatcherOwner
 import androidx.activity.viewModels
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -133,7 +134,7 @@ class LockScreenActivity : ComponentActivity() {
                         val copyList = lockScreenViewModel.recentNotificationList.value.map {
                             it.copy()
                         }
-                        lockScreenViewModel.clearRecentNotificationList()
+                        lockScreenViewModel.updateCollect()
                         notificationListener?.saveRecentNotificationToDatabase(copyList)
                         this@LockScreenActivity.finish()
                     },
