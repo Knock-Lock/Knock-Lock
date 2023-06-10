@@ -1,21 +1,17 @@
 package com.knocklock.presentation.setting.password
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.CornerSize
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -55,33 +51,25 @@ fun PasswordSettingContent(
 ) {
     Column(
         modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
+        verticalArrangement = Arrangement.SpaceBetween
     ) {
-        PasswordSettingTitle(state = state)
-        PasswordSettingFieldLayout(
-            modifier = Modifier.padding(top = 32.dp),
-            password = state.inputPassword
-        )
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(
-                    MaterialTheme.shapes.extraLarge.copy(
-                        bottomEnd = CornerSize(0.dp), bottomStart = CornerSize(0.dp)
-                    )
-                ),
-            color = Color.White
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
         ) {
-            CompositionLocalProvider(LocalContentColor.provides(Color.Black)) {
-                NumberKeyboard(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 24.dp, vertical = 40.dp),
-                    onClickTextButton = onClickTextButton,
-                    onClickAction = onClickAction
-                )
-            }
+            PasswordSettingTitle(state = state)
+            PasswordSettingFieldLayout(
+                modifier = Modifier.padding(top = 32.dp),
+                password = state.inputPassword,
+            )
         }
+        NumberKeyboard(
+            modifier = Modifier
+                .padding(bottom = 24.dp)
+                .padding(horizontal = 24.dp),
+            onClickTextButton = onClickTextButton,
+            onClickAction = onClickAction
+        )
     }
 }
 
