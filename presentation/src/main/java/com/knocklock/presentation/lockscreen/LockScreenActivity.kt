@@ -121,7 +121,9 @@ class LockScreenActivity : ComponentActivity() {
                 LaunchedEffect(key1 = Unit) {
                     lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                         _systembarEvent.collectLatest {
-                            startActivity(intent)
+                            startActivity(
+                                Intent(this@LockScreenActivity, LockScreenActivity::class.java),
+                            )
                         }
                     }
                 }
@@ -179,7 +181,6 @@ class LockScreenActivity : ComponentActivity() {
         }
         unregisterNotificationPostedReceiver()
         unregisterSystemBarEventReceiver()
-        window.removeViewImmediate(composeView)
         notificationListener = null
         composeView = null
     }
