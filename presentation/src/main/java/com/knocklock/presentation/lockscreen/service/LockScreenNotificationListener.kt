@@ -26,9 +26,7 @@ import com.knocklock.presentation.lockscreen.model.GroupWithNotification
 import com.knocklock.presentation.lockscreen.receiver.NotificationPostedReceiver.Companion.PostedAction
 import com.knocklock.presentation.lockscreen.receiver.NotificationPostedReceiver.Companion.PostedNotification
 import com.knocklock.presentation.lockscreen.receiver.OnScreenEventListener
-import com.knocklock.presentation.lockscreen.receiver.OnSystemBarEventListener
 import com.knocklock.presentation.lockscreen.receiver.ScreenEventReceiver
-import com.knocklock.presentation.lockscreen.receiver.SystemBarEventReceiver
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -92,17 +90,6 @@ class LockScreenNotificationListener :
         )
     }
 
-    private val systemBarEventReceiver by lazy {
-        SystemBarEventReceiver(
-            context = this,
-            onSystemBarEventListener = object : OnSystemBarEventListener {
-                override fun onSystemBarClicked() {
-                    // Todo 현재 PassWordScreen이 열려있는지
-                }
-            },
-        )
-    }
-
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         super.onNotificationPosted(sbn)
         val packageName = sbn?.packageName
@@ -144,7 +131,6 @@ class LockScreenNotificationListener :
 
     override fun onCreate() {
         super.onCreate()
-        registerSystemBarEventReceiver()
         registerScreenEventReceiver()
         collectFlow()
     }
@@ -204,7 +190,6 @@ class LockScreenNotificationListener :
 
     override fun onDestroy() {
         super.onDestroy()
-        unregisterSystemBarEventReceiver()
         unregisterScreenEventReceiver()
         job.cancel()
     }
@@ -238,13 +223,7 @@ class LockScreenNotificationListener :
             .build()
     }
 
-    private fun registerSystemBarEventReceiver() {
-        systemBarEventReceiver.registerReceiver()
-    }
 
-    private fun unregisterSystemBarEventReceiver() {
-        systemBarEventReceiver.unregisterReceiver()
-    }
 
     private fun registerScreenEventReceiver() {
         screenEventReceiver.registerReceiver()

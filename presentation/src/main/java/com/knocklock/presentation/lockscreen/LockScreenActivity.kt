@@ -1,5 +1,6 @@
 package com.knocklock.presentation.lockscreen
 
+import android.app.ActivityManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -16,10 +17,14 @@ import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.setViewTreeOnBackPressedDispatcherOwner
 import androidx.activity.viewModels
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.compositionContext
 import androidx.compose.ui.platform.createLifecycleAwareWindowRecomposer
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
@@ -28,8 +33,16 @@ import com.knocklock.presentation.lockscreen.model.RemovedType.Old
 import com.knocklock.presentation.lockscreen.model.RemovedType.Recent
 import com.knocklock.presentation.lockscreen.receiver.NotificationPostedListener
 import com.knocklock.presentation.lockscreen.receiver.NotificationPostedReceiver
+import com.knocklock.presentation.lockscreen.receiver.OnSystemBarEventListener
+import com.knocklock.presentation.lockscreen.receiver.SystemBarEventReceiver
 import com.knocklock.presentation.lockscreen.service.LockScreenNotificationListener
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import com.knocklock.domain.model.Notification as NotificationModel
@@ -43,6 +56,9 @@ class LockScreenActivity : ComponentActivity() {
         this.applicationContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     }
 
+    private val activityManager by lazy {
+        this.applicationContext.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+    }
     private val lockScreenViewModel: LockScreenViewModel by viewModels()
 
     private val notificationPostedReceiver by lazy {
@@ -56,6 +72,22 @@ class LockScreenActivity : ComponentActivity() {
                 }
             },
 
+        )
+    }
+
+    private val _systembarEvent = MutableSharedFlow<Unit>()
+    private val sendSystemEventJob = Job()
+    private val scope = CoroutineScope(sendSystemEventJob + Dispatchers.Default)
+    private val systemBarEventReceiver by lazy {
+        SystemBarEventReceiver(
+            context = this,
+            onSystemBarEventListener = object : OnSystemBarEventListener {
+                override fun onSystemBarClicked() {
+                    scope.launch {
+                        _systembarEvent.emit(Unit)
+                    }
+                }
+            },
         )
     }
 
@@ -79,11 +111,21 @@ class LockScreenActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         getWindowSize()
         registerNotificationPostedReceiver()
+        registerSystemBarEventReceiver()
         composeView = ComposeView(this).apply {
             val parent = this.compositionContext
             setParentCompositionContext(parent)
 
             setContent {
+                val lifecycle = LocalLifecycleOwner.current.lifecycle
+                LaunchedEffect(key1 = Unit) {
+                    lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                        _systembarEvent.collectLatest {
+                            startActivity(intent)
+                        }
+                    }
+                }
+
                 LockScreenHost(
                     onFinish = {
                         val copyList = lockScreenViewModel.recentNotificationList.value.map {
@@ -121,8 +163,8 @@ class LockScreenActivity : ComponentActivity() {
     override fun onPause() {
         super.onPause()
         overridePendingTransition(0, 0)
+        activityManager.moveTaskToFront(taskId, 0)
     }
-
     override fun onStop() {
         super.onStop()
         unbindService(connection)
@@ -136,6 +178,8 @@ class LockScreenActivity : ComponentActivity() {
             windowManager.removeViewImmediate(it)
         }
         unregisterNotificationPostedReceiver()
+        unregisterSystemBarEventReceiver()
+        window.removeViewImmediate(composeView)
         notificationListener = null
         composeView = null
     }
@@ -223,5 +267,12 @@ class LockScreenActivity : ComponentActivity() {
     }
     private fun unregisterNotificationPostedReceiver() {
         notificationPostedReceiver.unregisterReceiver()
+    }
+    private fun registerSystemBarEventReceiver() {
+        systemBarEventReceiver.registerReceiver()
+    }
+
+    private fun unregisterSystemBarEventReceiver() {
+        systemBarEventReceiver.unregisterReceiver()
     }
 }
