@@ -21,7 +21,20 @@ data class Notification(
     val isClearable: Boolean = false,
     val intent: PendingIntent? = null,
     val packageName: String? = null,
-)
+) {
+    companion object {
+        val default = Notification(
+            groupKey = "",
+            id = "",
+            appTitle = "낙낙",
+            postedTime = System.currentTimeMillis(),
+            notiTime = "",
+            title = "Sample",
+            content = "Sample Text",
+            isClearable = false,
+        )
+    }
+}
 
 data class RemovedGroupNotification(
     val key: String,

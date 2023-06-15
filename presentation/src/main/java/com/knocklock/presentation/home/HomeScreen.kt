@@ -17,6 +17,8 @@ import com.knocklock.domain.model.LockScreen
 import com.knocklock.domain.model.LockScreenBackground
 import com.knocklock.presentation.home.menu.HomeMenu
 import com.knocklock.presentation.home.menu.HomeMenuBar
+import com.knocklock.presentation.lockscreen.LockNotiItem
+import com.knocklock.presentation.lockscreen.model.Notification
 import com.knocklock.presentation.ui.theme.KnockLockTheme
 import com.knocklock.presentation.widget.ClockWidget
 import kotlinx.collections.immutable.toImmutableList
@@ -25,7 +27,7 @@ import kotlinx.collections.immutable.toImmutableList
 fun HomeScreen(
     modifier: Modifier = Modifier,
     homeScreenUiState: HomeScreenUiState,
-    onClickHomeMenu: (HomeMenu) -> Unit
+    onClickHomeMenu: (HomeMenu) -> Unit,
 ) {
     Box(modifier = modifier.navigationBarsPadding()) {
         if (homeScreenUiState is HomeScreenUiState.Success) {
@@ -36,11 +38,11 @@ fun HomeScreen(
                     .align(Alignment.TopEnd)
                     .zIndex(1f),
                 menuList = homeScreenUiState.menuList,
-                onClickHomeMenu = onClickHomeMenu
+                onClickHomeMenu = onClickHomeMenu,
             )
             HomeContent(
                 modifier = Modifier.fillMaxSize(),
-                homeScreenUiState = homeScreenUiState
+                homeScreenUiState = homeScreenUiState,
             )
         }
     }
@@ -55,24 +57,24 @@ fun HomeContent(
         HomeBackground(
             scale = homePreviewScale,
             modifier = modifier,
-            lockScreenBackground = homeScreenUiState.lockScreen.background
+            lockScreenBackground = homeScreenUiState.lockScreen.background,
         )
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .scale(homePreviewScale)
+                .scale(homePreviewScale),
         ) {
             ClockWidget(
                 modifier = Modifier
                     .scale(homePreviewScale)
                     .padding(top = 80.dp)
                     .align(CenterHorizontally),
-                timeFormat = homeScreenUiState.lockScreen.timeFormat
+                timeFormat = homeScreenUiState.lockScreen.timeFormat,
             )
             HomeSampleNotifications(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 24.dp)
+                    .padding(top = 24.dp),
             )
         }
     }
@@ -80,21 +82,22 @@ fun HomeContent(
 
 @Composable
 fun HomeSampleNotifications(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier.padding(horizontal = 24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         (0..4).forEach { _ ->
-            Spacer(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp)
+            LockNotiItem(
+                modifier = Modifier.fillMaxWidth()
                     .background(
-                        color = Color.Companion.White.copy(alpha = 0.7f),
-                        shape = RoundedCornerShape(10.dp)
+                        color = Color.White.copy(alpha = 0.7f),
+                        shape = RoundedCornerShape(10.dp),
                     ),
+                notification = Notification.default,
+                clickableState = false,
+                expandableState = false,
             )
         }
     }
@@ -109,8 +112,8 @@ private fun HomeContentPrev() {
                 modifier = Modifier.fillMaxSize(),
                 homeScreenUiState = HomeScreenUiState.Success(
                     lockScreen = LockScreen(LockScreenBackground.DefaultWallPaper),
-                    menuList = emptyList<HomeMenu>().toImmutableList()
-                )
+                    menuList = emptyList<HomeMenu>().toImmutableList(),
+                ),
             )
         }
     }
