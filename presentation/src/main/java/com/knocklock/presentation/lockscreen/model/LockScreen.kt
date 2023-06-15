@@ -1,6 +1,7 @@
 package com.knocklock.presentation.lockscreen.model
 
 import androidx.compose.runtime.Immutable
+import com.knocklock.domain.model.TimeFormat
 
 /**
  * @Created by 김현국 2023/03/24
@@ -8,7 +9,8 @@ import androidx.compose.runtime.Immutable
 
 @Immutable
 data class LockScreen(
-    val background: LockScreenBackground
+    val background: LockScreenBackground,
+    val timeFormat: TimeFormat,
 )
 
 sealed interface LockScreenBackground {

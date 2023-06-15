@@ -4,6 +4,7 @@ import android.content.pm.PackageManager
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.knocklock.domain.model.TimeFormat
 import com.knocklock.domain.model.User
 import com.knocklock.domain.repository.NotificationRepository
 import com.knocklock.domain.usecase.lockscreen.GetLockScreenUseCase
@@ -64,7 +65,7 @@ class LockScreenViewModel @Inject constructor(
         .stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5_000),
-            LockScreen(LockScreenBackground.DefaultWallPaper),
+            LockScreen(LockScreenBackground.DefaultWallPaper, TimeFormat.DEFAULT_TIME_FORMAT),
         )
 
     private val _oldNotificationUiFlagState: MutableStateFlow<SnapshotStateMap<String, NotificationUiFlagState>> = MutableStateFlow(

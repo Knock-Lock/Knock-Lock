@@ -1,7 +1,6 @@
 package com.knocklock.presentation.lockscreen
 
 import android.app.PendingIntent
-import android.widget.TextClock
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
@@ -30,8 +29,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
+import com.knocklock.domain.model.TimeFormat
 import com.knocklock.presentation.lockscreen.model.GroupWithNotification
 import com.knocklock.presentation.lockscreen.model.RemovedGroupNotification
 import com.knocklock.presentation.lockscreen.model.RemovedType.Old
@@ -39,6 +38,7 @@ import com.knocklock.presentation.lockscreen.model.RemovedType.Recent
 import com.knocklock.presentation.lockscreen.util.FractionalThreshold
 import com.knocklock.presentation.lockscreen.util.rememberSwipeableState
 import com.knocklock.presentation.lockscreen.util.swipeable
+import com.knocklock.presentation.widget.ClockWidget
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.toImmutableList
@@ -62,6 +62,7 @@ fun LockScreenRoute(
     updateOldNotificationExpandableFlag: (String) -> Unit,
     updateRecentNotificationExpandableFlag: (String) -> Unit,
     updateNotificationClickableFlag: (String, Boolean) -> Unit,
+    timeFormat: TimeFormat,
     modifier: Modifier = Modifier,
 ) {
     LockScreen(
@@ -76,6 +77,7 @@ fun LockScreenRoute(
         updateNotificationExpandableFlag = updateOldNotificationExpandableFlag,
         updateNewNotificationExpandableFlag = updateRecentNotificationExpandableFlag,
         updateNotificationClickableFlag = updateNotificationClickableFlag,
+        timeFormat = timeFormat,
     )
 }
 
@@ -91,6 +93,7 @@ fun LockScreen(
     updateNotificationExpandableFlag: (String) -> Unit,
     updateNewNotificationExpandableFlag: (String) -> Unit,
     updateNotificationClickableFlag: (String, Boolean) -> Unit,
+    timeFormat: TimeFormat,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -110,6 +113,7 @@ fun LockScreen(
                         updateRecentNotificationExpandableFlag = updateNewNotificationExpandableFlag,
                         updateNotificationClickableFlag = updateNotificationClickableFlag,
                         notificationHeight = 60.dp,
+                        timeFormat = timeFormat,
                     )
                 }
                 is NotificationUiState.Empty -> {
@@ -165,7 +169,6 @@ fun UnLockSwipeBar(
         }
     }
 
-
     LaunchedEffect(targetValue) {
         snapshotFlow { targetValue }
             .collect {
@@ -215,6 +218,7 @@ fun LockScreenNotificationListColumn(
     notificationHeight: Dp,
     updateNotificationClickableFlag: (String, Boolean) -> Unit,
     onNotificationClicked: (PendingIntent) -> Unit,
+    timeFormat: TimeFormat,
     modifier: Modifier = Modifier,
 ) {
     val lockNotiModifier = modifier
@@ -235,7 +239,9 @@ fun LockScreenNotificationListColumn(
         contentPadding = PaddingValues(bottom = 500.dp, start = 10.dp, end = 10.dp, top = 100.dp),
     ) {
         item {
-            TextClockComposable()
+            ClockWidget(
+                timeFormat = timeFormat,
+            )
         }
         if (recentNotificationList.isNotEmpty()) {
             item {
@@ -603,21 +609,4 @@ fun LockScreenNotificationListColumn(
             }
         }
     }
-}
-
-@Composable
-fun TextClockComposable(
-    modifier: Modifier = Modifier,
-) {
-    AndroidView(
-        factory = { context ->
-            TextClock(context).apply {
-                format12Hour?.let { this.format12Hour = "hh:mm:ss a" }
-                timeZone?.let { this.timeZone = it }
-                textSize.let { this.textSize = 30f }
-            }
-        },
-        // on below line we are adding padding.
-        modifier = modifier,
-    )
 }
