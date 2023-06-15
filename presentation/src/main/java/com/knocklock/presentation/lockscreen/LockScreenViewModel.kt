@@ -25,7 +25,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.util.Stack
 import javax.inject.Inject
 import com.knocklock.domain.model.Notification as NotificationModel
 
@@ -80,6 +79,8 @@ class LockScreenViewModel @Inject constructor(
 
     private val _composeScreenState = MutableStateFlow<ComposeScreenState>(ComposeScreenState.LockScreen)
     val composeScreenState = _composeScreenState.asStateFlow()
+
+    private val canCollect = MutableStateFlow(true)
 
     fun removeNotificationInDatabase(removedNotifications: RemovedGroupNotification) {
         viewModelScope.launch {
@@ -153,15 +154,17 @@ class LockScreenViewModel @Inject constructor(
     fun getGroupNotifications(packageManager: PackageManager) {
         viewModelScope.launch {
             notificationRepository.getGroupWithNotificationsWithSorted().collect { groups ->
-                _oldNotificationList.value = NotificationUiState.Success(
-                    groups.map { it.toModel(packageManager) },
-                )
-                launch {
-                    groups.forEach { groupNotification ->
-                        launch {
-                            val key = groupNotification.group.key
-                            val flag = groupNotification.notifications.size >= 2
-                            setOldNotificationUiFlagMap(key, flag)
+                if (canCollect.value) {
+                    _oldNotificationList.value = NotificationUiState.Success(
+                        groups.map { it.toModel(packageManager) },
+                    )
+                    launch {
+                        groups.forEach { groupNotification ->
+                            launch {
+                                val key = groupNotification.group.key
+                                val flag = groupNotification.notifications.size >= 2
+                                setOldNotificationUiFlagMap(key, flag)
+                            }
                         }
                     }
                 }
@@ -169,27 +172,8 @@ class LockScreenViewModel @Inject constructor(
         }
     }
 
-    fun saveRecentNotificationToDatabase() {
-        viewModelScope.launch {
-            val stack = Stack<GroupWithNotification>()
-            _recentNotificationList.value.forEach {
-                stack.add(it)
-            }
-            while (stack.isNotEmpty()) {
-                val groupWithNotificationStack = stack.pop()
-                _recentNotificationList.update {
-                    stack.toList()
-                }
-                notificationRepository.insertGroup(
-                    groupWithNotificationStack.toModel().group,
-                )
-                notificationRepository.insertNotifications(
-                    *groupWithNotificationStack.notifications.map { notification ->
-                        notification.toModel()
-                    }.toTypedArray(),
-                )
-            }
-        }
+    fun updateCollect() {
+        canCollect.value = false
     }
 
     fun setComposeScreenState(composeScreenState: ComposeScreenState) {
@@ -307,7 +291,6 @@ class LockScreenViewModel @Inject constructor(
         }
     }
     fun updateClickable(key: String, state: Boolean) {
-
 //        with(_notificationUiFlagStateState.value) {
 //        if (this.containsKey(key).not()) {
 //            this[key] = NotificationUiFlagState()

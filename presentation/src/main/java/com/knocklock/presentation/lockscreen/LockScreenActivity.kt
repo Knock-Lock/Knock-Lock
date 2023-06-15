@@ -18,6 +18,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.setViewTreeOnBackPressedDispatcherOwner
 import androidx.activity.viewModels
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -121,14 +122,20 @@ class LockScreenActivity : ComponentActivity() {
                 LaunchedEffect(key1 = Unit) {
                     lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                         _systembarEvent.collectLatest {
-                            startActivity(intent)
+                            startActivity(
+                                Intent(this@LockScreenActivity, LockScreenActivity::class.java),
+                            )
                         }
                     }
                 }
 
                 LockScreenHost(
                     onFinish = {
-                        lockScreenViewModel.saveRecentNotificationToDatabase()
+                        val copyList = lockScreenViewModel.recentNotificationList.value.map {
+                            it.copy()
+                        }
+                        lockScreenViewModel.updateCollect()
+                        notificationListener?.saveRecentNotificationToDatabase(copyList)
                         this@LockScreenActivity.finish()
                     },
                     onRemoveNotifications = { removedGroupNotification: RemovedGroupNotification ->
@@ -158,6 +165,7 @@ class LockScreenActivity : ComponentActivity() {
 
     override fun onPause() {
         super.onPause()
+        overridePendingTransition(0, 0)
         activityManager.moveTaskToFront(taskId, 0)
     }
     override fun onStop() {
@@ -168,9 +176,12 @@ class LockScreenActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        composeView?.let {
+            removeViewTreeOwner(it)
+            windowManager.removeViewImmediate(it)
+        }
         unregisterNotificationPostedReceiver()
         unregisterSystemBarEventReceiver()
-        window.removeViewImmediate(composeView)
         notificationListener = null
         composeView = null
     }
@@ -183,6 +194,15 @@ class LockScreenActivity : ComponentActivity() {
             setViewTreeSavedStateRegistryOwner(this@LockScreenActivity)
             setViewTreeOnBackPressedDispatcherOwner(this@LockScreenActivity)
             compositionContext = createLifecycleAwareWindowRecomposer(lifecycle = lifecycle)
+        }
+    }
+
+    private fun removeViewTreeOwner(composeView: ComposeView) {
+        composeView.apply {
+            compositionContext = null
+            setViewTreeLifecycleOwner(null)
+            setViewTreeViewModelStoreOwner(null)
+            setViewTreeSavedStateRegistryOwner(null)
         }
     }
 

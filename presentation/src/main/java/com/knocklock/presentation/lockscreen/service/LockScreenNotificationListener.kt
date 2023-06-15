@@ -22,6 +22,7 @@ import com.knocklock.presentation.MainActivity
 import com.knocklock.presentation.lockscreen.LockScreenActivity
 import com.knocklock.presentation.lockscreen.mapper.isNotEmptyTitleOrContent
 import com.knocklock.presentation.lockscreen.mapper.toModel
+import com.knocklock.presentation.lockscreen.model.GroupWithNotification
 import com.knocklock.presentation.lockscreen.receiver.NotificationPostedReceiver.Companion.PostedAction
 import com.knocklock.presentation.lockscreen.receiver.NotificationPostedReceiver.Companion.PostedNotification
 import com.knocklock.presentation.lockscreen.receiver.OnScreenEventListener
@@ -34,6 +35,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import java.util.Stack
 import javax.inject.Inject
 
 /**
@@ -63,6 +65,8 @@ class LockScreenNotificationListener :
     inner class LocalBinder : Binder() {
         fun getService(): LockScreenNotificationListener = this@LockScreenNotificationListener
     }
+
+    private val recentNotifications = MutableStateFlow(arrayListOf<GroupWithNotification>())
 
     override fun onBind(intent: Intent): IBinder? {
         val action = intent.action
@@ -103,6 +107,28 @@ class LockScreenNotificationListener :
         }
     }
 
+    fun saveRecentNotificationToDatabase(
+        recentNotificationList: List<GroupWithNotification>,
+    ) {
+        notificationScope.launch {
+            val stack = Stack<GroupWithNotification>()
+            recentNotificationList.forEach {
+                stack.add(it)
+            }
+            while (stack.isNotEmpty()) {
+                val groupWithNotificationStack = stack.pop()
+                notificationRepository.insertGroup(
+                    groupWithNotificationStack.toModel().group,
+                )
+                notificationRepository.insertNotifications(
+                    *groupWithNotificationStack.notifications.map { notification ->
+                        notification.toModel()
+                    }.toTypedArray(),
+                )
+            }
+        }
+    }
+
     override fun onCreate() {
         super.onCreate()
         registerScreenEventReceiver()
@@ -125,7 +151,7 @@ class LockScreenNotificationListener :
         initNotificationsToLockScreen()
         try {
             val intent = Intent(this, LockScreenActivity::class.java).apply {
-                flags = (Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
+                flags = (Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS or Intent.FLAG_ACTIVITY_NO_ANIMATION)
             }
             startActivity(intent)
         } catch (e: IllegalStateException) {
