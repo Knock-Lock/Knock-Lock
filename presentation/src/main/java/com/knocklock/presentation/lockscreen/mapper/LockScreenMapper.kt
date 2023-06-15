@@ -10,7 +10,8 @@ import com.knocklock.domain.model.LockScreenBackground as LockScreenBackgroundMo
  * @return [LockScreen]
  */
 fun LockScreenModel.toModel() = LockScreen(
-    background = this.background.toModel()
+    background = this.background.toModel(),
+    timeFormat = this.timeFormat,
 )
 
 fun LockScreenBackgroundModel.toModel() = when (this) {
