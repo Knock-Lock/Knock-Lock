@@ -11,10 +11,11 @@ import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
-fun PasswordInputRoute(
+fun PasswordSettingRoute(
+    onSuccessChangePassword: () -> Unit,
+    onClickBackButton: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: PasswordInputViewModel = hiltViewModel(),
-    onSuccessChangePassword: () -> Unit
 ) {
     val lifecycle = LocalLifecycleOwner.current.lifecycle
 
@@ -26,10 +27,11 @@ fun PasswordInputRoute(
         }
     }
 
-    PasswordInputScreen(
+    PasswordSettingScreen(
         modifier = modifier.fillMaxSize(),
         state = viewModel.passwordInputState,
         onClickTextButton = viewModel::onClickTextButton,
-        onClickAction = viewModel::onClickKeyboardAction
+        onClickAction = viewModel::onClickKeyboardAction,
+        onClickBackButton = onClickBackButton
     )
 }
