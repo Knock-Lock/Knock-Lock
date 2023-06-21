@@ -5,6 +5,7 @@ import android.content.ClipboardManager
 import android.content.Context.CLIPBOARD_SERVICE
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -78,7 +79,7 @@ fun NavGraphBuilder.settingGraph(
     ) {
         composable(route = NavigationRoute.SettingGraph.Setting.route) {
             SettingRoute(
-                modifier = modifier,
+                modifier = modifier.systemBarsPadding(),
                 navigateToPasswordInputScreen = { navController.navigate(NavigationRoute.SettingGraph.Password.route) },
                 onMenuSelected = { titleRes ->
                     when (titleRes) {
@@ -94,7 +95,7 @@ fun NavGraphBuilder.settingGraph(
         }
         composable(route = NavigationRoute.SettingGraph.Password.route) {
             PasswordSettingRoute(
-                modifier = modifier,
+                modifier = modifier.systemBarsPadding(),
                 onSuccessChangePassword = { navController.popBackStack() },
                 onClickBackButton = { navController.popBackStack() }
             )

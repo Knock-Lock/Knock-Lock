@@ -27,6 +27,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.knocklock.presentation.R
+import com.knocklock.presentation.extenstions.noRippleClickable
 
 @Composable
 fun KeyboardTextButton(
@@ -36,16 +37,13 @@ fun KeyboardTextButton(
 ) {
     Box(
         modifier = modifier
-            .clickable(
-                interactionSource = MutableInteractionSource(),
-                indication = null,
-                onClick = {
-                    onClickTextButton(textButtonItem.text)
-                }
-            ),
+            .noRippleClickable {
+                onClickTextButton(textButtonItem.text)
+            },
         contentAlignment = Alignment.Center
     ) {
         Text(
+            modifier = Modifier.align(Alignment.Center),
             textAlign = TextAlign.Center,
             text = textButtonItem.text,
             fontSize = 32.sp
@@ -62,17 +60,16 @@ fun KeyboardImageButton(
 ) {
     Box(
         modifier = modifier
-            .clickable(
-                interactionSource = MutableInteractionSource(),
-                indication = null
-            ) {
+            .noRippleClickable {
                 onClickImageButton(imageButtonItem.action)
             },
         contentAlignment = Alignment.Center,
     ) {
         Image(
+            modifier = Modifier
+                .size(32.dp)
+                .align(Alignment.Center),
             painter = painterResource(id = imageButtonItem.drawableRes),
-            modifier = Modifier.size(32.dp),
             contentDescription = null,
         )
     }
@@ -140,6 +137,7 @@ fun NumberKeyboard(
                         onClickTextButton = onClickTextButton,
                     )
                 }
+
                 is KeyboardButtonType.Image -> {
                     KeyboardImageButton(
                         modifier = Modifier.aspectRatio(1.25f),
@@ -147,6 +145,7 @@ fun NumberKeyboard(
                         onClickImageButton = onClickAction,
                     )
                 }
+
                 is KeyboardButtonType.Empty -> {
                     KeyboardEmptyButton(
                         modifier = Modifier.aspectRatio(1.25f)
