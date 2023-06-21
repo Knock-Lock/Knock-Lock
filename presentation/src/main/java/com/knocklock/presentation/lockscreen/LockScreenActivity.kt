@@ -11,6 +11,7 @@ import android.graphics.Point
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
+import android.os.PowerManager
 import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
@@ -18,7 +19,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.setViewTreeOnBackPressedDispatcherOwner
 import androidx.activity.viewModels
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -32,9 +32,12 @@ import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.knocklock.presentation.lockscreen.model.RemovedGroupNotification
 import com.knocklock.presentation.lockscreen.model.RemovedType.Old
 import com.knocklock.presentation.lockscreen.model.RemovedType.Recent
+import com.knocklock.presentation.lockscreen.receiver.CallState
+import com.knocklock.presentation.lockscreen.receiver.CallStateCallBack
 import com.knocklock.presentation.lockscreen.receiver.NotificationPostedListener
 import com.knocklock.presentation.lockscreen.receiver.NotificationPostedReceiver
 import com.knocklock.presentation.lockscreen.receiver.OnSystemBarEventListener
+import com.knocklock.presentation.lockscreen.receiver.PhoneCallStateReceiver
 import com.knocklock.presentation.lockscreen.receiver.SystemBarEventReceiver
 import com.knocklock.presentation.lockscreen.service.LockScreenNotificationListener
 import dagger.hilt.android.AndroidEntryPoint
@@ -51,7 +54,9 @@ import com.knocklock.domain.model.Notification as NotificationModel
 @AndroidEntryPoint
 class LockScreenActivity : ComponentActivity() {
 
-    private var composeView: ComposeView? = null
+    private val composeView: ComposeView by lazy {
+        setComposeView()
+    }
 
     private val window by lazy {
         this.applicationContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager
@@ -73,6 +78,37 @@ class LockScreenActivity : ComponentActivity() {
                 }
             },
 
+        )
+    }
+
+    private val pm by lazy { getSystemService(POWER_SERVICE) as PowerManager }
+
+    private val phoneCallStateReceiver by lazy {
+        PhoneCallStateReceiver(
+            context = this,
+            callStateCallBack = object : CallStateCallBack {
+                override fun onReceiveCallState(callState: CallState) {
+                    when (callState) {
+                        CallState.IDLE -> {
+                            val intent = Intent(this@LockScreenActivity, LockScreenActivity::class.java).apply {
+                                flags = (Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS or Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                            }
+                            startActivity(intent)
+                        }
+                        CallState.RINGING -> {
+                            if (!pm.isInteractive) {
+                                composeView.let {
+                                    removeViewTreeOwner(it)
+                                    windowManager.removeViewImmediate(it)
+                                }
+                            }
+                        }
+
+                        CallState.OFFHOOK -> {
+                        }
+                    }
+                }
+            },
         )
     }
 
@@ -111,9 +147,12 @@ class LockScreenActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         getWindowSize()
-        registerNotificationPostedReceiver()
-        registerSystemBarEventReceiver()
-        composeView = ComposeView(this).apply {
+        registerReceiver()
+        window.addView(composeView, getWindowManagerLayoutParams())
+    }
+
+    private fun setComposeView(): ComposeView {
+        return ComposeView(this).apply {
             val parent = this.compositionContext
             setParentCompositionContext(parent)
 
@@ -153,7 +192,6 @@ class LockScreenActivity : ComponentActivity() {
             }
             initViewTreeOwner(this)
         }
-        window.addView(composeView, getWindowManagerLayoutParams())
     }
 
     override fun onStart() {
@@ -176,14 +214,15 @@ class LockScreenActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        composeView?.let {
-            removeViewTreeOwner(it)
-            windowManager.removeViewImmediate(it)
+        removeViewTreeOwner(composeView)
+        runCatching {
+            windowManager.removeViewImmediate(composeView)
+        }.onFailure {
+            println(it.message)
         }
-        unregisterNotificationPostedReceiver()
-        unregisterSystemBarEventReceiver()
+
+        unregisterReceiver()
         notificationListener = null
-        composeView = null
     }
 
     @OptIn(ExperimentalComposeUiApi::class)
@@ -264,6 +303,16 @@ class LockScreenActivity : ComponentActivity() {
             )
         return params
     }
+    private fun registerReceiver() {
+        registerNotificationPostedReceiver()
+        registerSystemBarEventReceiver()
+        registerPhoneCallStateReceiver()
+    }
+    private fun unregisterReceiver() {
+        unregisterNotificationPostedReceiver()
+        unregisterSystemBarEventReceiver()
+        unregisterPhoneCallStateReceiver()
+    }
     private fun registerNotificationPostedReceiver() {
         notificationPostedReceiver.registerReceiver()
     }
@@ -276,5 +325,13 @@ class LockScreenActivity : ComponentActivity() {
 
     private fun unregisterSystemBarEventReceiver() {
         systemBarEventReceiver.unregisterReceiver()
+    }
+
+    private fun registerPhoneCallStateReceiver() {
+        phoneCallStateReceiver.registerReceiver()
+    }
+
+    private fun unregisterPhoneCallStateReceiver() {
+        phoneCallStateReceiver.unregisterReceiver()
     }
 }
