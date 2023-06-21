@@ -38,7 +38,7 @@ class PassWordViewModel @Inject constructor(
     val eventState = _eventState.asSharedFlow()
 
     fun updatePassWordState(passWord: String) {
-        if (insertPassWordIndex < MAX_PASSWORD_LENGTH) {
+        if (insertPassWordIndex <= MAX_PASSWORD_LENGTH) {
             passWordState[insertPassWordIndex] = passWordState[insertPassWordIndex].copy(number = passWord)
             if (insertPassWordIndex != MAX_PASSWORD_LENGTH) {
                 insertPassWordIndex += 1
