@@ -32,6 +32,7 @@ fun PasswordSettingRoute(
         state = viewModel.passwordInputState,
         onClickTextButton = viewModel::onClickTextButton,
         onClickAction = viewModel::onClickKeyboardAction,
-        onClickBackButton = onClickBackButton
+        onClickBackButton = onClickBackButton,
+        onWiggleAnimationEnded = viewModel::onWiggleAnimationEnded
     )
 }

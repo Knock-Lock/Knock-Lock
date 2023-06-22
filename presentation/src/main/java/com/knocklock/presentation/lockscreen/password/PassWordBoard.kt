@@ -1,11 +1,15 @@
 package com.knocklock.presentation.lockscreen.password
 
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -16,7 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
-import com.airbnb.lottie.model.content.CircleShape
+import com.knocklock.presentation.extenstions.wiggle
 import kotlinx.collections.immutable.ImmutableList
 
 /**
@@ -25,13 +29,14 @@ import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 fun CirclePassWordBoard(
-    modifier: Modifier = Modifier,
     passWordList: ImmutableList<PassWord>,
     onPassWordClick: (String) -> Unit,
     removePassWord: () -> Unit,
     isPlaying: Boolean,
-    offsetX: Animatable<Float, AnimationVector1D>,
     inputPassWordState: ImmutableList<PassWord>,
+    eventState: Event,
+    onWiggleAnimationEnded: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     ConstraintLayout(
         modifier = modifier,
@@ -66,7 +71,7 @@ fun CirclePassWordBoard(
             Spacer(modifier = Modifier.height(40.dp))
             InsertPassWordRow(
                 modifier = Modifier
-                    .offset(offsetX.value.dp, 0.dp)
+                    .wiggle(isWiggle = eventState == Event.VIBRATE, onWiggleAnimationEnded = onWiggleAnimationEnded)
                     .padding(horizontal = 50.dp)
                     .fillMaxWidth(),
                 inputPassWordState = inputPassWordState,
