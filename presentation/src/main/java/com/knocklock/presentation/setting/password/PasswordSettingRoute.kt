@@ -12,8 +12,8 @@ import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun PasswordSettingRoute(
-    onSuccessChangePassword: () -> Unit,
-    onClickBackButton: () -> Unit,
+    onPasswordChangeSuccess: () -> Unit,
+    onBackButtonClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: PasswordInputViewModel = hiltViewModel(),
 ) {
@@ -22,7 +22,7 @@ fun PasswordSettingRoute(
     LaunchedEffect(key1 = Unit) {
         lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.onSuccessUpdatePassword.collectLatest {
-                onSuccessChangePassword()
+                onPasswordChangeSuccess()
             }
         }
     }
@@ -30,9 +30,9 @@ fun PasswordSettingRoute(
     PasswordSettingScreen(
         modifier = modifier.fillMaxSize(),
         state = viewModel.passwordInputState,
-        onClickTextButton = viewModel::onClickTextButton,
-        onClickAction = viewModel::onClickKeyboardAction,
-        onClickBackButton = onClickBackButton,
-        onWiggleAnimationEnded = viewModel::onWiggleAnimationEnded
+        onTextButtonClick = viewModel::onClickTextButton,
+        onActionClick = viewModel::onClickKeyboardAction,
+        onBackButtonClick = onBackButtonClick,
+        onWiggleAnimationEnd = viewModel::onWiggleAnimationEnded
     )
 }

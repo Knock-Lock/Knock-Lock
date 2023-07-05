@@ -42,16 +42,16 @@ enum class Developer(
     @DrawableRes val profileRes: Int,
     @StringRes val commentRes: Int
 ) {
-    HYUN_KUK(R.string.daq, R.drawable.hyunkuk, R.string.daq_comment),
-    HYUN_SU(R.string.hence, R.drawable.hyunsu, R.string.hence_comment),
-    MINUK(R.string.jaeryo, R.drawable.minuk, R.string.jaeryo_comment);
+    HyunKuk(R.string.daq, R.drawable.hyunkuk, R.string.daq_comment),
+    HyunSu(R.string.hence, R.drawable.hyunsu, R.string.hence_comment),
+    Minuk(R.string.jaeryo, R.drawable.minuk, R.string.jaeryo_comment);
 }
 
 @Composable
 fun DeveloperItem(
-    modifier: Modifier = Modifier,
     developer: Developer,
-    delay: Int
+    delay: Int,
+    modifier: Modifier = Modifier
 ) {
     var imageVisible by remember { mutableStateOf(false) }
     var textVisible by remember { mutableStateOf(false) }
@@ -120,7 +120,7 @@ fun DeveloperItem(
 @Composable
 private fun PreviewDeveloper() {
     DeveloperItem(
-        developer = Developer.HYUN_KUK,
+        developer = Developer.HyunKuk,
         delay = 500
     )
 }

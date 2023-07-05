@@ -24,8 +24,8 @@ import com.knocklock.presentation.util.getPalette
 @Composable
 fun HomeBackground(
     scale: Float,
+    lockScreenBackground: LockScreenBackground,
     modifier: Modifier = Modifier,
-    lockScreenBackground: LockScreenBackground
 ) {
     val imagePainter = when (lockScreenBackground) {
         is LockScreenBackground.DefaultWallPaper -> {

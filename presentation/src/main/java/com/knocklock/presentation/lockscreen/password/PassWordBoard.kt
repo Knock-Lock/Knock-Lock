@@ -31,11 +31,11 @@ import kotlinx.collections.immutable.ImmutableList
 fun CirclePassWordBoard(
     passWordList: ImmutableList<PassWord>,
     onPassWordClick: (String) -> Unit,
-    removePassWord: () -> Unit,
+    onPassWordRemove: () -> Unit,
     isPlaying: Boolean,
     inputPassWordState: ImmutableList<PassWord>,
     eventState: Event,
-    onWiggleAnimationEnded: () -> Unit,
+    onWiggleAnimationEnd: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     ConstraintLayout(
@@ -71,7 +71,7 @@ fun CirclePassWordBoard(
             Spacer(modifier = Modifier.height(40.dp))
             InsertPassWordRow(
                 modifier = Modifier
-                    .wiggle(isWiggle = eventState == Event.VIBRATE, onWiggleAnimationEnded = onWiggleAnimationEnded)
+                    .wiggle(isWiggle = eventState == Event.Vibrate, onWiggleAnimationEnded = onWiggleAnimationEnd)
                     .padding(horizontal = 50.dp)
                     .fillMaxWidth(),
                 inputPassWordState = inputPassWordState,
@@ -198,7 +198,7 @@ fun CirclePassWordBoard(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
                 onClick = {
-                    removePassWord()
+                    onPassWordRemove()
                 },
             ),
         )

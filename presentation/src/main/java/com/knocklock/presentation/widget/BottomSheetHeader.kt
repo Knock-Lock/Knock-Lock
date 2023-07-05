@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun BottomSheetHeaderBar(
     modifier: Modifier = Modifier,
-    barColor: Color = Color.LightGray
+    barColor: Color = Color.LightGray,
 ) {
     Spacer(
         modifier = modifier

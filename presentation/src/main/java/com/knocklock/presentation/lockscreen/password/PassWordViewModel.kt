@@ -7,7 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.knocklock.domain.usecase.setting.GetUserUseCase
-import com.knocklock.presentation.constant.MAX_PASSWORD_LENGTH
+import com.knocklock.presentation.constant.MaxPasswordLength
 import com.knocklock.presentation.lockscreen.password.Event.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -24,7 +24,7 @@ class PassWordViewModel @Inject constructor(
 ) : ViewModel() {
 
     val passWordState = mutableStateListOf<PassWord>().apply {
-        repeat(MAX_PASSWORD_LENGTH) {
+        repeat(MaxPasswordLength) {
             add(PassWord(""))
         }
     }
@@ -38,17 +38,17 @@ class PassWordViewModel @Inject constructor(
     val eventState = _eventState.asSharedFlow()
 
     fun updatePassWordState(passWord: String) {
-        if (insertPassWordIndex <= MAX_PASSWORD_LENGTH) {
+        if (insertPassWordIndex <= MaxPasswordLength) {
             passWordState[insertPassWordIndex] = passWordState[insertPassWordIndex].copy(number = passWord)
-            if (insertPassWordIndex != MAX_PASSWORD_LENGTH) {
+            if (insertPassWordIndex != MaxPasswordLength) {
                 insertPassWordIndex += 1
             }
-            removePassWordIndex = if (insertPassWordIndex == MAX_PASSWORD_LENGTH - 1) {
+            removePassWordIndex = if (insertPassWordIndex == MaxPasswordLength - 1) {
                 insertPassWordIndex
             } else {
                 insertPassWordIndex - 1
             }
-            if (insertPassWordIndex == MAX_PASSWORD_LENGTH) {
+            if (insertPassWordIndex == MaxPasswordLength) {
                 viewModelScope.launch {
                     getUserUseCase().collect { user ->
                         val savedPassWord = user.password
@@ -56,7 +56,7 @@ class PassWordViewModel @Inject constructor(
                             it.number
                         }.joinToString("") { it }
                         if (savedPassWord == inputPassWord) {
-                            _eventState.emit(UNLOCK)
+                            _eventState.emit(Unlock)
                         } else {
                             resetPasswordIndex()
                         }
@@ -71,7 +71,7 @@ class PassWordViewModel @Inject constructor(
             insertPassWordIndex = 0
             removePassWordIndex = 0
             passWordState.replaceAll { PassWord("") }
-            _eventState.emit(VIBRATE)
+            _eventState.emit(Vibrate)
         }
     }
 
@@ -83,11 +83,11 @@ class PassWordViewModel @Inject constructor(
                 if (removePassWordIndex != 0) {
                     removePassWordIndex -= 1
                 } else {
-                    _eventState.emit(RETURN)
+                    _eventState.emit(Return)
                 }
             } else {
                 if (removePassWordIndex == 0) {
-                    _eventState.emit(RETURN)
+                    _eventState.emit(Return)
                 }
             }
         }
@@ -99,11 +99,11 @@ class PassWordViewModel @Inject constructor(
 
     fun resetState() {
         viewModelScope.launch {
-            _eventState.emit(NOTHING)
+            _eventState.emit(Nothing)
         }
     }
 }
 
 enum class Event {
-    RETURN, UNLOCK, NOTHING, VIBRATE
+    Return, Unlock, Nothing, Vibrate
 }

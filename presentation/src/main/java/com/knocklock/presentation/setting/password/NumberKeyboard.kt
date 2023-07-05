@@ -2,19 +2,14 @@ package com.knocklock.presentation.setting.password
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,13 +27,13 @@ import com.knocklock.presentation.extenstions.noRippleClickable
 @Composable
 fun KeyboardTextButton(
     textButtonItem: KeyboardButtonType.Text,
-    onClickTextButton: (String) -> Unit,
+    onTextButtonClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(
         modifier = modifier
             .noRippleClickable {
-                onClickTextButton(textButtonItem.text)
+                onTextButtonClick(textButtonItem.text)
             },
         contentAlignment = Alignment.Center
     ) {
@@ -55,13 +50,13 @@ fun KeyboardTextButton(
 @Composable
 fun KeyboardImageButton(
     imageButtonItem: KeyboardButtonType.Image,
-    onClickImageButton: (KeyboardAction) -> Unit,
+    onImageButtonClick: (KeyboardAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(
         modifier = modifier
             .noRippleClickable {
-                onClickImageButton(imageButtonItem.action)
+                onImageButtonClick(imageButtonItem.action)
             },
         contentAlignment = Alignment.Center,
     ) {
@@ -84,8 +79,8 @@ fun KeyboardEmptyButton(
 
 @Composable
 fun NumberKeyboard(
-    onClickTextButton: (String) -> Unit,
-    onClickAction: (KeyboardAction) -> Unit,
+    onTextButtonClick: (String) -> Unit,
+    onActionClick: (KeyboardAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val buttons = remember {
@@ -116,7 +111,7 @@ fun NumberKeyboard(
                     KeyboardButtonType.Empty,
                     KeyboardButtonType.Text("0"),
                     KeyboardButtonType.Image(
-                        action = KeyboardAction.BACK_SPACE,
+                        action = KeyboardAction.BackSpace,
                         drawableRes = R.drawable.ic_backspace
                     )
                 )
@@ -134,7 +129,7 @@ fun NumberKeyboard(
                     KeyboardTextButton(
                         modifier = Modifier.aspectRatio(1.25f),
                         textButtonItem = type,
-                        onClickTextButton = onClickTextButton,
+                        onTextButtonClick = onTextButtonClick,
                     )
                 }
 
@@ -142,7 +137,7 @@ fun NumberKeyboard(
                     KeyboardImageButton(
                         modifier = Modifier.aspectRatio(1.25f),
                         imageButtonItem = type,
-                        onClickImageButton = onClickAction,
+                        onImageButtonClick = onActionClick,
                     )
                 }
 
@@ -162,7 +157,7 @@ private fun KeyboardTextButtonPrev() {
     Surface {
         KeyboardTextButton(
             KeyboardButtonType.Text("1"),
-            onClickTextButton = {}
+            onTextButtonClick = {}
         )
     }
 }
@@ -172,8 +167,8 @@ private fun KeyboardTextButtonPrev() {
 private fun KeyboardImageButtonPrev() {
     Surface {
         KeyboardImageButton(
-            KeyboardButtonType.Image(KeyboardAction.BACK_SPACE, R.drawable.ic_backspace),
-            onClickImageButton = {}
+            KeyboardButtonType.Image(KeyboardAction.BackSpace, R.drawable.ic_backspace),
+            onImageButtonClick = {}
         )
     }
 }
@@ -183,8 +178,8 @@ private fun KeyboardImageButtonPrev() {
 private fun KeyboardPrev() {
     Surface {
         NumberKeyboard(
-            onClickTextButton = {},
-            onClickAction = {}
+            onTextButtonClick = {},
+            onActionClick = {}
         )
     }
 }
@@ -200,5 +195,5 @@ sealed interface KeyboardButtonType {
 }
 
 enum class KeyboardAction {
-    BACK_SPACE
+    BackSpace
 }

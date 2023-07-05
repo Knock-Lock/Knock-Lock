@@ -62,7 +62,7 @@ class PasswordInputViewModel @Inject constructor(
 
     fun onClickKeyboardAction(action: KeyboardAction) {
         when (action) {
-            KeyboardAction.BACK_SPACE -> {
+            KeyboardAction.BackSpace -> {
                 removeLastPassword()
             }
         }

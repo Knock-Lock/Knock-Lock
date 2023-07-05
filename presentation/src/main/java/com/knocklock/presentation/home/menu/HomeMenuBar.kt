@@ -5,11 +5,18 @@ import androidx.compose.animation.core.Spring.StiffnessLow
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,9 +30,9 @@ import kotlinx.collections.immutable.toImmutableList
 
 @Composable
 fun HomeMenuBar(
-    modifier: Modifier = Modifier,
     menuList: ImmutableList<HomeMenu>,
-    onClickHomeMenu: (HomeMenu) -> Unit
+    onHomeMenuClick: (HomeMenu) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Row(
         modifier = modifier.padding(horizontal = 16.dp),
@@ -34,7 +41,7 @@ fun HomeMenuBar(
         menuList.forEach { homeMenu ->
             HomeMenuItem(
                 modifier = Modifier
-                    .noRippleClickable { onClickHomeMenu(homeMenu) }
+                    .noRippleClickable { onHomeMenuClick(homeMenu) }
                     .padding(vertical = 16.dp, horizontal = 8.dp),
                 homeMenu = homeMenu,
             )
@@ -44,8 +51,8 @@ fun HomeMenuBar(
 
 @Composable
 fun HomeMenuItem(
-    modifier: Modifier = Modifier,
-    homeMenu: HomeMenu
+    homeMenu: HomeMenu,
+    modifier: Modifier = Modifier
 ) {
     var size by remember { mutableStateOf(0.2f) }
     val animateScale by animateFloatAsState(
@@ -53,7 +60,7 @@ fun HomeMenuItem(
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioLowBouncy,
             stiffness = StiffnessLow
-        )
+        ), label = "animateScale"
     )
 
     LaunchedEffect(Unit) {
@@ -81,7 +88,7 @@ fun HomeMenuItem(
 @Composable
 fun HomeMenuBarPrev() {
     HomeMenuBar(
-        menuList = HomeMenu.values().toList().toImmutableList()
-    ) {
-    }
+        menuList = HomeMenu.values().toList().toImmutableList(),
+        onHomeMenuClick = {},
+    )
 }

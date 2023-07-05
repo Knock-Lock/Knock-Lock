@@ -103,8 +103,8 @@ class MainActivity : ComponentActivity() {
     }
 
     companion object {
-        const val GITHUB_LINK = "https://github.com/Knock-Lock/Knock-Lock"
-        const val KNOCK_LOCK_ACCOUNT = "100056653114"
-        const val KNOCK_LOCK_EMAIL_ADDRESS = "rldkvos2@gmail.com"
+        const val GithubLink = "https://github.com/Knock-Lock/Knock-Lock"
+        const val KknokLockAccount = "100056653114"
+        const val KnockLockEmailAddress = "rldkvos2@gmail.com"
     }
 }

@@ -17,13 +17,13 @@ class PhoneCallStateReceiver(
         try {
             val state = intent?.getStringExtra(TelephonyManager.EXTRA_STATE)
             if (state.equals(TelephonyManager.EXTRA_STATE_RINGING)) {
-                callStateCallBack.onReceiveCallState(CallState.RINGING)
+                callStateCallBack.onReceiveCallState(CallState.Ringing)
             }
             if ((state.equals(TelephonyManager.EXTRA_STATE_OFFHOOK))) {
-                callStateCallBack.onReceiveCallState(CallState.OFFHOOK)
+                callStateCallBack.onReceiveCallState(CallState.OffHook)
             }
             if (state.equals(TelephonyManager.EXTRA_STATE_IDLE)) {
-                callStateCallBack.onReceiveCallState(CallState.IDLE)
+                callStateCallBack.onReceiveCallState(CallState.Idle)
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -35,7 +35,7 @@ class PhoneCallStateReceiver(
 
     fun registerReceiver() {
         val filter = IntentFilter().apply {
-            addAction(callIntent)
+            addAction(CallIntent)
         }
         context.registerReceiver(this, filter)
     }
@@ -45,6 +45,6 @@ interface CallStateCallBack {
     fun onReceiveCallState(callState: CallState)
 }
 enum class CallState {
-    RINGING, OFFHOOK, IDLE
+    Ringing, OffHook, Idle
 }
-const val callIntent = "android.intent.action.PHONE_STATE"
+const val CallIntent = "android.intent.action.PHONE_STATE"

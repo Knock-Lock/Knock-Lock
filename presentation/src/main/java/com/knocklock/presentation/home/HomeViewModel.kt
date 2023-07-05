@@ -9,7 +9,6 @@ import com.knocklock.domain.usecase.lockscreen.SaveLockScreenCase
 import com.knocklock.presentation.home.menu.HomeMenu
 import com.knocklock.domain.model.TimeFormat
 import dagger.hilt.android.lifecycle.HiltViewModel
-import java.util.concurrent.locks.Lock
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,8 +18,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 
 @HiltViewModel
@@ -28,7 +25,7 @@ class HomeViewModel @Inject constructor(
     getLockScreenUseCase: GetLockScreenUseCase,
     private val saveLockScreenCase: SaveLockScreenCase
 ) : ViewModel() {
-    private val initHomeMenuList = listOf(HomeMenu.SETTING, HomeMenu.EDIT, HomeMenu.SAVE)
+    private val initHomeMenuList = listOf(HomeMenu.Settings, HomeMenu.Edit, HomeMenu.Save)
 
     private val homeMenuList = MutableStateFlow(initHomeMenuList)
 

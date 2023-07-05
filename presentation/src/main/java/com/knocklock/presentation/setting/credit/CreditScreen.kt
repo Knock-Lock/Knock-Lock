@@ -21,12 +21,12 @@ import com.knocklock.presentation.ui.component.KnockLockTopAppbar
 @Composable
 fun CreditRoute(
     onIconClick: () -> Boolean,
-    onTextClicked: (TextMenu) -> Unit,
+    onTextClick: (TextMenu) -> Unit,
     modifier: Modifier = Modifier
 ) {
     CreditScreen(
         onIconClick = onIconClick,
-        onTextClicked = onTextClicked,
+        onTextClick = onTextClick,
         modifier = modifier,
     )
 }
@@ -35,7 +35,7 @@ fun CreditRoute(
 @Composable
 fun CreditScreen(
     onIconClick: () -> Boolean,
-    onTextClicked: (TextMenu) -> Unit,
+    onTextClick: (TextMenu) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState(0)
@@ -45,12 +45,12 @@ fun CreditScreen(
         topBar = {
             KnockLockTopAppbar(
                 stringResource(id = R.string.knock_lock_credit),
-                onClickBackButton = { onIconClick() },
+                onBackButtonClick = { onIconClick() },
                 modifier = Modifier,
             )
         },
     ) { padding ->
-        CreditBody(scrollState, padding, onTextClicked, modifier)
+        CreditBody(scrollState, padding, onTextClick, modifier)
     }
 }
 
@@ -58,7 +58,7 @@ fun CreditScreen(
 private fun CreditBody(
     scrollState: ScrollState,
     padding: PaddingValues,
-    onTextClicked: (TextMenu) -> Unit,
+    onTextClick: (TextMenu) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -72,13 +72,13 @@ private fun CreditBody(
     ) {
         DeveloperList()
         Spacer(modifier.padding(20.dp))
-        CreditTextMenuList(onTextClicked = onTextClicked)
+        CreditTextMenuList(onTextClick = onTextClick)
     }
 }
 
 @Composable
 fun CreditTextMenuList(
-    onTextClicked: (TextMenu) -> Unit,
+    onTextClick: (TextMenu) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -87,19 +87,19 @@ fun CreditTextMenuList(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         TextMenu.values().forEach { menu ->
-            CreditTextMenu(onTextClicked = onTextClicked, menu = menu)
+            CreditTextMenu(onTextClick = onTextClick, menu = menu)
         }
     }
 }
 
 @Composable
 private fun CreditTextMenu(
-    onTextClicked: (TextMenu) -> Unit,
+    onTextClick: (TextMenu) -> Unit,
     menu: TextMenu,
     modifier: Modifier = Modifier
 ) {
     Text(
-        modifier = modifier.clickable { onTextClicked(menu) },
+        modifier = modifier.clickable { onTextClick(menu) },
         text = stringResource(id = menu.textRes),
         fontSize = 12.sp,
         color = Color.Blue,

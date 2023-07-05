@@ -21,7 +21,7 @@ import com.knocklock.presentation.widget.BottomSheetHeaderBar
 @Composable
 fun HomeEditContentDialog(
     modifier: Modifier = Modifier,
-    clickListener: (HomeEditType) -> Unit = {},
+    onClick: (HomeEditType) -> Unit = {},
     onDismiss: () -> Unit = {}
 ) {
     BottomSheetDialog(onDismissRequest = onDismiss) {
@@ -42,8 +42,8 @@ fun HomeEditContentDialog(
                     HomeEditTypeItem(
                         modifier = Modifier.fillMaxSize(),
                         editType = type,
-                        clickListener = {
-                            clickListener(it)
+                        onClick = {
+                            onClick(it)
                             onDismiss()
                         }
                     )
@@ -57,14 +57,14 @@ fun HomeEditContentDialog(
 fun HomeEditTypeItem(
     editType: HomeEditType,
     modifier: Modifier = Modifier,
-    clickListener: (HomeEditType) -> Unit = {},
+    onClick: (HomeEditType) -> Unit = {},
 ) {
     Box(
         modifier = modifier
             .padding(16.dp)
             .height(40.dp)
             .noRippleClickable {
-                clickListener(editType)
+                onClick(editType)
             }
             .background(
                 color = Color.White,
