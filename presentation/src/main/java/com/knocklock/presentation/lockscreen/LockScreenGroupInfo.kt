@@ -37,6 +37,7 @@ fun LockScreenGroupInfo(
     removeType: RemovedType,
     notifications: ImmutableList<Notification> = persistentListOf(),
     onRemoveNotification: (RemovedGroupNotification) -> Unit = {},
+    onDisableExpand: () -> Unit = {},
 ) {
     val updatedNotifications by rememberUpdatedState(newValue = notifications)
     Row(
@@ -52,6 +53,11 @@ fun LockScreenGroupInfo(
             overflow = TextOverflow.Ellipsis,
             maxLines = 1,
         )
+        ExpandButton(
+            modifier = Modifier.size(30.dp).clickable {
+                onDisableExpand()
+            },
+        )
         RemoveButton(
             modifier = Modifier.size(30.dp).clickable {
                 onRemoveNotification(
@@ -62,6 +68,34 @@ fun LockScreenGroupInfo(
                     ),
                 )
             },
+        )
+    }
+}
+
+@Composable
+fun ExpandButton(
+    modifier: Modifier = Modifier,
+) {
+    Canvas(
+        modifier = modifier,
+    ) {
+        drawCircle(
+            color = Color.LightGray.copy(alpha = 0.4f),
+        )
+
+        drawLine(
+            color = Color.Gray,
+            strokeWidth = 5.dp.toPx(),
+            start = Offset(x = size.width / 5 * 4, y = size.height / 5 * 3),
+            end = Offset(x = size.width / 2, y = size.height / 3),
+            cap = StrokeCap.Round,
+        )
+        drawLine(
+            color = Color.Gray,
+            strokeWidth = 5.dp.toPx(),
+            start = Offset(x = size.width / 5 * 1, y = size.height / 5 * 3),
+            end = Offset(x = size.width / 2, y = size.height / 3),
+            cap = StrokeCap.Round,
         )
     }
 }
@@ -95,7 +129,7 @@ fun RemoveButton(
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewRemoveButton() {
+private fun PreviewRemoveButton() {
     KnockLockTheme {
         RemoveButton(
             modifier = Modifier.size(50.dp),
@@ -105,7 +139,17 @@ fun PreviewRemoveButton() {
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewGroupInfo() {
+private fun PreviewExpandButton() {
+    KnockLockTheme {
+        ExpandButton(
+            modifier = Modifier.size(50.dp),
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewGroupInfo() {
     KnockLockTheme {
         LockScreenGroupInfo(
             groupTitle = "낙낙",

@@ -257,6 +257,13 @@ fun LockScreenNotificationListColumn(
                         notifications = item.notifications.toImmutableList(),
                         onRemoveNotification = onRemoveNotification,
                         removeType = Recent,
+                        onDisableExpand = {
+                            with(item.group.key) {
+                                if (recentNotificationUiFlagState.containsKey(this)) {
+                                    updateRecentNotificationExpandableFlag(this)
+                                }
+                            }
+                        },
                     )
                 }
             }
@@ -452,6 +459,13 @@ fun LockScreenNotificationListColumn(
                         notifications = item.notifications.toImmutableList(),
                         onRemoveNotification = onRemoveNotification,
                         removeType = Old,
+                        onDisableExpand = {
+                            with(item.group.key) {
+                                if (oldNotificationUiFlagState.containsKey(this)) {
+                                    updateOldNotificationExpandableFlag(this)
+                                }
+                            }
+                        },
                     )
                 }
             }
