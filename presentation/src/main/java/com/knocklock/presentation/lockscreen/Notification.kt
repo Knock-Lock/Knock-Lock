@@ -89,7 +89,6 @@ fun LazyItemScope.Notification(
                 .graphicsLayer {
                     var offsetY = 0f
                     var currentOffset = if (threshold < offset()) threshold / offset() else 1f
-                    println("${notification.appTitle} ${notification.title} currentOffset : $currentOffset")
                     updateNotificationClickableFlag(item.group.key, (item.notifications.size >= 2 && offset() < threshold))
                     if (currentOffset == 1f) {
                         coroutineScope.launch {
@@ -124,22 +123,24 @@ fun LazyItemScope.Notification(
             type = RemovedType.Old,
         )
 
-//        if (clickableState) {
-//            Canvas(
-//                modifier = Modifier.fillMaxWidth().height(notificationHeight)
-//                    .graphicsLayer {
-//                        translationY = offsetY + (notificationHeight.toPx() / 4)
-//                        translationX = offsetX
-//                        alpha = currentOffset
-//                        scaleX = currentOffset / 4 * 3
-//                        scaleY = currentOffset / 4 * 3
-//                    }.animateItemPlacement(),
-//            ) {
-//                drawRoundRect(
-//                    color = animateColor,
-//                    cornerRadius = CornerRadius(10.dp.toPx(), 10.dp.toPx()),
-//                )
-//            }
-//        }
+        if (item.notifications.size >= 2 && clickable && !expandable) {
+            Canvas(
+                modifier = Modifier.fillMaxWidth().height(notificationHeight)
+                    .graphicsLayer {
+                        var offsetY = 0f
+                        var currentOffset = if (threshold < offset()) threshold / offset() else 1f
+                        translationY = offsetY + (notificationHeight.toPx() / 4)
+                        translationX = offsetX
+                        alpha = currentOffset
+                        scaleX = currentOffset / 4 * 3
+                        scaleY = currentOffset / 4 * 3
+                    }.animateItemPlacement(),
+            ) {
+                drawRoundRect(
+                    color = Color.White,
+                    cornerRadius = CornerRadius(10.dp.toPx(), 10.dp.toPx()),
+                )
+            }
+        }
     }
 }
