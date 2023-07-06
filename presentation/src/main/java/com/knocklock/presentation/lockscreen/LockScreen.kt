@@ -249,6 +249,18 @@ fun LockScreenNotificationListColumn(
             }
         }
         recentNotificationList.forEach { item ->
+
+            item {
+                if (recentNotificationUiFlagState.containsKey(item.group.key) && recentNotificationUiFlagState[item.group.key]!!.expandable) {
+                    LockScreenGroupInfo(
+                        groupTitle = item.notifications[0].appTitle,
+                        notifications = item.notifications.toImmutableList(),
+                        onRemoveNotification = onRemoveNotification,
+                        removeType = Recent,
+                    )
+                }
+            }
+
             item(key = item.notifications[0].groupKey + item.notifications[0].postedTime) {
                 var isNotVisible by rememberSaveable { mutableStateOf(true) }
                 var currentOffset by rememberSaveable { mutableStateOf(10000f) }
@@ -432,6 +444,18 @@ fun LockScreenNotificationListColumn(
         }
 
         oldGroupNotificationList.forEach { item ->
+
+            item {
+                if (oldNotificationUiFlagState.containsKey(item.group.key) && oldNotificationUiFlagState[item.group.key]!!.expandable) {
+                    LockScreenGroupInfo(
+                        groupTitle = item.notifications[0].appTitle,
+                        notifications = item.notifications.toImmutableList(),
+                        onRemoveNotification = onRemoveNotification,
+                        removeType = Old,
+                    )
+                }
+            }
+
             item(key = item.notifications[0].groupKey + item.notifications[0].postedTime) {
                 var isNotVisible by rememberSaveable { mutableStateOf(true) }
                 var currentOffset by rememberSaveable { mutableStateOf(10000f) }
