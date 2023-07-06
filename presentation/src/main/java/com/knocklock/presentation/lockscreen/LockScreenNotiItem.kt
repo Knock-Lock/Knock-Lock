@@ -91,13 +91,11 @@ fun SwipeToDismissLockNotiItem(
         state = dismissState,
         dismissThresholds = { FractionalThreshold(0.25f) },
         dismissContent = {
-            Box {
-                LockNotiItem(
-                    notification = updateNotification,
-                    clickableState = clickableState,
-                    expandableState = expandableState,
-                )
-            }
+            LockNotiItem(
+                notification = updateNotification,
+                clickableState = clickableState,
+                expandableState = expandableState,
+            )
         },
         background = {},
     )

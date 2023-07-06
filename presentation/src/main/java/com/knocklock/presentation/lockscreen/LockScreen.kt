@@ -310,22 +310,14 @@ fun LockScreenNotificationListColumn(
                 Box(
                     modifier = Modifier.animateItemPlacement(),
                 ) {
-                    Canvas(
-                        modifier = Modifier.fillMaxWidth().height(notificationHeight)
-                            .graphicsLayer {
-                                translationY = offsetY
-                                translationX = offsetX
-                                alpha = currentOffset
-                                scaleX = currentOffset
-                                scaleY = currentOffset
-                            }
-                            .zIndex(offsetY).animateItemPlacement(),
-                    ) {
-                        drawRoundRect(
-                            color = animateColor,
-                            cornerRadius = CornerRadius(10.dp.toPx(), 10.dp.toPx()),
-                        )
-                    }
+                    NotificationBackground(
+                        offsetX = offsetX,
+                        offsetY = offsetY,
+                        currentOffset = currentOffset,
+                        notificationHeight = notificationHeight,
+                        animateColor = animateColor,
+                    )
+
                     if (!isNotVisible) {
                         SwipeToDismissLockNotiItem(
                             modifier = lockNotiModifier
@@ -512,22 +504,13 @@ fun LockScreenNotificationListColumn(
                 Box(
                     modifier = Modifier.animateItemPlacement(),
                 ) {
-                    Canvas(
-                        modifier = Modifier.fillMaxWidth().height(notificationHeight) // Notification의 배경을 담당
-                            .graphicsLayer {
-                                translationY = offsetY
-                                translationX = offsetX
-                                alpha = currentOffset
-                                scaleX = currentOffset
-                                scaleY = currentOffset
-                            }
-                            .zIndex(offsetY).animateItemPlacement(),
-                    ) {
-                        drawRoundRect(
-                            color = animateColor,
-                            cornerRadius = CornerRadius(10.dp.toPx(), 10.dp.toPx()),
-                        )
-                    }
+                    NotificationBackground(
+                        offsetX = offsetX,
+                        offsetY = offsetY,
+                        currentOffset = currentOffset,
+                        notificationHeight = notificationHeight,
+                        animateColor = animateColor,
+                    )
                     if (!isNotVisible) {
                         SwipeToDismissLockNotiItem(
                             modifier = lockNotiModifier
