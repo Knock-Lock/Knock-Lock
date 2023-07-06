@@ -2,7 +2,6 @@ package com.knocklock.presentation.lockscreen
 
 import android.app.PendingIntent
 import androidx.compose.animation.core.*
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.*
@@ -197,7 +196,6 @@ fun UnLockSwipeBar(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LockScreenNotificationListColumn(
     recentNotificationList: ImmutableList<GroupWithNotification>,
