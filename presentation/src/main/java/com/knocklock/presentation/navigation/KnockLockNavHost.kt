@@ -5,6 +5,7 @@ import android.content.ClipboardManager
 import android.content.Context.CLIPBOARD_SERVICE
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -15,9 +16,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
-import com.knocklock.presentation.MainActivity.Companion.GITHUB_LINK
-import com.knocklock.presentation.MainActivity.Companion.KNOCK_LOCK_ACCOUNT
-import com.knocklock.presentation.MainActivity.Companion.KNOCK_LOCK_EMAIL_ADDRESS
+import com.knocklock.presentation.MainActivity.Companion.GithubLink
+import com.knocklock.presentation.MainActivity.Companion.KknokLockAccount
+import com.knocklock.presentation.MainActivity.Companion.KnockLockEmailAddress
 import com.knocklock.presentation.R
 import com.knocklock.presentation.home.HomeRoute
 import com.knocklock.presentation.setting.SettingRoute
@@ -37,18 +38,18 @@ fun KnockLockNavHost(
         startDestination = NavigationRoute.HomeGraph.route
     ) {
         homeGraph(
-            modifier, navController
+            navController, modifier,
         )
 
         settingGraph(
-            modifier, navController
+            navController, modifier,
         )
     }
 }
 
 fun NavGraphBuilder.homeGraph(
-    modifier: Modifier = Modifier,
     navController: NavController,
+    modifier: Modifier = Modifier,
 ) {
     navigation(
         startDestination = NavigationRoute.HomeGraph.Home.route,
@@ -58,7 +59,7 @@ fun NavGraphBuilder.homeGraph(
         composable(route = NavigationRoute.HomeGraph.Home.route) {
             HomeRoute(
                 modifier = modifier,
-                onClickSetting = {
+                onSettingClick = {
                     navController.navigate(NavigationRoute.SettingGraph.route)
                 },
                 viewModel = hiltViewModel()
@@ -69,8 +70,8 @@ fun NavGraphBuilder.homeGraph(
 
 
 fun NavGraphBuilder.settingGraph(
-    modifier: Modifier = Modifier,
-    navController: NavController
+    navController: NavController,
+    modifier: Modifier = Modifier
 ) {
     navigation(
         startDestination = NavigationRoute.SettingGraph.Setting.route,
@@ -78,13 +79,14 @@ fun NavGraphBuilder.settingGraph(
     ) {
         composable(route = NavigationRoute.SettingGraph.Setting.route) {
             SettingRoute(
-                modifier = modifier,
+                modifier = modifier.systemBarsPadding(),
                 navigateToPasswordInputScreen = { navController.navigate(NavigationRoute.SettingGraph.Password.route) },
-                onMenuSelected = { titleRes ->
+                onMenuSelect = { titleRes ->
                     when (titleRes) {
                         R.string.change_password -> {
                             navController.navigate(NavigationRoute.SettingGraph.Password.route)
                         }
+
                         R.string.credit -> {
                             navController.navigate(NavigationRoute.SettingGraph.Credit.route)
                         }
@@ -94,9 +96,9 @@ fun NavGraphBuilder.settingGraph(
         }
         composable(route = NavigationRoute.SettingGraph.Password.route) {
             PasswordSettingRoute(
-                modifier = modifier,
-                onSuccessChangePassword = { navController.popBackStack() },
-                onClickBackButton = { navController.popBackStack() }
+                modifier = modifier.systemBarsPadding(),
+                onPasswordChangeSuccess = { navController.popBackStack() },
+                onBackButtonClick = { navController.popBackStack() }
             )
         }
         composable(route = NavigationRoute.SettingGraph.Credit.route) {
@@ -104,39 +106,43 @@ fun NavGraphBuilder.settingGraph(
             CreditRoute(
                 modifier = modifier,
                 onIconClick = { navController.popBackStack() },
-                onTextClicked = { menu ->
+                onTextClick = { menu ->
                     when (menu) {
-                        TextMenu.GITHUB -> {
+                        TextMenu.Github -> {
                             val intent = Intent(Intent.ACTION_VIEW).apply {
-                                data = Uri.parse(GITHUB_LINK)
+                                data = Uri.parse(GithubLink)
                             }
                             context.startActivity(intent)
                         }
-                        TextMenu.INQUIRY -> {
+
+                        TextMenu.Inqury -> {
                             val intent = Intent(Intent.ACTION_SENDTO).apply {
                                 data = Uri.parse("mailto:")
-                                putExtra(Intent.EXTRA_EMAIL, arrayOf(KNOCK_LOCK_EMAIL_ADDRESS))
+                                putExtra(Intent.EXTRA_EMAIL, arrayOf(KnockLockEmailAddress))
                             }
                             context.startActivity(Intent.createChooser(intent, null))
                         }
-                        TextMenu.OPENSOURCE -> {
+
+                        TextMenu.OpenSource -> {
                             // TODO 임시로 깃헙 연결
                             val intent = Intent(Intent.ACTION_VIEW).apply {
-                                data = Uri.parse(GITHUB_LINK)
+                                data = Uri.parse(GithubLink)
                             }
                             context.startActivity(intent)
                         }
-                        TextMenu.SERVICE -> {
+
+                        TextMenu.Service -> {
                             // TODO 임시로 깃헙 연결
                             val intent = Intent(Intent.ACTION_VIEW).apply {
-                                data = Uri.parse(GITHUB_LINK)
+                                data = Uri.parse(GithubLink)
                             }
                             context.startActivity(intent)
                         }
-                        TextMenu.DONATE -> {
+
+                        TextMenu.Donate -> {
                             val clipboard =
                                 context.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
-                            val clip = ClipData.newPlainText("donate", KNOCK_LOCK_ACCOUNT)
+                            val clip = ClipData.newPlainText("donate", KknokLockAccount)
                             runCatching {
                                 clipboard.setPrimaryClip(clip)
                             }.onSuccess {

@@ -62,7 +62,7 @@ class PasswordInputViewModel @Inject constructor(
 
     fun onClickKeyboardAction(action: KeyboardAction) {
         when (action) {
-            KeyboardAction.BACK_SPACE -> {
+            KeyboardAction.BackSpace -> {
                 removeLastPassword()
             }
         }
@@ -135,7 +135,7 @@ class PasswordInputViewModel @Inject constructor(
         } else {
             state.copy(
                 inputPassword = "",
-                mismatchPassword = true
+                isWigglePassword = true
             )
         }
     }
@@ -148,13 +148,28 @@ class PasswordInputViewModel @Inject constructor(
                 updatePasswordUseCase(state.savedPassword)
                 _onSuccessUpdatePassword.emit(Unit)
             }
-            state.copy(isLoading = false, mismatchPassword = false)
+            state.copy(isLoading = false, isWigglePassword = false)
         } else {
             state.copy(
                 inputPassword = "",
-                mismatchPassword = true,
+                isWigglePassword = true,
                 isLoading = false
             )
+        }
+    }
+
+    fun onWiggleAnimationEnded() {
+        passwordInputState = when (val state = passwordInputState) {
+            is PasswordInputState.PasswordConfirmState -> {
+                state.copy(isWigglePassword = false)
+            }
+
+            is PasswordInputState.PasswordVerifyState -> {
+                state.copy(isWigglePassword = false)
+            }
+            else ->  {
+                state
+            }
         }
     }
 }
@@ -169,13 +184,27 @@ sealed interface PasswordInputState {
     data class PasswordConfirmState(
         override val inputPassword: String,
         val savedPassword: String,
-        val mismatchPassword: Boolean = false,
+        val isWigglePassword: Boolean = false,
         val isLoading: Boolean = false
     ) : PasswordInputState
 
     data class PasswordVerifyState(
         override val inputPassword: String,
         val savedPassword: String,
-        val mismatchPassword: Boolean = false,
+        val isWigglePassword: Boolean = false,
     ) : PasswordInputState
+
+    fun getWigglePassword(): Boolean {
+        return when (this) {
+            is PasswordConfirmState -> {
+                isWigglePassword
+            }
+
+            is PasswordVerifyState -> {
+                isWigglePassword
+            }
+
+            else -> false
+        }
+    }
 }

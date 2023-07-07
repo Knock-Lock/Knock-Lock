@@ -33,7 +33,7 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 KnockLockNavHost(
                     modifier = Modifier.fillMaxSize(),
-                    navController = navController
+                    navController = navController,
                 )
             }
         }
@@ -57,7 +57,8 @@ class MainActivity : ComponentActivity() {
                 .setDeniedMessage("잠금 화면 스크린 사용을 위한 권한을 허용해주세요")
                 .setPermissions(
                     Manifest.permission.FOREGROUND_SERVICE,
-                    Manifest.permission.SYSTEM_ALERT_WINDOW
+                    Manifest.permission.SYSTEM_ALERT_WINDOW,
+                    Manifest.permission.READ_PHONE_STATE,
                 ).check()
         } else {
             TedPermission.create()
@@ -75,7 +76,8 @@ class MainActivity : ComponentActivity() {
                 })
                 .setDeniedMessage("권한을 허용해주세요")
                 .setPermissions(
-                    Manifest.permission.SYSTEM_ALERT_WINDOW
+                    Manifest.permission.SYSTEM_ALERT_WINDOW,
+                    Manifest.permission.READ_PHONE_STATE,
                 ).check()
         }
     }
@@ -85,7 +87,7 @@ class MainActivity : ComponentActivity() {
         val sets: Set<String> = NotificationManagerCompat.getEnabledListenerPackages(this)
         if (!sets.contains(packageName)) {
             val intent = Intent(
-                Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS
+                Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS,
             )
             startActivity(intent)
         }
@@ -101,8 +103,8 @@ class MainActivity : ComponentActivity() {
     }
 
     companion object {
-        const val GITHUB_LINK = "https://github.com/Knock-Lock/Knock-Lock"
-        const val KNOCK_LOCK_ACCOUNT = "100056653114"
-        const val KNOCK_LOCK_EMAIL_ADDRESS = "rldkvos2@gmail.com"
+        const val GithubLink = "https://github.com/Knock-Lock/Knock-Lock"
+        const val KknokLockAccount = "100056653114"
+        const val KnockLockEmailAddress = "rldkvos2@gmail.com"
     }
 }

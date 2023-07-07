@@ -25,9 +25,9 @@ import kotlinx.collections.immutable.toImmutableList
 
 @Composable
 fun HomeScreen(
-    modifier: Modifier = Modifier,
     homeScreenUiState: HomeScreenUiState,
-    onClickHomeMenu: (HomeMenu) -> Unit,
+    onHomeMenuClick: (HomeMenu) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Box(modifier = modifier.navigationBarsPadding()) {
         if (homeScreenUiState is HomeScreenUiState.Success) {
@@ -38,7 +38,7 @@ fun HomeScreen(
                     .align(Alignment.TopEnd)
                     .zIndex(1f),
                 menuList = homeScreenUiState.menuList,
-                onClickHomeMenu = onClickHomeMenu,
+                onHomeMenuClick = onHomeMenuClick,
             )
             HomeContent(
                 modifier = Modifier.fillMaxSize(),
@@ -50,23 +50,23 @@ fun HomeScreen(
 
 @Composable
 fun HomeContent(
-    modifier: Modifier = Modifier,
     homeScreenUiState: HomeScreenUiState.Success,
+    modifier: Modifier = Modifier,
 ) {
     Box(modifier = modifier) {
         HomeBackground(
-            scale = homePreviewScale,
+            scale = HomePreviewScale,
             modifier = modifier,
             lockScreenBackground = homeScreenUiState.lockScreen.background,
         )
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .scale(homePreviewScale),
+                .scale(HomePreviewScale),
         ) {
             ClockWidget(
                 modifier = Modifier
-                    .scale(homePreviewScale)
+                    .scale(HomePreviewScale)
                     .padding(top = 80.dp)
                     .align(CenterHorizontally),
                 timeFormat = homeScreenUiState.lockScreen.timeFormat,
@@ -119,4 +119,4 @@ private fun HomeContentPrev() {
     }
 }
 
-private const val homePreviewScale = 0.75f
+private const val HomePreviewScale = 0.75f

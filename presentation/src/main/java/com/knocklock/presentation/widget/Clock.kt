@@ -14,8 +14,8 @@ import java.util.*
 
 @Composable
 fun ClockWidget(
-    modifier: Modifier = Modifier,
     timeFormat: TimeFormat,
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally

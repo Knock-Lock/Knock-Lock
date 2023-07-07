@@ -2,7 +2,6 @@ package com.knocklock.presentation.lockscreen
 
 import android.app.PendingIntent
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -39,7 +38,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun SwipeToDismissLockNotiItem(
     onNotificationClicked: (PendingIntent) -> Unit,
-    onRemoveNotification: (RemovedGroupNotification) -> Unit,
+    onNotificationRemove: (RemovedGroupNotification) -> Unit,
     notification: Notification,
     clickableState: Boolean,
     expandableState: Boolean,
@@ -64,8 +63,7 @@ fun SwipeToDismissLockNotiItem(
                 DismissValue.DismissedToEnd -> {
                     coroutineScope.launch {
                         delay(120)
-
-                        onRemoveNotification(
+                        onNotificationRemove(
                             RemovedGroupNotification(
                                 key = updateNotification.groupKey,
                                 type = type,
@@ -109,10 +107,10 @@ fun SwipeToDismissLockNotiItem(
 
 @Composable
 fun LockNotiItem(
-    modifier: Modifier = Modifier,
     notification: Notification,
     clickableState: Boolean,
     expandableState: Boolean,
+    modifier: Modifier = Modifier,
 ) {
     Box(modifier = modifier) {
         Column(
@@ -149,10 +147,10 @@ fun LockNotiItem(
 
 @Composable
 fun LockNotiTop(
-    modifier: Modifier = Modifier,
     packageName: String?,
     appTitle: String,
     time: String,
+    modifier: Modifier = Modifier,
 ) {
     Row(
         modifier = modifier
@@ -187,9 +185,9 @@ fun LockNotiTop(
 
 @Composable
 fun LockNotiContent(
-    modifier: Modifier = Modifier,
     title: String,
     content: String,
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier,

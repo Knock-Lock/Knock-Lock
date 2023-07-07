@@ -48,8 +48,8 @@ fun LockScreenRoute(
     oldNotificationUiState: NotificationUiState,
     oldNotificationUiFlagState: ImmutableMap<String, NotificationUiFlagState>,
     userSwipe: () -> Unit,
-    onRemoveNotification: (RemovedGroupNotification) -> Unit,
-    onNotificationClicked: (PendingIntent) -> Unit,
+    onNotificationRemove: (RemovedGroupNotification) -> Unit,
+    onNotificationClick: (PendingIntent) -> Unit,
     updateOldNotificationExpandableFlag: (String) -> Unit,
     updateRecentNotificationExpandableFlag: (String) -> Unit,
     updateNotificationClickableFlag: (String, Boolean) -> Unit,
@@ -63,8 +63,8 @@ fun LockScreenRoute(
         oldNotificationUiState = oldNotificationUiState,
         oldNotificationUiFlagState = oldNotificationUiFlagState,
         userSwipe = userSwipe,
-        onRemoveNotification = onRemoveNotification,
-        onNotificationClicked = onNotificationClicked,
+        onNotificationRemove = onNotificationRemove,
+        onNotificationClick = onNotificationClick,
         updateNotificationExpandableFlag = updateOldNotificationExpandableFlag,
         updateNewNotificationExpandableFlag = updateRecentNotificationExpandableFlag,
         updateNotificationClickableFlag = updateNotificationClickableFlag,
@@ -79,8 +79,8 @@ fun LockScreen(
     oldNotificationUiState: NotificationUiState,
     oldNotificationUiFlagState: ImmutableMap<String, NotificationUiFlagState>,
     userSwipe: () -> Unit,
-    onRemoveNotification: (RemovedGroupNotification) -> Unit,
-    onNotificationClicked: (PendingIntent) -> Unit,
+    onNotificationRemove: (RemovedGroupNotification) -> Unit,
+    onNotificationClick: (PendingIntent) -> Unit,
     updateNotificationExpandableFlag: (String) -> Unit,
     updateNewNotificationExpandableFlag: (String) -> Unit,
     updateNotificationClickableFlag: (String, Boolean) -> Unit,
@@ -98,11 +98,11 @@ fun LockScreen(
                         recentNotificationUiFlagState = recentNotificationUiFlagState,
                         oldGroupNotificationList = oldNotificationUiState.groupWithNotification.toImmutableList(),
                         oldNotificationUiFlagState = oldNotificationUiFlagState,
-                        onRemoveNotification = onRemoveNotification,
-                        onNotificationClicked = onNotificationClicked,
-                        updateOldNotificationExpandableFlag = updateNotificationExpandableFlag,
-                        updateRecentNotificationExpandableFlag = updateNewNotificationExpandableFlag,
-                        updateNotificationClickableFlag = updateNotificationClickableFlag,
+                        onNotificationRemove = onNotificationRemove,
+                        onNotificationClick = onNotificationClick,
+                        onOldNotificationExpandableFlagUpdate = updateNotificationExpandableFlag,
+                        onRecentNotificationExpandableFlagUpdate = updateNewNotificationExpandableFlag,
+                        onNotificationClickableFlagUpdate = updateNotificationClickableFlag,
                         notificationHeight = 60.dp,
                         timeFormat = timeFormat,
                     )
@@ -202,12 +202,12 @@ fun LockScreenNotificationListColumn(
     recentNotificationUiFlagState: ImmutableMap<String, NotificationUiFlagState>,
     oldGroupNotificationList: ImmutableList<GroupWithNotification>,
     oldNotificationUiFlagState: ImmutableMap<String, NotificationUiFlagState>,
-    updateOldNotificationExpandableFlag: (String) -> Unit,
-    updateRecentNotificationExpandableFlag: (String) -> Unit,
-    onRemoveNotification: (RemovedGroupNotification) -> Unit,
+    onOldNotificationExpandableFlagUpdate: (String) -> Unit,
+    onRecentNotificationExpandableFlagUpdate: (String) -> Unit,
+    onNotificationRemove: (RemovedGroupNotification) -> Unit,
     notificationHeight: Dp,
-    updateNotificationClickableFlag: (String, Boolean) -> Unit,
-    onNotificationClicked: (PendingIntent) -> Unit,
+    onNotificationClickableFlagUpdate: (String, Boolean) -> Unit,
+    onNotificationClick: (PendingIntent) -> Unit,
     timeFormat: TimeFormat,
     modifier: Modifier = Modifier,
 ) {
@@ -245,12 +245,12 @@ fun LockScreenNotificationListColumn(
                     LockScreenGroupInfo(
                         groupTitle = item.notifications[0].appTitle,
                         notifications = item.notifications.toImmutableList(),
-                        onRemoveNotification = onRemoveNotification,
+                        onRemoveNotification = onNotificationRemove,
                         removeType = Recent,
                         onDisableExpand = {
                             with(item.group.key) {
                                 if (recentNotificationUiFlagState.containsKey(this)) {
-                                    updateRecentNotificationExpandableFlag(this)
+                                    onRecentNotificationExpandableFlagUpdate(this)
                                 }
                             }
                         },
@@ -270,25 +270,25 @@ fun LockScreenNotificationListColumn(
                     },
                     threshold = threshold,
                     item = item,
-                    updateNotificationClickableFlag = updateNotificationClickableFlag,
+                    onNotificationClickableFlagUpdate = onNotificationClickableFlagUpdate,
                     type = Recent,
                     expandable = recentNotificationUiFlagState[item.group.key]?.expandable ?: false,
-                    updateNotificationExpandableFlag = { key, type ->
+                    onNotificationExpandableFlagUpdate = { key, type ->
                         when (type) {
                             Recent -> {
                                 if (recentNotificationUiFlagState.containsKey(key)) {
-                                    updateRecentNotificationExpandableFlag(key)
+                                    onRecentNotificationExpandableFlagUpdate(key)
                                 }
                             }
                             Old -> {
                                 if (oldNotificationUiFlagState.containsKey(key)) {
-                                    updateOldNotificationExpandableFlag(key)
+                                    onOldNotificationExpandableFlagUpdate(key)
                                 }
                             }
                         }
                     },
-                    onRemoveNotification = onRemoveNotification,
-                    onNotificationClicked = onNotificationClicked,
+                    onNotificationRemove = onNotificationRemove,
+                    onNotificationClick = onNotificationClick,
                     notification = item.notifications[0],
 
                 )
@@ -303,22 +303,22 @@ fun LockScreenNotificationListColumn(
                         modifier = lockNotiModifier,
                         type = Recent,
                         expandable = recentNotificationUiFlagState[item.group.key]?.expandable ?: false,
-                        updateNotificationExpandableFlag = { key, type ->
+                        onNotificationExpandableFlagUpdate = { key, type ->
                             when (type) {
                                 Recent -> {
                                     if (recentNotificationUiFlagState.containsKey(key)) {
-                                        updateRecentNotificationExpandableFlag(key)
+                                        onRecentNotificationExpandableFlagUpdate(key)
                                     }
                                 }
                                 Old -> {
                                     if (oldNotificationUiFlagState.containsKey(key)) {
-                                        updateOldNotificationExpandableFlag(key)
+                                        onOldNotificationExpandableFlagUpdate(key)
                                     }
                                 }
                             }
                         },
-                        onRemoveNotification = onRemoveNotification,
-                        onNotificationClicked = onNotificationClicked,
+                        onNotificationRemove = onNotificationRemove,
+                        onNotificationClick = onNotificationClick,
                         clickable = false,
                         notification = notification,
                     )
@@ -339,12 +339,12 @@ fun LockScreenNotificationListColumn(
                     LockScreenGroupInfo(
                         groupTitle = item.notifications[0].appTitle,
                         notifications = item.notifications.toImmutableList(),
-                        onRemoveNotification = onRemoveNotification,
+                        onRemoveNotification = onNotificationRemove,
                         removeType = Old,
                         onDisableExpand = {
                             with(item.group.key) {
                                 if (oldNotificationUiFlagState.containsKey(this)) {
-                                    updateOldNotificationExpandableFlag(this)
+                                    onOldNotificationExpandableFlagUpdate(this)
                                 }
                             }
                         },
@@ -359,26 +359,26 @@ fun LockScreenNotificationListColumn(
                     offset = { scrollState.layoutInfo.visibleItemsInfo.firstOrNull { it.key == item.notifications[0].groupKey + item.notifications[0].postedTime }?.offset ?: Integer.MAX_VALUE },
                     threshold = threshold,
                     item = item,
-                    updateNotificationClickableFlag = updateNotificationClickableFlag,
+                    onNotificationClickableFlagUpdate = onNotificationClickableFlagUpdate,
                     modifier = lockNotiModifier,
                     type = Old,
                     expandable = oldNotificationUiFlagState[item.group.key]?.expandable ?: false,
-                    updateNotificationExpandableFlag = { key, type ->
+                    onNotificationExpandableFlagUpdate = { key, type ->
                         when (type) {
                             Recent -> {
                                 if (recentNotificationUiFlagState.containsKey(key)) {
-                                    updateRecentNotificationExpandableFlag(key)
+                                    onRecentNotificationExpandableFlagUpdate(key)
                                 }
                             }
                             Old -> {
                                 if (oldNotificationUiFlagState.containsKey(key)) {
-                                    updateOldNotificationExpandableFlag(key)
+                                    onOldNotificationExpandableFlagUpdate(key)
                                 }
                             }
                         }
                     },
-                    onRemoveNotification = onRemoveNotification,
-                    onNotificationClicked = onNotificationClicked,
+                    onNotificationRemove = onNotificationRemove,
+                    onNotificationClick = onNotificationClick,
                     notification = item.notifications[0],
                 )
             }
@@ -393,22 +393,22 @@ fun LockScreenNotificationListColumn(
                         modifier = lockNotiModifier,
                         type = Old,
                         expandable = oldNotificationUiFlagState[item.group.key]?.expandable ?: false,
-                        updateNotificationExpandableFlag = { key, type ->
+                        onNotificationExpandableFlagUpdate = { key, type ->
                             when (type) {
                                 Recent -> {
                                     if (recentNotificationUiFlagState.containsKey(key)) {
-                                        updateRecentNotificationExpandableFlag(key)
+                                        onRecentNotificationExpandableFlagUpdate(key)
                                     }
                                 }
                                 Old -> {
                                     if (oldNotificationUiFlagState.containsKey(key)) {
-                                        updateOldNotificationExpandableFlag(key)
+                                        onOldNotificationExpandableFlagUpdate(key)
                                     }
                                 }
                             }
                         },
-                        onRemoveNotification = onRemoveNotification,
-                        onNotificationClicked = onNotificationClicked,
+                        onNotificationRemove = onNotificationRemove,
+                        onNotificationClick = onNotificationClick,
                         clickable = false,
                         notification = notification,
                     )

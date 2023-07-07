@@ -17,8 +17,8 @@ import com.knocklock.presentation.util.getGalleryIntent
 
 @Composable
 fun HomeRoute(
+    onSettingClick: () -> Unit,
     modifier: Modifier = Modifier,
-    onClickSetting: () -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val homeScreenUiState by viewModel.homeScreenUiState.collectAsState(HomeScreenUiState.Loading)
@@ -44,18 +44,18 @@ fun HomeRoute(
         HomeScreen(
             modifier = modifier,
             homeScreenUiState = homeScreenUiState,
-            onClickHomeMenu = { homeMenu ->
+            onHomeMenuClick = { homeMenu ->
                 when (homeMenu) {
-                    HomeMenu.SETTING -> {
-                        onClickSetting()
+                    HomeMenu.Settings -> {
+                        onSettingClick()
                     }
-                    HomeMenu.EDIT -> {
+                    HomeMenu.Edit -> {
                         isShowHomeEditContentDialog = true
                     }
-                    HomeMenu.SAVE -> {
+                    HomeMenu.Save -> {
                         viewModel.saveLockScreen()
                     }
-                    HomeMenu.CLEAR -> {
+                    HomeMenu.Clear -> {
                     }
                 }
             }
@@ -64,9 +64,9 @@ fun HomeRoute(
         if (isShowHomeEditContentDialog) {
             HomeEditContentDialog(
                 modifier = Modifier.fillMaxWidth(),
-                clickListener = { editType ->
+                onClick = { editType ->
                     when (editType) {
-                        HomeEditType.BACKGROUND -> {
+                        HomeEditType.Background -> {
                             galleryLauncher.launch(getGalleryIntent())
                         }
 
@@ -85,7 +85,7 @@ fun HomeRoute(
             HomeEditTimeFormatDialog(
                 modifier = Modifier.fillMaxWidth(),
                 selectedTimeFormat = (homeScreenUiState as? HomeScreenUiState.Success)?.lockScreen?.timeFormat,
-                clickListener = viewModel::setTimeFormat,
+                onClick = viewModel::setTimeFormat,
                 onDismiss = { isShowHomeEditTimeFormatDialog = false }
             )
         }

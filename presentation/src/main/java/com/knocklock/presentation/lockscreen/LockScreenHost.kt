@@ -34,12 +34,12 @@ import kotlinx.collections.immutable.toImmutableMap
 
 @Composable
 fun LockScreenHost(
-    onFinish: () -> Unit,
-    onRemoveNotifications: (RemovedGroupNotification) -> Unit,
-    modifier: Modifier = Modifier,
+    onFinished: () -> Unit,
+    onNotificationsRemove: (RemovedGroupNotification) -> Unit,
     lockScreenViewModel: LockScreenViewModel,
+    modifier: Modifier = Modifier,
 
-) {
+    ) {
     val packageManager = LocalContext.current.packageManager
     LaunchedEffect(key1 = Unit) {
         lockScreenViewModel.getGroupNotifications(packageManager)
@@ -53,7 +53,11 @@ fun LockScreenHost(
     val recentNotificationUiFlagState by lockScreenViewModel.recentNotificationUiFlagState.collectAsStateWithLifecycle()
     val currentUserState by lockScreenViewModel.currentLockState.collectAsStateWithLifecycle()
     val animateRadiusState by animateIntAsState(
-        targetValue = if (composeScreenState == ComposeScreenState.LockScreen) { 1 } else { 15 },
+        targetValue = if (composeScreenState == ComposeScreenState.LockScreen) {
+            1
+        } else {
+            15
+        },
         label = "",
     )
 
@@ -62,8 +66,8 @@ fun LockScreenHost(
     ) {
         GlideWithBlurLockScreen(
             modifier = Modifier.fillMaxSize(),
-            animateRadiusState,
-            backgroundState,
+            radius = animateRadiusState,
+            screen = backgroundState,
         )
 
         AnimatedVisibility(
@@ -80,7 +84,7 @@ fun LockScreenHost(
                     currentUserState?.let { user ->
                         when (user.authenticationType) {
                             AuthenticationType.GESTURE -> {
-                                onFinish()
+                                onFinished()
                             }
 
                             AuthenticationType.PASSWORD -> {
@@ -89,8 +93,8 @@ fun LockScreenHost(
                         }
                     }
                 },
-                onRemoveNotification = onRemoveNotifications,
-                onNotificationClicked = { intent ->
+                onNotificationRemove = onNotificationsRemove,
+                onNotificationClick = { intent ->
                     currentUserState?.let { user ->
                         when (user.authenticationType) {
                             AuthenticationType.GESTURE -> {
@@ -114,8 +118,8 @@ fun LockScreenHost(
             exit = fadeOut(),
         ) {
             PassWordRoute(
-                unLockPassWordScreen = {
-                    onFinish()
+                onPassWordScreenUnLock = {
+                    onFinished()
                 },
                 returnLockScreen = {
                     lockScreenViewModel.setComposeScreenState(ComposeScreenState.LockScreen)
@@ -127,9 +131,9 @@ fun LockScreenHost(
 
 @Composable
 fun GlideWithBlurLockScreen(
-    modifier: Modifier = Modifier,
     radius: Int,
     screen: LockScreen,
+    modifier: Modifier = Modifier,
 ) {
     GlideImage(
         modifier = modifier,
@@ -138,6 +142,7 @@ fun GlideWithBlurLockScreen(
                 is LockScreenBackground.DefaultWallPaper -> {
                     R.drawable.default_wallpaper
                 }
+
                 is LockScreenBackground.LocalImage -> {
                     screen.background.imageUri
                 }

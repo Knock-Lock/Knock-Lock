@@ -5,8 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -17,71 +15,51 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.knocklock.presentation.R
+import com.knocklock.presentation.ui.component.KnockLockTopAppbar
 
 
 @Composable
 fun CreditRoute(
-    modifier: Modifier = Modifier,
     onIconClick: () -> Boolean,
-    onTextClicked: (TextMenu) -> Unit
+    onTextClick: (TextMenu) -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    CreditScreen(modifier, onIconClick, onTextClicked)
+    CreditScreen(
+        onIconClick = onIconClick,
+        onTextClick = onTextClick,
+        modifier = modifier,
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreditScreen(
-    modifier: Modifier = Modifier,
     onIconClick: () -> Boolean,
-    onTextClicked: (TextMenu) -> Unit
+    onTextClick: (TextMenu) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState(0)
 
     Scaffold(
         modifier = modifier,
-        topBar = { CreditHeader(onIconClick) },
-    ) { padding ->
-        CreditBody(modifier, scrollState, padding, onTextClicked)
-    }
-}
-
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun CreditHeader(
-    onIconClick: () -> Boolean
-) {
-    TopAppBar(
-        modifier = Modifier
-            .padding(5.dp)
-            .fillMaxWidth(),
-        title = {
-            Text(
-                text = stringResource(id = R.string.knock_lock_credit),
-                modifier = Modifier.padding(start = 10.dp, bottom = 5.dp)
+        topBar = {
+            KnockLockTopAppbar(
+                stringResource(id = R.string.knock_lock_credit),
+                onBackButtonClick = { onIconClick() },
+                modifier = Modifier,
             )
         },
-        navigationIcon = {
-            IconButton(
-                modifier = Modifier.size(20.dp),
-                onClick = { onIconClick() }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = null,
-                    tint = Color.Black
-                )
-            }
-        }
-    )
+    ) { padding ->
+        CreditBody(scrollState, padding, onTextClick, modifier)
+    }
 }
 
 @Composable
 private fun CreditBody(
-    modifier: Modifier = Modifier,
     scrollState: ScrollState,
     padding: PaddingValues,
-    onTextClicked: (TextMenu) -> Unit
+    onTextClick: (TextMenu) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier
@@ -94,14 +72,14 @@ private fun CreditBody(
     ) {
         DeveloperList()
         Spacer(modifier.padding(20.dp))
-        CreditTextMenuList(onTextClicked = onTextClicked)
+        CreditTextMenuList(onTextClick = onTextClick)
     }
 }
 
 @Composable
 fun CreditTextMenuList(
-    modifier: Modifier = Modifier,
-    onTextClicked: (TextMenu) -> Unit
+    onTextClick: (TextMenu) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier.padding(bottom = 20.dp),
@@ -109,19 +87,19 @@ fun CreditTextMenuList(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         TextMenu.values().forEach { menu ->
-            CreditTextMenu(onTextClicked = onTextClicked, menu = menu)
+            CreditTextMenu(onTextClick = onTextClick, menu = menu)
         }
     }
 }
 
 @Composable
 private fun CreditTextMenu(
-    modifier: Modifier = Modifier,
-    onTextClicked: (TextMenu) -> Unit,
-    menu: TextMenu
+    onTextClick: (TextMenu) -> Unit,
+    menu: TextMenu,
+    modifier: Modifier = Modifier
 ) {
     Text(
-        modifier = modifier.clickable { onTextClicked(menu) },
+        modifier = modifier.clickable { onTextClick(menu) },
         text = stringResource(id = menu.textRes),
         fontSize = 12.sp,
         color = Color.Blue,
