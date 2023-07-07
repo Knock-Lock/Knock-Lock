@@ -57,7 +57,7 @@ fun LazyItemScope.Notification(
         Canvas(
             modifier = Modifier.fillMaxWidth().height(notificationHeight)
                 .graphicsLayer {
-                    var currentOffset = if (threshold < offset()) threshold / offset() else 1f
+                    val currentOffset = if (threshold < offset()) threshold / offset() else 1f
                     updateNotificationClickableFlag(item.group.key, (item.notifications.size >= 2 && offset() < threshold))
                     translationX = offsetX
                     alpha = currentOffset
@@ -77,7 +77,6 @@ fun LazyItemScope.Notification(
                 .graphicsLayer {
                     val currentOffset = if (threshold < offset()) threshold / offset() else 1f
                     updateNotificationClickableFlag(item.group.key, (item.notifications.size >= 2 && offset() < threshold))
-                    translationX = offsetX
                     alpha = currentOffset
                     scaleX = currentOffset
                     scaleY = currentOffset
