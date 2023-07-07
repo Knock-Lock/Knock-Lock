@@ -44,10 +44,10 @@ fun LazyItemScope.Notification(
     expandable: Boolean,
     clickable: Boolean,
     modifier: Modifier = Modifier,
-    updateNotificationClickableFlag: (String, Boolean) -> Unit = { _, _ -> },
-    updateNotificationExpandableFlag: (String, RemovedType) -> Unit = { _, _ -> },
-    onRemoveNotification: (RemovedGroupNotification) -> Unit = {},
-    onNotificationClicked: (PendingIntent) -> Unit = {},
+    onNotificationClickableFlagUpdate: (String, Boolean) -> Unit = { _, _ -> },
+    onNotificationExpandableFlagUpdate: (String, RemovedType) -> Unit = { _, _ -> },
+    onNotificationRemove: (RemovedGroupNotification) -> Unit = {},
+    onNotificationClick: (PendingIntent) -> Unit = {},
 ) {
     var offsetX by remember { mutableStateOf(0f) }
 
@@ -58,7 +58,7 @@ fun LazyItemScope.Notification(
             modifier = Modifier.fillMaxWidth().height(notificationHeight)
                 .graphicsLayer {
                     val currentOffset = if (threshold < offset()) threshold / offset() else 1f
-                    updateNotificationClickableFlag(item.group.key, (item.notifications.size >= 2 && offset() < threshold))
+                    onNotificationClickableFlagUpdate(item.group.key, (item.notifications.size >= 2 && offset() < threshold))
                     translationX = offsetX
                     alpha = currentOffset
                     scaleX = currentOffset
@@ -76,7 +76,7 @@ fun LazyItemScope.Notification(
             modifier = modifier
                 .graphicsLayer {
                     val currentOffset = if (threshold < offset()) threshold / offset() else 1f
-                    updateNotificationClickableFlag(item.group.key, (item.notifications.size >= 2 && offset() < threshold))
+                    onNotificationClickableFlagUpdate(item.group.key, (item.notifications.size >= 2 && offset() < threshold))
                     alpha = currentOffset
                     scaleX = currentOffset
                     scaleY = currentOffset
@@ -86,15 +86,15 @@ fun LazyItemScope.Notification(
                     indication = null,
                     interactionSource = remember { MutableInteractionSource() },
                 ) {
-                    updateNotificationExpandableFlag(item.group.key, type)
+                    onNotificationExpandableFlagUpdate(item.group.key, type)
                 }
                 .animateItemPlacement(),
-            onRemoveNotification = onRemoveNotification,
+            onNotificationRemove = onNotificationRemove,
             notification = notification,
             clickableState = clickable,
             expandableState = expandable,
             groupNotification = item.notifications.toImmutableList(),
-            onNotificationClicked = onNotificationClicked,
+            onNotificationClicked = onNotificationClick,
             updateSwipeOffset = {
                 offsetX = it
             },
