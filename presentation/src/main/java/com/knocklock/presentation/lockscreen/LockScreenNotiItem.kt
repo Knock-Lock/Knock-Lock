@@ -27,6 +27,8 @@ import com.knocklock.presentation.lockscreen.util.FractionalThreshold
 import com.knocklock.presentation.lockscreen.util.SwipeToDismiss
 import com.knocklock.presentation.lockscreen.util.rememberDismissState
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /**
  * @Created by 김현국 2022/12/02
@@ -49,6 +51,7 @@ fun SwipeToDismissLockNotiItem(
     val updateGroupNotification by rememberUpdatedState(newValue = groupNotification)
     val updateNotification by rememberUpdatedState(newValue = notification)
     val updateExpandableState by rememberUpdatedState(newValue = expandableState)
+    val coroutineScope = rememberCoroutineScope()
     val dismissState = rememberDismissState(confirmStateChange = { dismissValue ->
         if (updateNotification.isClearable) {
             when (dismissValue) {
@@ -59,19 +62,23 @@ fun SwipeToDismissLockNotiItem(
                     false
                 }
                 DismissValue.DismissedToEnd -> {
-                    onRemoveNotification(
-                        RemovedGroupNotification(
-                            key = updateNotification.groupKey,
-                            type = type,
-                            removedNotifications = if (updateExpandableState) {
-                                listOf(
-                                    updateNotification,
-                                )
-                            } else {
-                                updateGroupNotification?.toList() ?: emptyList()
-                            },
-                        ),
-                    )
+                    coroutineScope.launch {
+                        delay(120)
+
+                        onRemoveNotification(
+                            RemovedGroupNotification(
+                                key = updateNotification.groupKey,
+                                type = type,
+                                removedNotifications = if (updateExpandableState) {
+                                    listOf(
+                                        updateNotification,
+                                    )
+                                } else {
+                                    updateGroupNotification?.toList() ?: emptyList()
+                                },
+                            ),
+                        )
+                    }
                     true
                 }
             }
