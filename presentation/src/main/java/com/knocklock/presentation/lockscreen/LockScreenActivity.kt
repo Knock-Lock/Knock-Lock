@@ -89,10 +89,10 @@ class LockScreenActivity : ComponentActivity() {
             callStateCallBack = object : CallStateCallBack {
                 override fun onReceiveCallState(callState: CallState) {
                     when (callState) {
-                        CallState.IDLE -> {
+                        CallState.Idle -> {
                             this@LockScreenActivity.recreate()
                         }
-                        CallState.RINGING -> {
+                        CallState.Ringing -> {
                             if (!pm.isInteractive) {
                                 composeView.let {
                                     removeViewTreeOwner(it)
@@ -101,7 +101,7 @@ class LockScreenActivity : ComponentActivity() {
                             }
                         }
 
-                        CallState.OFFHOOK -> {
+                        CallState.OffHook -> {
                         }
                     }
                 }
@@ -166,7 +166,7 @@ class LockScreenActivity : ComponentActivity() {
                 }
 
                 LockScreenHost(
-                    onFinish = {
+                    onFinished = {
                         val copyList = lockScreenViewModel.recentNotificationList.value.map {
                             it.copy()
                         }
@@ -174,7 +174,7 @@ class LockScreenActivity : ComponentActivity() {
                         notificationListener?.saveRecentNotificationToDatabase(copyList)
                         this@LockScreenActivity.finish()
                     },
-                    onRemoveNotifications = { removedGroupNotification: RemovedGroupNotification ->
+                    onNotificationsRemove = { removedGroupNotification: RemovedGroupNotification ->
                         when (removedGroupNotification.type) {
                             Recent -> {
                                 lockScreenViewModel.removeNotificationInState(removedGroupNotification)

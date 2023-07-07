@@ -15,24 +15,24 @@ import com.knocklock.presentation.setting.menu.MenuList
 
 @Composable
 fun SettingRoute(
+    onMenuSelect: (Int) -> Unit,
+    navigateToPasswordInputScreen: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SettingViewModel = hiltViewModel(),
-    onMenuSelected: (Int) -> Unit,
-    navigateToPasswordInputScreen: () -> Unit
 ) {
     val userSettings by viewModel.userSetting.collectAsState(UserSettings())
 
     SettingScreen(
         modifier = modifier,
-        onMenuSelected = onMenuSelected,
-        onPasswordActivatedChanged = { isChecked ->
+        onMenuSelected = onMenuSelect,
+        onPasswordActivatedChange = { isChecked ->
             if (userSettings.password.isNotEmpty()) {
                 viewModel.onPasswordActivatedChanged(isChecked)
             } else {
                 navigateToPasswordInputScreen()
             }
         },
-        onLockActivatedChanged = viewModel::onLockActivatedChanged,
+        onLockActivatedChange = viewModel::onLockActivatedChanged,
         userSettings = userSettings
     )
 }
@@ -40,24 +40,28 @@ fun SettingRoute(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingScreen(
-    modifier: Modifier = Modifier,
     onMenuSelected: (Int) -> Unit,
-    onPasswordActivatedChanged: (Boolean) -> Unit,
-    onLockActivatedChanged: (Boolean) -> Unit,
-    userSettings: UserSettings
+    onPasswordActivatedChange: (Boolean) -> Unit,
+    onLockActivatedChange: (Boolean) -> Unit,
+    userSettings: UserSettings,
+    modifier: Modifier = Modifier
 ) {
     Scaffold(
         modifier = modifier,
         topBar = { SettingHeader(Modifier.fillMaxWidth()) },
     ) {
         Column(modifier.padding(it)) {
-            Spacer(Modifier.fillMaxWidth().padding(20.dp))
+            Spacer(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp)
+            )
             SettingBody(
-                Modifier.fillMaxWidth(),
                 onMenuSelected,
-                onPasswordActivatedChanged,
-                onLockActivatedChanged,
-                userSettings
+                onPasswordActivatedChange,
+                onLockActivatedChange,
+                userSettings,
+                Modifier.fillMaxWidth(),
             )
         }
     }
@@ -65,22 +69,22 @@ fun SettingScreen(
 
 @Composable
 private fun SettingBody(
-    modifier: Modifier = Modifier,
-    onMenuSelected: (Int) -> Unit,
-    onPasswordActivatedChanged: (Boolean) -> Unit,
-    onLockActivatedChanged: (Boolean) -> Unit,
-    userSettings: UserSettings
+    onMenuSelect: (Int) -> Unit,
+    onPasswordActivatedChange: (Boolean) -> Unit,
+    onLockActivatedChange: (Boolean) -> Unit,
+    userSettings: UserSettings,
+    modifier: Modifier = Modifier
 ) {
     Surface(
         modifier.fillMaxSize(),
         color = Color(0xffEFEEF3)
     ) {
         MenuList(
+            onMenuSelect,
+            onPasswordActivatedChange,
+            onLockActivatedChange,
+            userSettings,
             modifier,
-            onMenuSelected,
-            onPasswordActivatedChanged,
-            onLockActivatedChanged,
-            userSettings
         )
     }
 }

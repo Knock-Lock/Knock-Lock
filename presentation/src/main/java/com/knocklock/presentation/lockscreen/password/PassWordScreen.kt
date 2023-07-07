@@ -30,10 +30,10 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.knocklock.presentation.R
-import com.knocklock.presentation.lockscreen.password.Event.NOTHING
-import com.knocklock.presentation.lockscreen.password.Event.RETURN
-import com.knocklock.presentation.lockscreen.password.Event.UNLOCK
-import com.knocklock.presentation.lockscreen.password.Event.VIBRATE
+import com.knocklock.presentation.lockscreen.password.Event.Nothing
+import com.knocklock.presentation.lockscreen.password.Event.Return
+import com.knocklock.presentation.lockscreen.password.Event.Unlock
+import com.knocklock.presentation.lockscreen.password.Event.Vibrate
 import com.knocklock.presentation.ui.theme.KnockLockTheme
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
@@ -45,20 +45,20 @@ import kotlinx.collections.immutable.toImmutableList
 
 @Composable
 fun PassWordRoute(
-    unLockPassWordScreen: () -> Unit,
+    onPassWordScreenUnLock: () -> Unit,
     returnLockScreen: () -> Unit,
     passWordViewModel: PassWordViewModel = hiltViewModel(),
 ) {
-    val eventState by passWordViewModel.eventState.collectAsStateWithLifecycle(NOTHING)
+    val eventState by passWordViewModel.eventState.collectAsStateWithLifecycle(Nothing)
     val isPlaying = passWordViewModel.isPlaying
     val inputPassWordState = passWordViewModel.passWordState.toImmutableList()
     val passWordList = passWordViewModel.getPassWordList().toImmutableList()
     LaunchedEffect(eventState) {
         when (eventState) {
-            UNLOCK -> {
-                unLockPassWordScreen()
+            Unlock -> {
+                onPassWordScreenUnLock()
             }
-            RETURN -> {
+            Return -> {
                 returnLockScreen()
             }
             else -> null
@@ -68,10 +68,10 @@ fun PassWordRoute(
         isPlaying = isPlaying,
         inputPassWordState = inputPassWordState,
         passWordList = passWordList,
-        removePassWord = passWordViewModel::removePassWord,
-        updatePassWordState = passWordViewModel::updatePassWordState,
+        onPassWordRemove = passWordViewModel::removePassWord,
+        onPassWordStateUpdate = passWordViewModel::updatePassWordState,
         eventState = eventState,
-        onWiggleAnimationEnded = {
+        onWiggleAnimationEnd = {
             passWordViewModel.resetState()
         }
     )
@@ -82,20 +82,20 @@ fun PassWordScreen(
     isPlaying: Boolean,
     inputPassWordState: ImmutableList<PassWord>,
     passWordList: ImmutableList<PassWord>,
-    removePassWord: () -> Unit,
-    updatePassWordState: (String) -> Unit,
-    onWiggleAnimationEnded: () -> Unit,
+    onPassWordRemove: () -> Unit,
+    onPassWordStateUpdate: (String) -> Unit,
+    onWiggleAnimationEnd: () -> Unit,
     eventState: Event,
 ) {
     CirclePassWordBoard(
         modifier = Modifier.fillMaxSize(),
         passWordList = passWordList,
-        onPassWordClick = updatePassWordState,
-        removePassWord = removePassWord,
+        onPassWordClick = onPassWordStateUpdate,
+        onPassWordRemove = onPassWordRemove,
         isPlaying = isPlaying,
         inputPassWordState = inputPassWordState,
         eventState = eventState,
-        onWiggleAnimationEnded = onWiggleAnimationEnded
+        onWiggleAnimationEnd = onWiggleAnimationEnd
     )
 }
 
@@ -119,8 +119,8 @@ fun InsertPassWordText() {
 
 @Composable
 fun InsertPassWordRow(
-    modifier: Modifier = Modifier,
     inputPassWordState: ImmutableList<PassWord>,
+    modifier: Modifier = Modifier,
 ) {
     LazyRow(
         modifier = modifier,
@@ -154,9 +154,9 @@ fun InsertedPassWordCircle(
 
 @Composable
 fun CirclePassWordNumber(
-    modifier: Modifier = Modifier,
     passWord: PassWord,
     onPassWordClick: (String) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier.clickable(enabled = passWord.number.isNotEmpty()) {
@@ -196,10 +196,10 @@ private fun PreviewPassWordScreen360640() {
             isPlaying = false,
             inputPassWordState = PassWord.getPassWordList().take(6).toImmutableList(),
             passWordList = PassWord.getPassWordList().toImmutableList(),
-            removePassWord = {},
-            updatePassWordState = { },
-            eventState = VIBRATE,
-            onWiggleAnimationEnded = {}
+            onPassWordRemove = {},
+            onPassWordStateUpdate = { },
+            eventState = Vibrate,
+            onWiggleAnimationEnd = {}
         )
     }
 }
@@ -212,10 +212,10 @@ private fun PreviewPassWordScreen480800() {
             isPlaying = false,
             inputPassWordState = PassWord.getPassWordList().take(6).toImmutableList(),
             passWordList = PassWord.getPassWordList().toImmutableList(),
-            removePassWord = {},
-            updatePassWordState = { },
-            eventState = VIBRATE,
-            onWiggleAnimationEnded = {}
+            onPassWordRemove = {},
+            onPassWordStateUpdate = { },
+            eventState = Vibrate,
+            onWiggleAnimationEnd = {}
         )
     }
 }

@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun KnockLockTopAppbar(
     title: String,
-    onClickBackButton: () -> Unit,
+    onBackButtonClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     CenterAlignedTopAppBar(
@@ -37,7 +37,7 @@ fun KnockLockTopAppbar(
         navigationIcon = {
             IconButton(
                 modifier = Modifier.size(20.dp),
-                onClick = onClickBackButton
+                onClick = onBackButtonClick
             ) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,

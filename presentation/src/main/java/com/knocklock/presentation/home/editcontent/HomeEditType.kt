@@ -10,7 +10,7 @@ enum class HomeEditType(
         labelRes = R.string.home_edit_clock_type
     ),
 
-    BACKGROUND(
+    Background(
         labelRes = R.string.home_edit_background_type
     ),
 

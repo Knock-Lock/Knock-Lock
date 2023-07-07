@@ -13,22 +13,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.knocklock.presentation.R
 import com.knocklock.presentation.setting.UserSettings
 
 @Composable
 fun NormalMenu(
-    modifier: Modifier = Modifier,
-    onMenuSelected: (Int) -> Unit,
-    @StringRes titleRes: Int
+    onMenuSelect: (Int) -> Unit,
+    @StringRes titleRes: Int,
+    modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
             .height(55.dp)
-            .clickable { onMenuSelected(titleRes) }
+            .clickable { onMenuSelect(titleRes) }
             .background(Color.White),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
@@ -43,10 +42,10 @@ fun NormalMenu(
 
 @Composable
 fun SwitchMenu(
-    modifier: Modifier = Modifier,
     @StringRes titleRes: Int,
     isChecked: Boolean,
-    onSwitchChanged: (Boolean) -> Unit,
+    onSwitchChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Row(
         modifier = modifier
@@ -64,7 +63,7 @@ fun SwitchMenu(
         Switch(
             modifier = modifier.padding(end = 16.dp),
             checked = isChecked,
-            onCheckedChange = onSwitchChanged,
+            onCheckedChange = onSwitchChange,
             colors = SwitchDefaults.colors(
                 checkedThumbColor = Color.White,
                 uncheckedThumbColor = Color.White,
@@ -79,33 +78,33 @@ fun SwitchMenu(
 
 @Composable
 fun MenuList(
-    modifier: Modifier = Modifier,
-    onMenuSelected: (Int) -> Unit,
-    onPasswordActivatedChanged: (Boolean) -> Unit,
-    onLockActivatedChanged: (Boolean) -> Unit,
-    userSettings: UserSettings
+    onMenuSelect: (Int) -> Unit,
+    onPasswordActivatedChange: (Boolean) -> Unit,
+    onLockActivatedChange: (Boolean) -> Unit,
+    userSettings: UserSettings,
+    modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
         SwitchMenu(
-            onSwitchChanged = onPasswordActivatedChanged,
+            onSwitchChange = onPasswordActivatedChange,
             isChecked = userSettings.isPasswordActivated,
             titleRes = R.string.activate_password
         )
         Divider(modifier, 1.dp, Color.Transparent)
         NormalMenu(
-            onMenuSelected = onMenuSelected,
+            onMenuSelect = onMenuSelect,
             titleRes = R.string.change_password
         )
         Divider(modifier, 1.dp, Color.Transparent)
         NormalMenu(
-            onMenuSelected = onMenuSelected,
+            onMenuSelect = onMenuSelect,
             titleRes = R.string.credit
         )
         Divider(modifier, 30.dp, Color.Transparent)
         SwitchMenu(
             titleRes = R.string.activate_knocklock,
             isChecked = userSettings.isLockActivated,
-            onSwitchChanged = onLockActivatedChanged
+            onSwitchChange = onLockActivatedChange
         )
     }
 }

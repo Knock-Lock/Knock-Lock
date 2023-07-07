@@ -23,24 +23,24 @@ import com.knocklock.presentation.ui.theme.KnockLockTheme
 @Composable
 fun PasswordSettingScreen(
     state: PasswordInputState,
-    onClickTextButton: (String) -> Unit,
-    onClickAction: (KeyboardAction) -> Unit,
-    onClickBackButton: () -> Unit,
-    onWiggleAnimationEnded: () -> Unit,
+    onTextButtonClick: (String) -> Unit,
+    onActionClick: (KeyboardAction) -> Unit,
+    onBackButtonClick: () -> Unit,
+    onWiggleAnimationEnd: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
         KnockLockTopAppbar(
             modifier = Modifier.fillMaxWidth(),
             title = stringResource(R.string.title_password_setting),
-            onClickBackButton = onClickBackButton
+            onBackButtonClick = onBackButtonClick
         )
         PasswordSettingContent(
             modifier = modifier,
             state = state,
-            onClickTextButton = onClickTextButton,
-            onClickAction = onClickAction,
-            onWiggleAnimationEnded = onWiggleAnimationEnded
+            onTextButtonClick = onTextButtonClick,
+            onActionClick = onActionClick,
+            onWiggleAnimationEnd = onWiggleAnimationEnd
         )
     }
 }
@@ -48,9 +48,9 @@ fun PasswordSettingScreen(
 @Composable
 fun PasswordSettingContent(
     state: PasswordInputState,
-    onClickTextButton: (String) -> Unit,
-    onClickAction: (KeyboardAction) -> Unit,
-    onWiggleAnimationEnded: () -> Unit,
+    onTextButtonClick: (String) -> Unit,
+    onActionClick: (KeyboardAction) -> Unit,
+    onWiggleAnimationEnd: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -66,7 +66,7 @@ fun PasswordSettingContent(
                 modifier = Modifier
                     .wiggle(
                         isWiggle = state.getWigglePassword(),
-                        onWiggleAnimationEnded = onWiggleAnimationEnded
+                        onWiggleAnimationEnded = onWiggleAnimationEnd
                     )
                     .padding(top = 32.dp),
                 password = state.inputPassword,
@@ -76,8 +76,8 @@ fun PasswordSettingContent(
             modifier = Modifier
                 .padding(bottom = 24.dp)
                 .padding(horizontal = 24.dp),
-            onClickTextButton = onClickTextButton,
-            onClickAction = onClickAction
+            onTextButtonClick = onTextButtonClick,
+            onActionClick = onActionClick
         )
     }
 }
@@ -109,7 +109,6 @@ fun PasswordSettingTitle(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 60.dp),
-                state = state
             )
         }
     }
@@ -132,8 +131,7 @@ fun PasswordSettingNoneTitle(
 
 @Composable
 fun PasswordSettingVerifyTitle(
-    modifier: Modifier = Modifier,
-    state: PasswordInputState.PasswordVerifyState
+    modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier,
@@ -148,8 +146,8 @@ fun PasswordSettingVerifyTitle(
 
 @Composable
 fun PasswordSettingConfirmTitle(
-    modifier: Modifier = Modifier,
-    state: PasswordInputState.PasswordConfirmState
+    state: PasswordInputState.PasswordConfirmState,
+    modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier,
@@ -179,10 +177,10 @@ private fun PasswordSettingScreenPrev() {
             PasswordSettingScreen(
                 modifier = Modifier.fillMaxSize(),
                 state = PasswordInputState.PasswordNoneState(""),
-                onClickTextButton = {},
-                onClickAction = {},
-                onClickBackButton = {},
-                onWiggleAnimationEnded = {}
+                onTextButtonClick = {},
+                onActionClick = {},
+                onBackButtonClick = {},
+                onWiggleAnimationEnd = {}
             )
         }
     }
@@ -201,10 +199,10 @@ private fun PasswordSettingConfirmScreenPrev() {
                     savedPassword = "",
                     isWigglePassword = false
                 ),
-                onClickTextButton = {},
-                onClickAction = {},
-                onClickBackButton = {},
-                onWiggleAnimationEnded = {}
+                onTextButtonClick = {},
+                onActionClick = {},
+                onBackButtonClick = {},
+                onWiggleAnimationEnd = {}
             )
         }
     }
@@ -223,10 +221,10 @@ private fun PasswordSettingConfirmFailedScreenPrev() {
                     savedPassword = "",
                     isWigglePassword = true
                 ),
-                onClickTextButton = {},
-                onClickAction = {},
-                onClickBackButton = {},
-                onWiggleAnimationEnded = {}
+                onTextButtonClick = {},
+                onActionClick = {},
+                onBackButtonClick = {},
+                onWiggleAnimationEnd = {}
             )
         }
     }
