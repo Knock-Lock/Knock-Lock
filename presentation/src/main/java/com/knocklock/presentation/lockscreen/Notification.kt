@@ -10,6 +10,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -23,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.knocklock.presentation.lockscreen.model.GroupWithNotification
 import com.knocklock.presentation.lockscreen.model.Notification
 import com.knocklock.presentation.lockscreen.model.RemovedGroupNotification
@@ -55,7 +57,9 @@ fun LazyItemScope.Notification(
     var offsetX by remember { mutableStateOf(0f) }
     val animateOffsetY = remember { Animatable(0f) }
 
-    Box {
+    Box(
+        modifier = Modifier.padding(bottom = if (item.notifications.size >= 2)4.dp else 0.dp),
+    ) {
         Canvas(
             modifier = Modifier.fillMaxWidth().height(notificationHeight)
                 .graphicsLayer {
@@ -88,7 +92,7 @@ fun LazyItemScope.Notification(
             modifier = modifier
                 .graphicsLayer {
                     var offsetY = 0f
-                    var currentOffset = if (threshold < offset()) threshold / offset() else 1f
+                    val currentOffset = if (threshold < offset()) threshold / offset() else 1f
                     updateNotificationClickableFlag(item.group.key, (item.notifications.size >= 2 && offset() < threshold))
                     if (currentOffset == 1f) {
                         coroutineScope.launch {
@@ -127,14 +131,13 @@ fun LazyItemScope.Notification(
             Canvas(
                 modifier = Modifier.fillMaxWidth().height(notificationHeight)
                     .graphicsLayer {
-                        var offsetY = 0f
-                        var currentOffset = if (threshold < offset()) threshold / offset() else 1f
-                        translationY = offsetY + (notificationHeight.toPx() / 4)
+                        val currentOffset = if (threshold < offset()) threshold / offset() else 1f
+                        translationY = (notificationHeight.toPx() / 4)
                         translationX = offsetX
                         alpha = currentOffset
                         scaleX = currentOffset / 4 * 3
                         scaleY = currentOffset / 4 * 3
-                    }.animateItemPlacement(),
+                    }.zIndex(-1f).animateItemPlacement(),
             ) {
                 drawRoundRect(
                     color = Color.White,
