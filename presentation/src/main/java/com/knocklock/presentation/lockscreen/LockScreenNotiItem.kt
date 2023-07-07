@@ -5,7 +5,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -27,6 +26,8 @@ import com.knocklock.presentation.lockscreen.util.FractionalThreshold
 import com.knocklock.presentation.lockscreen.util.SwipeToDismiss
 import com.knocklock.presentation.lockscreen.util.rememberDismissState
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /**
  * @Created by 김현국 2022/12/02
@@ -49,6 +50,7 @@ fun SwipeToDismissLockNotiItem(
     val updateGroupNotification by rememberUpdatedState(newValue = groupNotification)
     val updateNotification by rememberUpdatedState(newValue = notification)
     val updateExpandableState by rememberUpdatedState(newValue = expandableState)
+    val coroutineScope = rememberCoroutineScope()
     val dismissState = rememberDismissState(confirmStateChange = { dismissValue ->
         if (updateNotification.isClearable) {
             when (dismissValue) {
@@ -59,19 +61,22 @@ fun SwipeToDismissLockNotiItem(
                     false
                 }
                 DismissValue.DismissedToEnd -> {
-                    onNotificationRemove(
-                        RemovedGroupNotification(
-                            key = updateNotification.groupKey,
-                            type = type,
-                            removedNotifications = if (updateExpandableState) {
-                                listOf(
-                                    updateNotification,
-                                )
-                            } else {
-                                updateGroupNotification?.toList() ?: emptyList()
-                            },
-                        ),
-                    )
+                    coroutineScope.launch {
+                        delay(120)
+                        onNotificationRemove(
+                            RemovedGroupNotification(
+                                key = updateNotification.groupKey,
+                                type = type,
+                                removedNotifications = if (updateExpandableState) {
+                                    listOf(
+                                        updateNotification,
+                                    )
+                                } else {
+                                    updateGroupNotification?.toList() ?: emptyList()
+                                },
+                            ),
+                        )
+                    }
                     true
                 }
             }
@@ -90,13 +95,11 @@ fun SwipeToDismissLockNotiItem(
         state = dismissState,
         dismissThresholds = { FractionalThreshold(0.25f) },
         dismissContent = {
-            Box {
-                LockNotiItem(
-                    notification = updateNotification,
-                    clickableState = clickableState,
-                    expandableState = expandableState,
-                )
-            }
+            LockNotiItem(
+                notification = updateNotification,
+                clickableState = clickableState,
+                expandableState = expandableState,
+            )
         },
         background = {},
     )
@@ -130,12 +133,12 @@ fun LockNotiItem(
                 content = notification.content,
             )
         }
-        if (clickableState) {
+        if (clickableState && !expandableState) {
             Icon(
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
                     .padding(end = 5.dp),
-                imageVector = if (expandableState) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                imageVector = Icons.Filled.ExpandMore,
                 contentDescription = null,
             )
         }
