@@ -37,4 +37,8 @@
     <string name="home_edit_clock_type">시계</string>
     <string name="home_edit_background_type">배경</string>
     <string name="home_edit_unknown_type">"?"</string>
+    <string name="title_permission">퍼미션 요청</string>
+    <string name="message_permission">잠금 화면 기능을 위해 권한을 허용해 주세요</string>
+    <string name="positive_permission_text">요청</string>
+    <string name="negative_permission_text">취소</string>
 </resources>
