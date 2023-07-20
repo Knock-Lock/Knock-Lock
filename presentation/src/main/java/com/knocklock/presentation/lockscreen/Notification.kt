@@ -1,6 +1,5 @@
 package com.knocklock.presentation.lockscreen
 
-import android.app.PendingIntent
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
@@ -47,7 +46,7 @@ fun LazyItemScope.Notification(
     onNotificationClickableFlagUpdate: (String, Boolean) -> Unit = { _, _ -> },
     onNotificationExpandableFlagUpdate: (String, RemovedType) -> Unit = { _, _ -> },
     onNotificationRemove: (RemovedGroupNotification) -> Unit = {},
-    onNotificationClick: (PendingIntent) -> Unit = {},
+    onNotificationClick: (String) -> Unit = {},
 ) {
     var offsetX by remember { mutableStateOf(0f) }
 
@@ -82,11 +81,17 @@ fun LazyItemScope.Notification(
                     scaleY = currentOffset
                 }
                 .clickable(
-                    enabled = clickable,
+                    enabled = true,
                     indication = null,
                     interactionSource = remember { MutableInteractionSource() },
                 ) {
-                    onNotificationExpandableFlagUpdate(item.group.key, type)
+                    if (clickable && !expandable) {
+                        onNotificationExpandableFlagUpdate(item.group.key, type)
+                    } else {
+                        notification.intent?.let {
+                            onNotificationClick(it)
+                        }
+                    }
                 }
                 .animateItemPlacement(),
             onNotificationRemove = onNotificationRemove,
@@ -94,7 +99,6 @@ fun LazyItemScope.Notification(
             clickableState = clickable,
             expandableState = expandable,
             groupNotification = item.notifications.toImmutableList(),
-            onNotificationClicked = onNotificationClick,
             updateSwipeOffset = {
                 offsetX = it
             },
