@@ -223,8 +223,6 @@ class LockScreenNotificationListener :
             .build()
     }
 
-
-
     private fun registerScreenEventReceiver() {
         screenEventReceiver.registerReceiver()
     }

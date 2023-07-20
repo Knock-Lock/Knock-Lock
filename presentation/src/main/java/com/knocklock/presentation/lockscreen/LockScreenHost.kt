@@ -1,5 +1,6 @@
 package com.knocklock.presentation.lockscreen
 
+import android.content.Intent
 import android.graphics.Bitmap
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateIntAsState
@@ -16,6 +17,7 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.renderscript.Toolkit
 import com.knocklock.domain.model.AuthenticationType
@@ -39,12 +41,12 @@ fun LockScreenHost(
     lockScreenViewModel: LockScreenViewModel,
     modifier: Modifier = Modifier,
 
-    ) {
+) {
+    val context = LocalContext.current
     val packageManager = LocalContext.current.packageManager
     LaunchedEffect(key1 = Unit) {
         lockScreenViewModel.getGroupNotifications(packageManager)
     }
-
     val backgroundState by lockScreenViewModel.currentBackground.collectAsStateWithLifecycle()
     val composeScreenState by lockScreenViewModel.composeScreenState.collectAsStateWithLifecycle()
     val oldNotificationUiState by lockScreenViewModel.oldNotificationList.collectAsStateWithLifecycle()
@@ -94,13 +96,23 @@ fun LockScreenHost(
                     }
                 },
                 onNotificationRemove = onNotificationsRemove,
-                onNotificationClick = { intent ->
+                onNotificationClick = { intentString ->
                     currentUserState?.let { user ->
                         when (user.authenticationType) {
                             AuthenticationType.GESTURE -> {
+                                val launchIntent: Intent? = packageManager.getLaunchIntentForPackage(intentString)
+                                launchIntent?.let { intent ->
+                                    startActivity(context, intent, null)
+                                }
+                                onFinished()
                             }
 
                             AuthenticationType.PASSWORD -> {
+                                val launchIntent: Intent? = packageManager.getLaunchIntentForPackage(intentString)
+                                launchIntent?.let { intent ->
+                                    startActivity(context, intent, null)
+                                }
+                                lockScreenViewModel.setComposeScreenState(ComposeScreenState.PassWordScreen)
                             }
                         }
                     }
