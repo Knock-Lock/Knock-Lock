@@ -1,6 +1,5 @@
 package com.knocklock.presentation.lockscreen
 
-import android.app.PendingIntent
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
@@ -49,7 +48,7 @@ fun LockScreenRoute(
     oldNotificationUiFlagState: ImmutableMap<String, NotificationUiFlagState>,
     userSwipe: () -> Unit,
     onNotificationRemove: (RemovedGroupNotification) -> Unit,
-    onNotificationClick: (PendingIntent) -> Unit,
+    onNotificationClick: (String) -> Unit,
     updateOldNotificationExpandableFlag: (String) -> Unit,
     updateRecentNotificationExpandableFlag: (String) -> Unit,
     updateNotificationClickableFlag: (String, Boolean) -> Unit,
@@ -80,7 +79,7 @@ fun LockScreen(
     oldNotificationUiFlagState: ImmutableMap<String, NotificationUiFlagState>,
     userSwipe: () -> Unit,
     onNotificationRemove: (RemovedGroupNotification) -> Unit,
-    onNotificationClick: (PendingIntent) -> Unit,
+    onNotificationClick: (String) -> Unit,
     updateNotificationExpandableFlag: (String) -> Unit,
     updateNewNotificationExpandableFlag: (String) -> Unit,
     updateNotificationClickableFlag: (String, Boolean) -> Unit,
@@ -208,7 +207,7 @@ fun LockScreenNotificationListColumn(
     onNotificationRemove: (RemovedGroupNotification) -> Unit,
     notificationHeight: Dp,
     onNotificationClickableFlagUpdate: (String, Boolean) -> Unit,
-    onNotificationClick: (PendingIntent) -> Unit,
+    onNotificationClick: (String) -> Unit,
     timeFormat: TimeFormat,
     modifier: Modifier = Modifier,
 ) {

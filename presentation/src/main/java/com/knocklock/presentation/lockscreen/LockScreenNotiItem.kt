@@ -37,7 +37,6 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SwipeToDismissLockNotiItem(
-    onNotificationClicked: (PendingIntent) -> Unit,
     onNotificationRemove: (RemovedGroupNotification) -> Unit,
     notification: Notification,
     clickableState: Boolean,

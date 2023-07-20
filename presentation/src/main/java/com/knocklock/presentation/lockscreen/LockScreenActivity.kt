@@ -73,7 +73,6 @@ class LockScreenActivity : ComponentActivity() {
             onPostedNotificationPostedListener = object : NotificationPostedListener {
                 override fun onPostedNotification(notification: String) {
                     val notificationModel: NotificationModel = Json.decodeFromString(notification)
-
                     lockScreenViewModel.addRecentNotification(notificationModel, packageManager)
                 }
 

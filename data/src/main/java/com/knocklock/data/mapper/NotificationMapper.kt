@@ -15,7 +15,8 @@ fun NotificationModel.toEntity() = Notification(
     title = this.title,
     content = this.content,
     isClearable = this.isClearable,
-    groupKey = this.groupKey
+    groupKey = this.groupKey,
+    intent = this.intent,
 )
 
 fun Notification.toModel() = NotificationModel(
@@ -26,5 +27,6 @@ fun Notification.toModel() = NotificationModel(
     title = this.title,
     content = this.content,
     isClearable = this.isClearable,
-    groupKey = this.groupKey
+    groupKey = this.groupKey,
+    intent = this.intent,
 )
