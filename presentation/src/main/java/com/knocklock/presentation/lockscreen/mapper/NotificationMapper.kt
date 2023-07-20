@@ -1,5 +1,7 @@
 package com.knocklock.presentation.lockscreen.mapper
 
+import android.app.PendingIntent
+import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
@@ -17,39 +19,6 @@ import com.knocklock.domain.model.Notification as NotificationModel
  */
 
 /**
- * StatusBarNotification를 Array<[NotificationModel]>로 변환합니다.
- *
- * StatusBarNotification를 수정할 수 없기 때문에 List->Array로 변환합니다.
- *
- * @param statusBarNotifications Array<out [StatusBarNotification]> activeNotifications 입니다.
- * @return Array<[NotificationModel]>
- */
-fun toModel(statusBarNotifications: Array<out StatusBarNotification>, packageManager: PackageManager): Array<NotificationModel> {
-    return statusBarNotifications.asSequence().filter { statusBarNotification ->
-        statusBarNotification.isNotEmptyTitleOrContent()
-    }.map { statusBarNotification ->
-        statusBarNotification.toModel(packageManager)
-    }.toList().toTypedArray()
-}
-
-/**
- * StatusBarNotification에서 Database에 저장할 키를 반환합니다.
- *
- * StatusBarNotification에서 title이나 content가 있는 경우 데이터베아스의 저장할 키를 생성합니다.
- * @param packageManager AppTitle을 가져오기 위한 packageManager입니다.
- * @return null OR Group.Key
- */
-fun StatusBarNotification.getDatabaseKey(packageManager: PackageManager): String? {
-    return if (isNotEmptyTitleOrContent()) {
-        val (title, _, subText) = getTitleAndContentAndSubText()
-        val appTitle = getDrawableAndAppTitle(packageManager, packageName).first ?: ""
-        if (subText.isEmpty()) getGroupKey(packageName, appTitle, title) else getGroupKey(packageName, appTitle, subText)
-    } else {
-        null
-    }
-}
-
-/**
  * StatusBarNotification을 Domain Layer Model로 변환합니다.
  *
  * StatusBarNotification에서 title이나 content가 있는 경우 Notification Model(Domain)을 생성합니다.
@@ -62,6 +31,8 @@ fun StatusBarNotification.toModel(packageManager: PackageManager): NotificationM
     val packageName = packageName
     val appTitle = getDrawableAndAppTitle(packageManager, packageName).first ?: ""
 
+    val intent = this.notification.contentIntent.toIntent()
+
     return NotificationModel(
         id = key,
         packageName = packageName,
@@ -71,7 +42,13 @@ fun StatusBarNotification.toModel(packageManager: PackageManager): NotificationM
         content = content,
         isClearable = isClearable,
         groupKey = if (subText.isEmpty()) getGroupKey(packageName, appTitle, title) else getGroupKey(packageName, appTitle, subText),
+        intent = intent,
     )
+}
+fun PendingIntent.toIntent(): String? {
+    return runCatching {
+        this.intentSender.creatorPackage
+    }.getOrNull()
 }
 
 /**
@@ -130,7 +107,7 @@ fun NotificationModel.toModel(packageManager: PackageManager): Notification {
         title = this.title,
         content = this.content,
         isClearable = this.isClearable,
-        intent = null,
+        intent = this.intent,
         packageName = this.packageName,
         groupKey = this.groupKey,
     )
