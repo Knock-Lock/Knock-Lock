@@ -262,6 +262,21 @@ class LockScreenViewModel @Inject constructor(
             }
         }
     }
+
+    fun removeRecentNotificationsWithGroupKey(key: String) {
+        val isExisted = _recentNotificationList.value.any {
+            it.group.key == key
+        }
+        if (isExisted) {
+            val removedRecentNotificationList = _recentNotificationList.value.filter {
+                it.group.key != key
+            }
+            removeRecentNotificationUiFlag(key)
+            _recentNotificationList.update {
+                removedRecentNotificationList
+            }
+        }
+    }
     private fun setOldNotificationUiFlagMap(key: String, flag: Boolean) = with(_oldNotificationUiFlagState.value) {
         if (this.containsKey(key).not()) {
             this[key] = NotificationUiFlagState(clickable = flag)

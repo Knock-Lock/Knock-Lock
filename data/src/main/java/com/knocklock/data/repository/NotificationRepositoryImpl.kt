@@ -69,4 +69,10 @@ class NotificationRepositoryImpl @Inject constructor(
             println("exception $it")
         }
     }
+
+    override suspend fun removeNotificationsWithGroupKey(key: String) {
+        runCatching {
+            notificationDao.deleteNotificationsWithGroupKey(key)
+        }
+    }
 }
