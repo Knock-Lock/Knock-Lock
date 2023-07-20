@@ -2,13 +2,16 @@ package com.knocklock.presentation
 
 import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.appcompat.app.AlertDialog
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.view.WindowCompat
 import androidx.navigation.compose.rememberNavController
@@ -26,7 +29,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        requestPermission()
+        checkLockPermission()
 
         setContent {
             KnockLockTheme {
@@ -39,47 +42,41 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun requestPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            TedPermission.create()
-                .setPermissionListener(object : PermissionListener {
-                    override fun onPermissionGranted() {
-                        showShortToastMessage("권한이 허용되었습니다.")
-                        if (checkNotificationPermission()) {
-                            startService()
-                        }
-                    }
-
-                    override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {
-                        showShortToastMessage("권한을 허용해주세요.")
-                    }
-                })
-                .setDeniedMessage("잠금 화면 스크린 사용을 위한 권한을 허용해주세요")
-                .setPermissions(
-                    Manifest.permission.FOREGROUND_SERVICE,
-                    Manifest.permission.SYSTEM_ALERT_WINDOW,
-                    Manifest.permission.READ_PHONE_STATE,
-                ).check()
-        } else {
-            TedPermission.create()
-                .setPermissionListener(object : PermissionListener {
-                    override fun onPermissionGranted() {
-                        showShortToastMessage("권한이 허용되었습니다.")
-                        if (checkNotificationPermission()) {
-                            startService()
-                        }
-                    }
-
-                    override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {
-                        showShortToastMessage("권한이 허용되지 않았습니다.")
-                    }
-                })
-                .setDeniedMessage("권한을 허용해주세요")
-                .setPermissions(
-                    Manifest.permission.SYSTEM_ALERT_WINDOW,
-                    Manifest.permission.READ_PHONE_STATE,
-                ).check()
+    private fun checkLockPermission() {
+        if (
+            lockPermissions.map { permission ->
+                ActivityCompat.checkSelfPermission(this, permission) ==
+                        PackageManager.PERMISSION_GRANTED
+            }.any { !it }
+        ) {
+            AlertDialog.Builder(this)
+                .setTitle(getString(R.string.title_permission))
+                .setMessage(getString(R.string.message_permission))
+                .setPositiveButton(R.string.positive_permission_text) { dialog, _ ->
+                    requestLockPermission()
+                    dialog.dismiss()
+                }.setNegativeButton(R.string.negative_permission_text) { dialog, _ ->
+                    dialog.dismiss()
+                }.show()
         }
+    }
+
+    private fun requestLockPermission() {
+        TedPermission.create()
+            .setPermissionListener(object : PermissionListener {
+                override fun onPermissionGranted() {
+                    showShortToastMessage("권한이 허용되었습니다.")
+                    if (checkNotificationPermission()) {
+                        startService()
+                    }
+                }
+
+                override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {
+                    showShortToastMessage("권한을 허용해주세요.")
+                }
+            })
+            .setDeniedMessage("잠금 화면 스크린 사용을 위한 권한을 허용해주세요")
+            .setPermissions(*lockPermissions.toTypedArray()).check()
     }
 
     private fun checkNotificationPermission(): Boolean {
@@ -106,5 +103,14 @@ class MainActivity : ComponentActivity() {
         const val GithubLink = "https://github.com/Knock-Lock/Knock-Lock"
         const val KknokLockAccount = "100056653114"
         const val KnockLockEmailAddress = "rldkvos2@gmail.com"
+
+        val lockPermissions = mutableListOf(
+            Manifest.permission.SYSTEM_ALERT_WINDOW,
+            Manifest.permission.READ_PHONE_STATE
+        ).apply {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                add(Manifest.permission.FOREGROUND_SERVICE)
+            }
+        }
     }
 }
