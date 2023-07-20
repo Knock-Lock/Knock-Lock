@@ -23,8 +23,9 @@ import com.knocklock.presentation.lockscreen.LockScreenActivity
 import com.knocklock.presentation.lockscreen.mapper.isNotEmptyTitleOrContent
 import com.knocklock.presentation.lockscreen.mapper.toModel
 import com.knocklock.presentation.lockscreen.model.GroupWithNotification
-import com.knocklock.presentation.lockscreen.receiver.NotificationPostedReceiver.Companion.PostedAction
-import com.knocklock.presentation.lockscreen.receiver.NotificationPostedReceiver.Companion.PostedNotification
+import com.knocklock.presentation.lockscreen.receiver.NotificationPostedAndRemovedReceiver.Companion.PostAndRemove
+import com.knocklock.presentation.lockscreen.receiver.NotificationPostedAndRemovedReceiver.Companion.PostedNotification
+import com.knocklock.presentation.lockscreen.receiver.NotificationPostedAndRemovedReceiver.Companion.RemovedNotification
 import com.knocklock.presentation.lockscreen.receiver.OnScreenEventListener
 import com.knocklock.presentation.lockscreen.receiver.ScreenEventReceiver
 import dagger.hilt.android.AndroidEntryPoint
@@ -66,8 +67,6 @@ class LockScreenNotificationListener :
         fun getService(): LockScreenNotificationListener = this@LockScreenNotificationListener
     }
 
-    private val recentNotifications = MutableStateFlow(arrayListOf<GroupWithNotification>())
-
     override fun onBind(intent: Intent): IBinder? {
         val action = intent.action
         return if (SERVICE_INTERFACE == action) {
@@ -98,12 +97,29 @@ class LockScreenNotificationListener :
                 if (sbn.isNotEmptyTitleOrContent()) {
                     val notification = sbn.toModel(packageManager)
                     val intent = Intent().apply {
-                        action = PostedAction
+                        action = PostAndRemove
                         putExtra(PostedNotification, Json.encodeToString(notification))
                     }
                     this@LockScreenNotificationListener.sendBroadcast(intent)
                 }
             }
+        }
+    }
+
+    override fun onNotificationRemoved(sbn: StatusBarNotification?) {
+        super.onNotificationRemoved(sbn)
+        if (sbn != null) {
+            // 오래된 알림에서 제거
+            val notification = sbn.toModel(packageManager)
+            notificationScope.launch {
+                notificationRepository.removeNotificationsWithGroupKey(notification.groupKey)
+            }
+            // 최근 알림에서 제거
+            val intent = Intent().apply {
+                action = PostAndRemove
+                putExtra(RemovedNotification, notification.groupKey)
+            }
+            this@LockScreenNotificationListener.sendBroadcast(intent)
         }
     }
 
@@ -222,8 +238,6 @@ class LockScreenNotificationListener :
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .build()
     }
-
-
 
     private fun registerScreenEventReceiver() {
         screenEventReceiver.registerReceiver()

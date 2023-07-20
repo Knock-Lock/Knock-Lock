@@ -105,6 +105,7 @@ fun LockScreen(
                         onNotificationClickableFlagUpdate = updateNotificationClickableFlag,
                         notificationHeight = 60.dp,
                         timeFormat = timeFormat,
+                        modifier = Modifier.fillMaxSize(),
                     )
                 }
                 is NotificationUiState.Empty -> {
