@@ -14,5 +14,6 @@ data class Notification(
     val title: String = "",
     val content: String = "",
     val isClearable: Boolean = false,
-    val groupKey: String = ""
+    val groupKey: String = "",
+    val intent: String? = null,
 )

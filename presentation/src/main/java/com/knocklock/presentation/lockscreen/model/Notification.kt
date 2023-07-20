@@ -1,6 +1,5 @@
 package com.knocklock.presentation.lockscreen.model
 
-import android.app.PendingIntent
 import android.graphics.drawable.Drawable
 import androidx.compose.runtime.Immutable
 
@@ -19,7 +18,7 @@ data class Notification(
     val title: String = "",
     val content: String = "",
     val isClearable: Boolean = false,
-    val intent: PendingIntent? = null,
+    val intent: String? = null,
     val packageName: String? = null,
 ) {
     companion object {
