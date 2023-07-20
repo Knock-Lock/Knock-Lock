@@ -34,8 +34,8 @@ import com.knocklock.presentation.lockscreen.model.RemovedType.Old
 import com.knocklock.presentation.lockscreen.model.RemovedType.Recent
 import com.knocklock.presentation.lockscreen.receiver.CallState
 import com.knocklock.presentation.lockscreen.receiver.CallStateCallBack
+import com.knocklock.presentation.lockscreen.receiver.NotificationPostedAndRemovedReceiver
 import com.knocklock.presentation.lockscreen.receiver.NotificationPostedListener
-import com.knocklock.presentation.lockscreen.receiver.NotificationPostedReceiver
 import com.knocklock.presentation.lockscreen.receiver.OnSystemBarEventListener
 import com.knocklock.presentation.lockscreen.receiver.PhoneCallStateReceiver
 import com.knocklock.presentation.lockscreen.receiver.SystemBarEventReceiver
@@ -67,14 +67,18 @@ class LockScreenActivity : ComponentActivity() {
     }
     private val lockScreenViewModel: LockScreenViewModel by viewModels()
 
-    private val notificationPostedReceiver by lazy {
-        NotificationPostedReceiver(
+    private val notificationPostedAndRemovedReceiver by lazy {
+        NotificationPostedAndRemovedReceiver(
             this,
             onPostedNotificationPostedListener = object : NotificationPostedListener {
                 override fun onPostedNotification(notification: String) {
                     val notificationModel: NotificationModel = Json.decodeFromString(notification)
 
                     lockScreenViewModel.addRecentNotification(notificationModel, packageManager)
+                }
+
+                override fun onRemovedNotifications(key: String) {
+                    lockScreenViewModel.removeRecentNotificationsWithGroupKey(key)
                 }
             },
 
@@ -311,10 +315,10 @@ class LockScreenActivity : ComponentActivity() {
         unregisterPhoneCallStateReceiver()
     }
     private fun registerNotificationPostedReceiver() {
-        notificationPostedReceiver.registerReceiver()
+        notificationPostedAndRemovedReceiver.registerReceiver()
     }
     private fun unregisterNotificationPostedReceiver() {
-        notificationPostedReceiver.unregisterReceiver()
+        notificationPostedAndRemovedReceiver.unregisterReceiver()
     }
     private fun registerSystemBarEventReceiver() {
         systemBarEventReceiver.registerReceiver()
