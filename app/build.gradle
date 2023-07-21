@@ -48,7 +48,6 @@ dependencies {
     debugImplementation(libs.flipper)
     releaseImplementation(libs.flipper.noop)
     debugImplementation(libs.soloader)
-    releaseImplementation(libs.flipper.android.no.op)
 }
 
 kapt {
