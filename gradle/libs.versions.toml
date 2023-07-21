@@ -27,7 +27,7 @@ junit = "4.13.2"
 javaxInject = "1"
 renderScript = "b6363490c3"
 tedPermission = "3.3.0"
-flipper = "0.201.0"
+flipper = "0.191.0"
 soloader = "0.10.5"
 flipper-android-no-op = "0.11.1"
 
