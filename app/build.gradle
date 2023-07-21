@@ -45,9 +45,8 @@ dependencies {
     implementation libs.hilt.android
     kapt libs.hilt.compiler
 
-    debugImplementation(libs.flipper)
-    releaseImplementation(libs.flipper.noop)
-    debugImplementation(libs.soloader)
+    debugImplementation("com.facebook.flipper:flipper:0.191.1")
+    debugImplementation(libs.facebook.soloader)
 }
 
 kapt {

@@ -27,9 +27,8 @@ junit = "4.13.2"
 javaxInject = "1"
 renderScript = "b6363490c3"
 tedPermission = "3.3.0"
-flipper = "0.191.0"
+flipper = "0.191.1"
 soloader = "0.10.5"
-flipper-android-no-op = "0.11.1"
 
 [libraries]
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
@@ -62,10 +61,9 @@ junit = { group = "junit", name = "junit", version.ref = "junit" }
 javax-inject = { group = "javax.inject", name = "javax.inject", version.ref = "javaxInject" }
 renderScript = { module = "com.github.android:renderscript-intrinsics-replacement-toolkit", version.ref = "renderScript" }
 tedPermission = { module = "io.github.ParkSangGwon:tedpermission-normal", version.ref = "tedPermission" }
-flipper = { module = "com.facebook.flipper:flipper", version.ref = "flipper" }
-flipper-noop = { module = "com.facebook.flipper:flipper-noop", version.ref = "flipper" }
-soloader = { module = "com.facebook.soloader:soloader", version.ref = "soloader" }
-flipper-android-no-op = { module = "com.github.theGlenn:flipper-android-no-op", version.ref = "flipper-android-no-op" }
+#facebook-flipper = { module = "com.facebook.flipper:flipper", version.ref = "flipper" }
+facebook-flipper-noop = { module = "com.facebook.flipper:flipper-noop", version.ref = "flipper" }
+facebook-soloader = { module = "com.facebook.soloader:soloader", version.ref = "soloader" }
 
 
 [plugins]
