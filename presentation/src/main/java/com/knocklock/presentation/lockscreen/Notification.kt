@@ -88,9 +88,7 @@ fun LazyItemScope.Notification(
                     if (clickable && !expandable) {
                         onNotificationExpandableFlagUpdate(item.group.key, type)
                     } else {
-                        notification.intent?.let {
-                            onNotificationClick(it)
-                        }
+                        notification.packageName?.let { onNotificationClick(it) }
                     }
                 }
                 .animateItemPlacement(),

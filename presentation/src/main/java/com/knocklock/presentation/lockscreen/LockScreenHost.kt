@@ -96,11 +96,11 @@ fun LockScreenHost(
                     }
                 },
                 onNotificationRemove = onNotificationsRemove,
-                onNotificationClick = { intentString ->
+                onNotificationClick = { packageName ->
                     currentUserState?.let { user ->
                         when (user.authenticationType) {
                             AuthenticationType.GESTURE -> {
-                                val launchIntent: Intent? = packageManager.getLaunchIntentForPackage(intentString)
+                                val launchIntent: Intent? = packageManager.getLaunchIntentForPackage(packageName)
                                 launchIntent?.let { intent ->
                                     startActivity(context, intent, null)
                                 }
@@ -108,7 +108,7 @@ fun LockScreenHost(
                             }
 
                             AuthenticationType.PASSWORD -> {
-                                val launchIntent: Intent? = packageManager.getLaunchIntentForPackage(intentString)
+                                val launchIntent: Intent? = packageManager.getLaunchIntentForPackage(packageName)
                                 launchIntent?.let { intent ->
                                     startActivity(context, intent, null)
                                 }
