@@ -27,6 +27,9 @@ junit = "4.13.2"
 javaxInject = "1"
 renderScript = "b6363490c3"
 tedPermission = "3.3.0"
+flipper = "0.201.0"
+soloader = "0.10.5"
+flipper-android-no-op = "0.11.1"
 
 [libraries]
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
@@ -35,12 +38,12 @@ kotlinx-collections-immutable = { group = "org.jetbrains.kotlinx", name = "kotli
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidxCoreKtx" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidxAppCompat" }
 androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "androidxDatastore" }
-androidx-palette = { group = "androidx.palette", name = "palette", version.ref= "androidxPalette"}
-androidx-savedState = { group = "androidx.savedstate", name = "savedstate", version.ref= "androidxSavedState"}
-androidx-lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref= "androidxLifecycle"}
-androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref= "androidxLifecycle"}
-androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref= "androidxLifecycle"}
-androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref= "androidxContraintlayout"}
+androidx-palette = { group = "androidx.palette", name = "palette", version.ref = "androidxPalette" }
+androidx-savedState = { group = "androidx.savedstate", name = "savedstate", version.ref = "androidxSavedState" }
+androidx-lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "androidxLifecycle" }
+androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "androidxLifecycle" }
+androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidxLifecycle" }
+androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "androidxContraintlayout" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidxActivityCompose" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "androidxNavigationCompose" }
 androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "androidxHiltNavigationCompose" }
@@ -50,20 +53,25 @@ compose-glide = { module = "com.github.skydoves:landscapist-glide", version.ref 
 compose-bottomsheet = { module = "com.holix.android:bottomsheetdialog-compose", version.ref = "composeBottomSheet" }
 compose-coil = { module = "io.coil-kt:coil-compose", version.ref = "composeCoil" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
-hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt"  }
+hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
-javax-inject = { group = "javax.inject", name = "javax.inject", version.ref = "javaxInject"}
+javax-inject = { group = "javax.inject", name = "javax.inject", version.ref = "javaxInject" }
 renderScript = { module = "com.github.android:renderscript-intrinsics-replacement-toolkit", version.ref = "renderScript" }
 tedPermission = { module = "io.github.ParkSangGwon:tedpermission-normal", version.ref = "tedPermission" }
+flipper = { module = "com.facebook.flipper:flipper", version.ref = "flipper" }
+flipper-noop = { module = "com.facebook.flipper:flipper-noop", version.ref = "flipper" }
+soloader = { module = "com.facebook.soloader:soloader", version.ref = "soloader" }
+flipper-android-no-op = { module = "com.github.theGlenn:flipper-android-no-op", version.ref = "flipper-android-no-op" }
+
 
 [plugins]
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlinPlugin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlinPlugin" }
-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinPlugin"}
-android-application = { id = "com.android.application", version.ref = "androidGradlePlugin"}
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinPlugin" }
+android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
 android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
