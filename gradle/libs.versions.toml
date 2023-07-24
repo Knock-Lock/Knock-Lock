@@ -27,6 +27,7 @@ junit = "4.13.2"
 javaxInject = "1"
 renderScript = "b6363490c3"
 tedPermission = "3.3.0"
+image_cropper = "4.3.3"
 
 [libraries]
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
@@ -59,6 +60,7 @@ junit = { group = "junit", name = "junit", version.ref = "junit" }
 javax-inject = { group = "javax.inject", name = "javax.inject", version.ref = "javaxInject"}
 renderScript = { module = "com.github.android:renderscript-intrinsics-replacement-toolkit", version.ref = "renderScript" }
 tedPermission = { module = "io.github.ParkSangGwon:tedpermission-normal", version.ref = "tedPermission" }
+image-cropper = { module = "com.vanniktech:android-image-cropper", version.ref = "image_cropper" }
 
 [plugins]
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlinPlugin" }
