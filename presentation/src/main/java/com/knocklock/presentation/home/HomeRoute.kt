@@ -1,25 +1,31 @@
 package com.knocklock.presentation.home
 
-import android.app.Activity
-import android.content.Intent
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.canhub.cropper.CropImageContract
+import com.canhub.cropper.CropImageContractOptions
+import com.canhub.cropper.CropImageOptions
 import com.knocklock.presentation.home.editcontent.HomeEditContentDialog
 import com.knocklock.presentation.home.editcontent.HomeEditTimeFormatDialog
 import com.knocklock.presentation.home.editcontent.HomeEditType
 import com.knocklock.presentation.home.menu.HomeMenu
-import com.knocklock.presentation.util.getGalleryIntent
+import java.io.File
+import java.util.Objects
 
 @Composable
 fun HomeRoute(
     onSettingClick: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: HomeViewModel = hiltViewModel()
+    viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val homeScreenUiState by viewModel.homeScreenUiState.collectAsState(HomeScreenUiState.Loading)
 
@@ -27,16 +33,45 @@ fun HomeRoute(
     var isShowHomeEditTimeFormatDialog by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
+
+    val screenX = LocalConfiguration.current.screenWidthDp
+    val screenY = LocalConfiguration.current.screenHeightDp
+
+    var imageUri by remember {
+        mutableStateOf<Uri?>(null)
+    }
+
+    val imageCropLauncher = rememberLauncherForActivityResult(CropImageContract()) { result ->
+        if (result.isSuccessful) {
+            imageUri = result.uriContent
+            viewModel.setWallPaper(imageUri.toString())
+        } else {
+            val exception = result.error
+            // 후에 토스트 추가
+        }
+    }
+
     val galleryLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                result.data?.data?.let { uri ->
-                    context.contentResolver.takePersistableUriPermission(
-                        uri,
-                        Intent.FLAG_GRANT_READ_URI_PERMISSION
-                    )
-                    viewModel.setWallPaper(uri.toString())
-                }
+        rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { photoUri ->
+            val file = File.createTempFile("IMG_", ".jpg", context.filesDir)
+
+            val fileUri = FileProvider.getUriForFile(
+                Objects.requireNonNull(context),
+                "com.knocklock.provider",
+                file,
+            )
+            val cropOptions = CropImageContractOptions(
+                photoUri,
+                CropImageOptions(),
+            ).apply {
+                setAspectRatio(
+                    aspectRatioX = screenX,
+                    aspectRatioY = screenY,
+                )
+                setOutputUri(fileUri)
+            }
+            if (photoUri != null) {
+                imageCropLauncher.launch(cropOptions)
             }
         }
 
@@ -53,12 +88,12 @@ fun HomeRoute(
                         isShowHomeEditContentDialog = true
                     }
                     HomeMenu.Save -> {
-                        viewModel.saveLockScreen()
+                        viewModel.saveLockScreen(context = context)
                     }
                     HomeMenu.Clear -> {
                     }
                 }
-            }
+            },
         )
 
         if (isShowHomeEditContentDialog) {
@@ -67,7 +102,7 @@ fun HomeRoute(
                 onClick = { editType ->
                     when (editType) {
                         HomeEditType.Background -> {
-                            galleryLauncher.launch(getGalleryIntent())
+                            galleryLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
                         }
 
                         HomeEditType.TimeFormat -> {
@@ -77,7 +112,7 @@ fun HomeRoute(
                         else -> {}
                     }
                 },
-                onDismiss = { isShowHomeEditContentDialog = false }
+                onDismiss = { isShowHomeEditContentDialog = false },
             )
         }
 
@@ -86,7 +121,7 @@ fun HomeRoute(
                 modifier = Modifier.fillMaxWidth(),
                 selectedTimeFormat = (homeScreenUiState as? HomeScreenUiState.Success)?.lockScreen?.timeFormat,
                 onClick = viewModel::setTimeFormat,
-                onDismiss = { isShowHomeEditTimeFormatDialog = false }
+                onDismiss = { isShowHomeEditTimeFormatDialog = false },
             )
         }
     }
