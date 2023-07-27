@@ -100,7 +100,7 @@ fun LazyItemScope.Notification(
             updateSwipeOffset = {
                 offsetX = it
             },
-            type = RemovedType.Old,
+            type = type,
         )
 
         if (item.notifications.size >= 2 && clickable && !expandable) {
