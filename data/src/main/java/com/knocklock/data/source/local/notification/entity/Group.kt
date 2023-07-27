@@ -14,7 +14,7 @@ import androidx.room.PrimaryKey
  * @property key Notification List들을 묶어줄 그룹키입니다.
 
  */
-@Entity(tableName = "group")
+@Entity(tableName = "tableGroup")
 data class Group(
     @PrimaryKey val key: String
 )

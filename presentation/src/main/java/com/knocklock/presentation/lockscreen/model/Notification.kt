@@ -18,7 +18,6 @@ data class Notification(
     val title: String = "",
     val content: String = "",
     val isClearable: Boolean = false,
-    val intent: String? = null,
     val packageName: String? = null,
 ) {
     companion object {

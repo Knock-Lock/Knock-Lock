@@ -1,7 +1,5 @@
 package com.knocklock.presentation.lockscreen.mapper
 
-import android.app.PendingIntent
-import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
@@ -31,8 +29,6 @@ fun StatusBarNotification.toModel(packageManager: PackageManager): NotificationM
     val packageName = packageName
     val appTitle = getDrawableAndAppTitle(packageManager, packageName).first ?: ""
 
-    val intent = this.notification.contentIntent.toIntent()
-
     return NotificationModel(
         id = key,
         packageName = packageName,
@@ -42,13 +38,7 @@ fun StatusBarNotification.toModel(packageManager: PackageManager): NotificationM
         content = content,
         isClearable = isClearable,
         groupKey = if (subText.isEmpty()) getGroupKey(packageName, appTitle, title) else getGroupKey(packageName, appTitle, subText),
-        intent = intent,
     )
-}
-fun PendingIntent.toIntent(): String? {
-    return runCatching {
-        this.intentSender.creatorPackage
-    }.getOrNull()
 }
 
 /**
@@ -107,7 +97,6 @@ fun NotificationModel.toModel(packageManager: PackageManager): Notification {
         title = this.title,
         content = this.content,
         isClearable = this.isClearable,
-        intent = this.intent,
         packageName = this.packageName,
         groupKey = this.groupKey,
     )

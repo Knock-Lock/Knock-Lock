@@ -21,14 +21,14 @@ interface GroupDao {
      * @return Flow<List<[GroupWithNotification]>>
      */
     @Transaction
-    @Query("SELECT * FROM `Group`")
+    @Query("SELECT * FROM `tableGroup`")
     fun getGroupWithNotifications(): Flow<List<GroupWithNotification>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertGroup(group: Group)
 
     @Query(
-        "DELETE FROM `GROUP` WHERE `key` = :key"
+        "DELETE FROM `tableGroup` WHERE `key` = :key"
     )
     suspend fun deleteGroupWithKey(key: String)
 }
