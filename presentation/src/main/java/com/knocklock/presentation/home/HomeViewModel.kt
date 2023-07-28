@@ -2,6 +2,7 @@ package com.knocklock.presentation.home
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.knocklock.domain.model.LockScreen
@@ -61,24 +62,18 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             val value = tmpHomeScreen.value
             if (value is TmpScreenState.Custom) {
-                val uri = Uri.parse((value.screen.background as LockScreenBackground.LocalImage).imageUri)
-                if (uri.path == null) {
+                val uri = Uri.parse((value.screen.background as? LockScreenBackground.LocalImage)?.imageUri).path
+                if (uri == null) {
                     return@launch
                 } else {
-                    val specificFile = File(uri.path).name
-                    val fileNames = context.filesDir.list()
-                    fileNames?.let { _ ->
-                        var index = 0
-                        while (index != fileNames.size) {
-                            if (fileNames[index] != specificFile) {
-                                val deleted = File(context.filesDir, fileNames[index]).delete()
-                                if (deleted) {
-                                    println("로그: File '${fileNames[index]}' has been removed.")
-                                } else {
-                                    println("로그: Failed to remove file '${fileNames[index]}'.")
-                                }
+                    val specificFile = File(uri)
+                    context.filesDir.listFiles()?.forEach { file ->
+                        if (file.name != specificFile.name) {
+                            if (file.delete()) {
+                                Log.d("HomeViewModel-File", "제거 성공")
+                            } else {
+                                Log.d("HomeViewModel-File", "$file 제거 실패")
                             }
-                            index++
                         }
                     }
                     saveLockScreenCase(value.screen)
