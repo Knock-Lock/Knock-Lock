@@ -1,5 +1,6 @@
 package com.knocklock.presentation.home
 
+import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -33,6 +34,9 @@ fun HomeRoute(
     var isShowHomeEditTimeFormatDialog by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
+    if (context == null) {
+        return
+    }
 
     val screenX = LocalConfiguration.current.screenWidthDp
     val screenY = LocalConfiguration.current.screenHeightDp
@@ -53,6 +57,12 @@ fun HomeRoute(
 
     val galleryLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { photoUri ->
+            photoUri?.let { uri ->
+                context.contentResolver.takePersistableUriPermission(
+                    uri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION,
+                )
+            }
             val file = File.createTempFile("IMG_", ".jpg", context.filesDir)
 
             val fileUri = FileProvider.getUriForFile(
