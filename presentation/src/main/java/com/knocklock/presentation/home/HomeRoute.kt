@@ -20,7 +20,6 @@ import com.knocklock.presentation.home.editcontent.HomeEditTimeFormatDialog
 import com.knocklock.presentation.home.editcontent.HomeEditType
 import com.knocklock.presentation.home.menu.HomeMenu
 import java.io.File
-import java.util.Objects
 
 @Composable
 fun HomeRoute(
@@ -34,9 +33,6 @@ fun HomeRoute(
     var isShowHomeEditTimeFormatDialog by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
-    if (context == null) {
-        return
-    }
 
     val screenX = LocalConfiguration.current.screenWidthDp
     val screenY = LocalConfiguration.current.screenHeightDp
@@ -66,7 +62,7 @@ fun HomeRoute(
             val file = File.createTempFile("IMG_", ".jpg", context.filesDir)
 
             val fileUri = FileProvider.getUriForFile(
-                Objects.requireNonNull(context),
+                context,
                 "com.knocklock.provider",
                 file,
             )
