@@ -5,11 +5,8 @@ import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.service.notification.StatusBarNotification
-import com.knocklock.domain.model.TimeFormat
 import com.knocklock.presentation.lockscreen.model.Notification
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import com.knocklock.presentation.lockscreen.util.formatTimeString
 import com.knocklock.domain.model.Notification as NotificationModel
 
 /**
@@ -81,12 +78,8 @@ fun convertString(var1: Any?): String {
  */
 fun NotificationModel.toModel(packageManager: PackageManager): Notification {
     val (appTitle, drawable) = getDrawableAndAppTitle(packageManager, packageName)
-    val date = Date(this.postedTime)
-    val stringPostTime = try {
-        SimpleDateFormat(TimeFormat.TimeWithMeridiem.timeFormat, Locale.KOREA).format(date)
-    } catch (e: Exception) {
-        ""
-    }
+
+    val stringPostTime = formatTimeString(this.postedTime)
 
     return Notification(
         id = this.id,
