@@ -1,20 +1,20 @@
 package com.knocklock.presentation.lockscreen
 
-import android.app.PendingIntent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
@@ -25,6 +25,7 @@ import com.knocklock.presentation.lockscreen.util.DismissValue
 import com.knocklock.presentation.lockscreen.util.FractionalThreshold
 import com.knocklock.presentation.lockscreen.util.SwipeToDismiss
 import com.knocklock.presentation.lockscreen.util.rememberDismissState
+import com.knocklock.presentation.ui.theme.KnockLockTheme
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -112,34 +113,49 @@ fun LockNotiItem(
     modifier: Modifier = Modifier,
 ) {
     Box(modifier = modifier) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(4.dp),
+        Row(
+            modifier = Modifier.fillMaxSize().padding(start = 9.dp, end = 14.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            LockNotiTop(
-                modifier = Modifier
-                    .padding(horizontal = 10.dp)
-                    .padding(top = 4.dp),
-                packageName = notification.packageName,
-                appTitle = notification.appTitle,
-                time = notification.notiTime,
-            )
-            LockNotiContent(
-                modifier = Modifier
-                    .padding(horizontal = 10.dp)
-                    .padding(bottom = 4.dp)
-                    .wrapContentHeight(),
-                title = notification.title,
-                content = notification.content,
-            )
-        }
-        if (clickableState && !expandableState) {
-            Icon(
-                modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .padding(end = 5.dp),
-                imageVector = Icons.Filled.ExpandMore,
-                contentDescription = null,
-            )
+            if (notification.packageName != null) {
+                Image(
+                    modifier = Modifier.size(38.dp).clip(RoundedCornerShape(13.dp)),
+                    painter = rememberDrawablePainter(
+                        drawable = LocalContext.current.packageManager.getApplicationIcon(notification.packageName),
+                    ),
+                    contentScale = ContentScale.Fit,
+                    contentDescription = null,
+                )
+            }
+            Column(
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                LockNotiTop(
+                    modifier = Modifier
+                        .padding(horizontal = 10.dp)
+                        .padding(top = 4.dp),
+                    packageName = notification.packageName,
+                    appTitle = notification.appTitle,
+                    time = notification.notiTime,
+                )
+                LockNotiContent(
+                    modifier = Modifier
+                        .padding(horizontal = 10.dp)
+                        .padding(bottom = 4.dp)
+                        .wrapContentHeight(),
+                    title = notification.title,
+                    content = notification.content,
+                )
+            }
+//            if (clickableState && !expandableState) {
+//                Icon(
+//                    modifier = Modifier
+//                        .align(Alignment.CenterEnd)
+//                        .padding(end = 5.dp),
+//                    imageVector = Icons.Filled.ExpandMore,
+//                    contentDescription = null,
+//                )
+//            }
         }
     }
 }
@@ -160,15 +176,6 @@ fun LockNotiTop(
         Row(
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            if (packageName != null) {
-                Image(
-                    modifier = Modifier.size(10.dp),
-                    painter = rememberDrawablePainter(
-                        drawable = LocalContext.current.packageManager.getApplicationIcon(packageName),
-                    ),
-                    contentDescription = null,
-                )
-            }
             Spacer(modifier = Modifier.width(4.dp))
             Text(
                 text = appTitle,
@@ -201,6 +208,18 @@ fun LockNotiContent(
             content,
             overflow = TextOverflow.Ellipsis,
             maxLines = 1,
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewLockNotiItem() {
+    KnockLockTheme {
+        LockNotiItem(
+            notification = Notification.default,
+            clickableState = false,
+            expandableState = false,
         )
     }
 }
