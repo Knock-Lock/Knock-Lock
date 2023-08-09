@@ -1,6 +1,7 @@
 package com.knocklock.presentation.lockscreen
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -10,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -43,7 +45,6 @@ fun SwipeToDismissLockNotiItem(
     clickableState: Boolean,
     expandableState: Boolean,
     type: RemovedType,
-    updateSwipeOffset: (Float) -> Unit,
     modifier: Modifier = Modifier,
     groupNotification: ImmutableList<Notification>? = null,
 ) {
@@ -85,17 +86,16 @@ fun SwipeToDismissLockNotiItem(
         }
     })
 
-    LaunchedEffect(dismissState) {
-        snapshotFlow { dismissState.offset.value }.collect {
-            updateSwipeOffset(it)
-        }
-    }
     SwipeToDismiss(
         modifier = modifier,
         state = dismissState,
         dismissThresholds = { FractionalThreshold(0.25f) },
         dismissContent = {
             LockNotiItem(
+                modifier = Modifier.fillMaxSize().background(
+                    color = Color.White.copy(alpha = 0.8f),
+                    RoundedCornerShape(16.dp),
+                ),
                 notification = updateNotification,
                 clickableState = clickableState,
                 expandableState = expandableState,
@@ -112,58 +112,40 @@ fun LockNotiItem(
     expandableState: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    Box(modifier = modifier) {
-        Row(
-            modifier = Modifier.fillMaxSize().padding(start = 9.dp, end = 14.dp),
-            verticalAlignment = Alignment.CenterVertically,
+    Row(
+        modifier = modifier.padding(start = 9.dp, top = 9.dp, bottom = 9.dp, end = 14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        if (notification.packageName != null) {
+            Image(
+                modifier = Modifier.size(38.dp).clip(RoundedCornerShape(13.dp)),
+                painter = rememberDrawablePainter(
+                    drawable = LocalContext.current.packageManager.getApplicationIcon(notification.packageName),
+                ),
+                contentScale = ContentScale.Fit,
+                contentDescription = null,
+            )
+        }
+        Column(
+            modifier = Modifier.fillMaxHeight().padding(start = 8.dp, top = 2.5.dp, bottom = 2.5.dp),
+            verticalArrangement = Arrangement.Center,
         ) {
-            if (notification.packageName != null) {
-                Image(
-                    modifier = Modifier.size(38.dp).clip(RoundedCornerShape(13.dp)),
-                    painter = rememberDrawablePainter(
-                        drawable = LocalContext.current.packageManager.getApplicationIcon(notification.packageName),
-                    ),
-                    contentScale = ContentScale.Fit,
-                    contentDescription = null,
-                )
-            }
-            Column(
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-            ) {
-                LockNotiTop(
-                    modifier = Modifier
-                        .padding(horizontal = 10.dp)
-                        .padding(top = 4.dp),
-                    packageName = notification.packageName,
-                    appTitle = notification.appTitle,
-                    time = notification.notiTime,
-                )
-                LockNotiContent(
-                    modifier = Modifier
-                        .padding(horizontal = 10.dp)
-                        .padding(bottom = 4.dp)
-                        .wrapContentHeight(),
-                    title = notification.title,
-                    content = notification.content,
-                )
-            }
-//            if (clickableState && !expandableState) {
-//                Icon(
-//                    modifier = Modifier
-//                        .align(Alignment.CenterEnd)
-//                        .padding(end = 5.dp),
-//                    imageVector = Icons.Filled.ExpandMore,
-//                    contentDescription = null,
-//                )
-//            }
+            LockNotiTop(
+                notificationTitle = notification.title,
+                time = notification.notiTime,
+            )
+            Spacer(modifier = Modifier.height(1.dp))
+            LockNotiContent(
+                modifier = Modifier.wrapContentHeight(),
+                content = notification.content,
+            )
         }
     }
 }
 
 @Composable
 fun LockNotiTop(
-    packageName: String?,
-    appTitle: String,
+    notificationTitle: String,
     time: String,
     modifier: Modifier = Modifier,
 ) {
@@ -176,10 +158,12 @@ fun LockNotiTop(
         Row(
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Spacer(modifier = Modifier.width(4.dp))
             Text(
-                text = appTitle,
-                fontSize = 10.sp,
+                text = notificationTitle,
+                fontSize = 13.sp,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1,
+                fontWeight = FontWeight.W700,
             )
         }
         Text(
@@ -191,7 +175,6 @@ fun LockNotiTop(
 
 @Composable
 fun LockNotiContent(
-    title: String,
     content: String,
     modifier: Modifier = Modifier,
 ) {
@@ -199,15 +182,10 @@ fun LockNotiContent(
         modifier = modifier,
     ) {
         Text(
-            title,
+            text = content,
             overflow = TextOverflow.Ellipsis,
-            maxLines = 1,
-            fontWeight = FontWeight.W700,
-        )
-        Text(
-            content,
-            overflow = TextOverflow.Ellipsis,
-            maxLines = 1,
+            maxLines = 2,
+            fontSize = 13.sp,
         )
     }
 }

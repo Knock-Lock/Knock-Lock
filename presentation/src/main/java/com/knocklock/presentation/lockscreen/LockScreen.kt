@@ -102,7 +102,6 @@ fun LockScreen(
                         onOldNotificationExpandableFlagUpdate = updateNotificationExpandableFlag,
                         onRecentNotificationExpandableFlagUpdate = updateNewNotificationExpandableFlag,
                         onNotificationClickableFlagUpdate = updateNotificationClickableFlag,
-                        notificationHeight = 60.dp,
                         timeFormat = timeFormat,
                         modifier = Modifier.fillMaxSize(),
                     )
@@ -205,14 +204,11 @@ fun LockScreenNotificationListColumn(
     onOldNotificationExpandableFlagUpdate: (String) -> Unit,
     onRecentNotificationExpandableFlagUpdate: (String) -> Unit,
     onNotificationRemove: (RemovedGroupNotification) -> Unit,
-    notificationHeight: Dp,
     onNotificationClickableFlagUpdate: (String, Boolean) -> Unit,
     onNotificationClick: (String) -> Unit,
     timeFormat: TimeFormat,
     modifier: Modifier = Modifier,
 ) {
-    val lockNotiModifier = modifier
-        .clip(RoundedCornerShape(10.dp))
     val scrollState = rememberLazyListState()
     val density = LocalDensity.current
     val configuration = LocalConfiguration.current
@@ -260,8 +256,6 @@ fun LockScreenNotificationListColumn(
 
             item(key = item.notifications[0].groupKey + item.notifications[0].postedTime) {
                 Notification(
-                    modifier = lockNotiModifier,
-                    notificationHeight = notificationHeight,
                     clickable = recentNotificationUiFlagState[item.group.key]?.clickable ?: false,
                     offset = {
                         scrollState.layoutInfo.visibleItemsInfo.firstOrNull {
@@ -296,11 +290,9 @@ fun LockScreenNotificationListColumn(
             if (recentNotificationUiFlagState.containsKey(item.group.key) && recentNotificationUiFlagState[item.group.key]!!.expandable && item.notifications.size != 1) {
                 items(items = item.notifications.drop(1), key = { notification -> notification.groupKey + notification.postedTime }) { notification ->
                     Notification(
-                        notificationHeight = notificationHeight,
                         offset = { scrollState.layoutInfo.visibleItemsInfo.firstOrNull { it.key == item.notifications[0].groupKey + notification.postedTime }?.offset ?: Integer.MAX_VALUE },
                         threshold = threshold,
                         item = item,
-                        modifier = lockNotiModifier,
                         type = Recent,
                         expandable = recentNotificationUiFlagState[item.group.key]?.expandable ?: false,
                         onNotificationExpandableFlagUpdate = { key, type ->
@@ -354,13 +346,11 @@ fun LockScreenNotificationListColumn(
 
             item(key = item.notifications[0].groupKey + item.notifications[0].postedTime) {
                 Notification(
-                    notificationHeight = notificationHeight,
                     clickable = oldNotificationUiFlagState[item.group.key]?.clickable ?: false,
                     offset = { scrollState.layoutInfo.visibleItemsInfo.firstOrNull { it.key == item.notifications[0].groupKey + item.notifications[0].postedTime }?.offset ?: Integer.MAX_VALUE },
                     threshold = threshold,
                     item = item,
                     onNotificationClickableFlagUpdate = onNotificationClickableFlagUpdate,
-                    modifier = lockNotiModifier,
                     type = Old,
                     expandable = oldNotificationUiFlagState[item.group.key]?.expandable ?: false,
                     onNotificationExpandableFlagUpdate = { key, type ->
@@ -384,13 +374,10 @@ fun LockScreenNotificationListColumn(
             }
             if (oldNotificationUiFlagState.containsKey(item.group.key) && oldNotificationUiFlagState[item.group.key]!!.expandable && item.notifications.size != 1) {
                 items(items = item.notifications.drop(1), key = { notification -> notification.groupKey + notification.postedTime }) { notification ->
-
                     Notification(
-                        notificationHeight = notificationHeight,
                         offset = { scrollState.layoutInfo.visibleItemsInfo.firstOrNull { it.key == item.notifications[0].groupKey + notification.postedTime }?.offset ?: Integer.MAX_VALUE },
                         threshold = threshold,
                         item = item,
-                        modifier = lockNotiModifier,
                         type = Old,
                         expandable = oldNotificationUiFlagState[item.group.key]?.expandable ?: false,
                         onNotificationExpandableFlagUpdate = { key, type ->
