@@ -59,7 +59,7 @@ fun LazyItemScope.Notification(
                     val currentOffset = if (threshold < offset()) threshold / offset() else 1f
                     onNotificationClickableFlagUpdate(item.group.key, (item.notifications.size >= 2 && offset() < threshold))
                     translationX = offsetX
-                    alpha = currentOffset
+                    alpha = 0.8f
                     scaleX = currentOffset
                     scaleY = currentOffset
                 }
@@ -67,7 +67,7 @@ fun LazyItemScope.Notification(
         ) {
             drawRoundRect(
                 color = Color.White,
-                cornerRadius = CornerRadius(10.dp.toPx(), 10.dp.toPx()),
+                cornerRadius = CornerRadius(16.dp.toPx(), 16.dp.toPx()),
             )
         }
 
