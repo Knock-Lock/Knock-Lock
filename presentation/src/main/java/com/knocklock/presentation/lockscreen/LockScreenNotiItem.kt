@@ -93,11 +93,7 @@ fun SwipeToDismissLockNotiItem(
         dismissContent = {
             LockNotiItem(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        color = Color.White.copy(alpha = 0.8f),
-                        RoundedCornerShape(16.dp),
-                    ),
+                    .fillMaxSize(),
                 notification = updateNotification,
                 clickableState = clickableState,
                 expandableState = expandableState,
@@ -114,34 +110,49 @@ fun LockNotiItem(
     expandableState: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    Row(
-        modifier = modifier.padding(start = 9.dp, top = 9.dp, bottom = 9.dp, end = 14.dp),
-        verticalAlignment = Alignment.CenterVertically,
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        if (notification.packageName != null) {
-            Image(
-                modifier = Modifier.size(38.dp).clip(RoundedCornerShape(13.dp)),
-                painter = rememberDrawablePainter(
-                    drawable = LocalContext.current.packageManager.getApplicationIcon(notification.packageName),
-                ),
-                contentScale = ContentScale.Fit,
-                contentDescription = null,
-            )
-        }
-        Column(
-            modifier = Modifier
-                .padding(start = 8.dp, top = 2.5.dp, bottom = 2.5.dp),
-            verticalArrangement = Arrangement.Center,
+        Row(
+            modifier = modifier.background(
+                color = Color.White.copy(alpha = 0.8f),
+                RoundedCornerShape(16.dp),
+            ).padding(start = 9.dp, top = 9.dp, bottom = 9.dp, end = 14.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            LockNotiTop(
-                notificationTitle = notification.title,
-                time = notification.notiTime,
-            )
-            Spacer(modifier = Modifier.height(1.dp))
-            LockNotiContent(
-                modifier = Modifier.wrapContentHeight(),
-                content = notification.content,
-            )
+            if (notification.packageName != null) {
+                Image(
+                    modifier = Modifier.size(38.dp).clip(RoundedCornerShape(13.dp)),
+                    painter = rememberDrawablePainter(
+                        drawable = LocalContext.current.packageManager.getApplicationIcon(notification.packageName),
+                    ),
+                    contentScale = ContentScale.Fit,
+                    contentDescription = null,
+                )
+            }
+            Column(
+                modifier = Modifier
+                    .padding(start = 8.dp, top = 2.5.dp, bottom = 2.5.dp),
+                verticalArrangement = Arrangement.Center,
+            ) {
+                LockNotiTop(
+                    notificationTitle = notification.title,
+                    time = notification.notiTime,
+                )
+                Spacer(modifier = Modifier.height(1.dp))
+                LockNotiContent(
+                    modifier = Modifier.wrapContentHeight(),
+                    content = notification.content,
+                )
+            }
+        }
+        if (clickableState && !expandableState) {
+            Row(
+                modifier = Modifier.fillMaxWidth(0.8f).height(10.dp).background(
+                    color = Color.White.copy(alpha = 0.5f),
+                    RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp),
+                ),
+            ) {}
         }
     }
 }
