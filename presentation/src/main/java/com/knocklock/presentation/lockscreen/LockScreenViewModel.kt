@@ -316,6 +316,12 @@ class LockScreenViewModel @Inject constructor(
 //            }
 //        }
     }
+
+    fun removeAllNotification() {
+        viewModelScope.launch {
+            notificationRepository.removeAllNotifications()
+        }
+    }
 }
 
 sealed class ComposeScreenState {

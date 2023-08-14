@@ -76,8 +76,9 @@ fun LockScreenGroupInfo(
 fun ExpandButton(
     modifier: Modifier = Modifier,
 ) {
+    
     Canvas(
-        modifier = modifier,
+        modifier = Modifier,
     ) {
         drawCircle(
             color = Color.LightGray.copy(alpha = 0.4f),
@@ -111,17 +112,17 @@ fun RemoveButton(
             color = Color.LightGray.copy(alpha = 0.4f),
         )
         drawLine(
-            color = Color.Gray,
-            strokeWidth = 5.dp.toPx(),
-            start = Offset(x = size.width / 4, y = size.height / 4),
-            end = Offset(x = size.width - size.width / 4, y = size.height - size.height / 4),
+            color = Color(0xFF292D32).copy(0.6f),
+            strokeWidth = 3.dp.toPx(),
+            start = Offset(x = size.width / 3, y = size.height / 3),
+            end = Offset(x = size.width - size.width / 3, y = size.height - size.height / 3),
             cap = StrokeCap.Round,
         )
         drawLine(
-            color = Color.Gray,
-            strokeWidth = 5.dp.toPx(),
-            start = Offset(x = size.width / 4, y = size.height - size.height / 4),
-            end = Offset(x = size.width - size.width / 4, y = size.height / 4),
+            color = Color(0xFF292D32).copy(0.6f),
+            strokeWidth = 3.dp.toPx(),
+            start = Offset(x = size.width / 3, y = size.height - size.height / 3),
+            end = Offset(x = size.width - size.width / 3, y = size.height / 3),
             cap = StrokeCap.Round,
         )
     }

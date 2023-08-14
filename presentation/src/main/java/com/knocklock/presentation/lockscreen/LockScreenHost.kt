@@ -120,6 +120,7 @@ fun LockScreenHost(
                 updateOldNotificationExpandableFlag = lockScreenViewModel::updateOldNotificationExpandable,
                 updateRecentNotificationExpandableFlag = lockScreenViewModel::updateRecentNotificationExpandable,
                 updateNotificationClickableFlag = lockScreenViewModel::updateClickable,
+                onAllNotificationRemove = lockScreenViewModel::removeAllNotification,
                 timeFormat = backgroundState.timeFormat,
             )
         }
