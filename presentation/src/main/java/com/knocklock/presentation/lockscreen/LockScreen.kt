@@ -234,11 +234,13 @@ fun LockScreenNotificationListColumn(
                 timeFormat = timeFormat,
             )
         }
-        if (recentNotificationList.isNotEmpty()) {
-            item {
-                Text(text = " 최근 알림 입니다 ")
-            }
+
+        item {
+            Spacer(
+                modifier = Modifier.height(30.dp),
+            )
         }
+
         recentNotificationList.forEach { item ->
 
             item {
@@ -325,20 +327,29 @@ fun LockScreenNotificationListColumn(
 
         if (oldGroupNotificationList.isNotEmpty()) {
             item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    Text(
-                        text = "알림 센터",
-                        fontSize = 21.sp,
-                        color = Color.White,
+                Column {
+                    Spacer(
+                        modifier = Modifier.height(2.dp),
                     )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = "알림 센터",
+                            fontSize = 21.sp,
+                            color = Color.White,
+                        )
 
-                    RemoveButton(
-                        modifier = Modifier.size(28.dp).clickable {
-                            onAllNotificationRemove()
-                        },
+                        RemoveButton(
+                            modifier = Modifier.size(28.dp).clickable {
+                                onAllNotificationRemove()
+                            },
+                        )
+                    }
+                    Spacer(
+                        modifier = Modifier.height(2.dp),
                     )
                 }
             }
