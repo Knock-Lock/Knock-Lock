@@ -159,6 +159,7 @@ fun LockNotiTop(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
+                modifier = Modifier.fillMaxWidth(0.7f),
                 text = notificationTitle,
                 fontSize = 13.sp,
                 overflow = TextOverflow.Ellipsis,
