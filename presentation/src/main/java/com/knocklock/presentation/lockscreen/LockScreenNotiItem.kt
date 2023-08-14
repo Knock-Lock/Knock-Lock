@@ -130,7 +130,6 @@ fun LockNotiItem(
         }
         Column(
             modifier = Modifier
-                .fillMaxHeight()
                 .padding(start = 8.dp, top = 2.5.dp, bottom = 2.5.dp),
             verticalArrangement = Arrangement.Center,
         ) {
