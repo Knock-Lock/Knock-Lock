@@ -13,7 +13,9 @@ import com.knocklock.domain.model.GroupWithNotification as GroupWithNotification
 
 fun GroupWithNotificationModel.toModel(packageManager: PackageManager) = GroupWithNotification(
     group = this.group.toModel(),
-    notifications = this.notifications.map { it.toModel(packageManager) },
+    notifications = this.notifications.filter {
+        runCatching { packageManager.getApplicationIcon(it.packageName) }.isSuccess
+    }.map { it.toModel(packageManager) },
 )
 
 fun GroupWithNotification.toModel() = GroupWithNotificationModel(

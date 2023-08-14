@@ -92,10 +92,12 @@ fun SwipeToDismissLockNotiItem(
         dismissThresholds = { FractionalThreshold(0.25f) },
         dismissContent = {
             LockNotiItem(
-                modifier = Modifier.fillMaxSize().background(
-                    color = Color.White.copy(alpha = 0.8f),
-                    RoundedCornerShape(16.dp),
-                ),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        color = Color.White.copy(alpha = 0.8f),
+                        RoundedCornerShape(16.dp),
+                    ),
                 notification = updateNotification,
                 clickableState = clickableState,
                 expandableState = expandableState,
@@ -127,7 +129,9 @@ fun LockNotiItem(
             )
         }
         Column(
-            modifier = Modifier.fillMaxHeight().padding(start = 8.dp, top = 2.5.dp, bottom = 2.5.dp),
+            modifier = Modifier
+                .fillMaxHeight()
+                .padding(start = 8.dp, top = 2.5.dp, bottom = 2.5.dp),
             verticalArrangement = Arrangement.Center,
         ) {
             LockNotiTop(

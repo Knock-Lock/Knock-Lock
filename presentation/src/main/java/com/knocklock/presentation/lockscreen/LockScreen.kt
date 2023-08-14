@@ -243,6 +243,9 @@ fun LockScreenNotificationListColumn(
 
         recentNotificationList.forEach { item ->
 
+            if (item.notifications.isEmpty()) {
+                return@forEach
+            }
             item {
                 if (recentNotificationUiFlagState.containsKey(item.group.key) && recentNotificationUiFlagState[item.group.key]!!.expandable) {
                     LockScreenGroupInfo(
@@ -261,7 +264,7 @@ fun LockScreenNotificationListColumn(
                 }
             }
 
-            item(key = item.notifications[0].groupKey + item.notifications[0].postedTime) {
+            item(key = item.notifications.firstOrNull()?.groupKey + item.notifications.firstOrNull()?.postedTime) {
                 Notification(
                     clickable = recentNotificationUiFlagState[item.group.key]?.clickable ?: false,
                     offset = {
@@ -325,7 +328,7 @@ fun LockScreenNotificationListColumn(
             }
         }
 
-        if (oldGroupNotificationList.isNotEmpty()) {
+        if (oldGroupNotificationList.isNotEmpty() && oldGroupNotificationList.any { it.notifications.isNotEmpty() }) {
             item {
                 Column {
                     Spacer(
@@ -356,7 +359,9 @@ fun LockScreenNotificationListColumn(
         }
 
         oldGroupNotificationList.forEach { item ->
-
+            if (item.notifications.isEmpty()) {
+                return@forEach
+            }
             item {
                 if (oldNotificationUiFlagState.containsKey(item.group.key) && oldNotificationUiFlagState[item.group.key]!!.expandable) {
                     LockScreenGroupInfo(
@@ -375,7 +380,7 @@ fun LockScreenNotificationListColumn(
                 }
             }
 
-            item(key = item.notifications[0].groupKey + item.notifications[0].postedTime) {
+            item(key = item.notifications.firstOrNull()?.groupKey + item.notifications.firstOrNull()?.postedTime) {
                 Notification(
                     clickable = oldNotificationUiFlagState[item.group.key]?.clickable ?: false,
                     offset = { scrollState.layoutInfo.visibleItemsInfo.firstOrNull { it.key == item.notifications[0].groupKey + item.notifications[0].postedTime }?.offset ?: Integer.MAX_VALUE },
