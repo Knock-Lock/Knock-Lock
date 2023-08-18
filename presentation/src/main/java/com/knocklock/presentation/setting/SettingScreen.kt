@@ -1,5 +1,6 @@
 package com.knocklock.presentation.setting
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -8,10 +9,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.knocklock.presentation.R
-import com.knocklock.presentation.setting.menu.MenuList
+import com.knocklock.presentation.setting.menu.SettingMenuList
+import com.knocklock.presentation.ui.theme.knockLockFontFamily
+import com.knocklock.presentation.ui.theme.labelPrimary
 
 @Composable
 fun SettingRoute(
@@ -23,7 +29,7 @@ fun SettingRoute(
     val userSettings by viewModel.userSetting.collectAsState(UserSettings())
 
     SettingScreen(
-        modifier = modifier,
+        modifier = Modifier.background(color = Color(0xFFF2F2F7)).then(modifier),
         onMenuSelected = onMenuSelect,
         onPasswordActivatedChange = { isChecked ->
             if (userSettings.password.isNotEmpty()) {
@@ -37,7 +43,6 @@ fun SettingRoute(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingScreen(
     onMenuSelected: (Int) -> Unit,
@@ -46,63 +51,29 @@ fun SettingScreen(
     userSettings: UserSettings,
     modifier: Modifier = Modifier
 ) {
-    Scaffold(
-        modifier = modifier,
-        topBar = { SettingHeader(Modifier.fillMaxWidth()) },
-    ) {
-        Column(modifier.padding(it)) {
-            Spacer(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp)
+    Column(modifier = modifier) {
+        Spacer(modifier = Modifier.height(48.dp))
+        Text(
+            modifier = Modifier.padding(start = 16.dp),
+            text = stringResource(R.string.setting),
+            style = TextStyle(
+                fontSize = 28.sp,
+                lineHeight = 41.sp,
+                fontFamily = knockLockFontFamily,
+                fontWeight = FontWeight(600),
+                color = labelPrimary,
+                letterSpacing = 0.4.sp,
             )
-            SettingBody(
-                onMenuSelected,
-                onPasswordActivatedChange,
-                onLockActivatedChange,
-                userSettings,
-                Modifier.fillMaxWidth(),
-            )
-        }
-    }
-}
-
-@Composable
-private fun SettingBody(
-    onMenuSelect: (Int) -> Unit,
-    onPasswordActivatedChange: (Boolean) -> Unit,
-    onLockActivatedChange: (Boolean) -> Unit,
-    userSettings: UserSettings,
-    modifier: Modifier = Modifier
-) {
-    Surface(
-        modifier.fillMaxSize(),
-        color = Color(0xffEFEEF3)
-    ) {
-        MenuList(
-            onMenuSelect,
-            onPasswordActivatedChange,
-            onLockActivatedChange,
-            userSettings,
-            modifier,
+        )
+        Spacer(modifier = Modifier.height(57.dp))
+        SettingMenuList(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            userSettings = userSettings,
+            onMenuSelect = onMenuSelected,
+            onPasswordActivatedChange = onPasswordActivatedChange,
+            onLockActivatedChange = onLockActivatedChange,
         )
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun SettingHeader(
-    modifier: Modifier = Modifier,
-) {
-    CenterAlignedTopAppBar(
-        modifier = modifier,
-        title = {
-            Text(
-                text = stringResource(R.string.setting)
-            )
-        },
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-            containerColor = Color.White
-        )
-    )
 }
