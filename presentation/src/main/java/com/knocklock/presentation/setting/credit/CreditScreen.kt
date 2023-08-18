@@ -17,12 +17,11 @@ import androidx.compose.ui.unit.sp
 import com.knocklock.presentation.R
 import com.knocklock.presentation.ui.component.KnockLockTopAppbar
 
-
 @Composable
 fun CreditRoute(
     onIconClick: () -> Boolean,
     onTextClick: (TextMenu) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     CreditScreen(
         onIconClick = onIconClick,
@@ -36,7 +35,7 @@ fun CreditRoute(
 fun CreditScreen(
     onIconClick: () -> Boolean,
     onTextClick: (TextMenu) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val scrollState = rememberScrollState(0)
 
@@ -59,16 +58,16 @@ private fun CreditBody(
     scrollState: ScrollState,
     padding: PaddingValues,
     onTextClick: (TextMenu) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier
             .verticalScroll(scrollState)
             .padding(
                 top = padding.calculateTopPadding(),
-                bottom = padding.calculateBottomPadding() - 5.dp
+                bottom = padding.calculateBottomPadding(),
             ),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         DeveloperList()
         Spacer(modifier.padding(20.dp))
@@ -79,12 +78,12 @@ private fun CreditBody(
 @Composable
 fun CreditTextMenuList(
     onTextClick: (TextMenu) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier.padding(bottom = 20.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         TextMenu.values().forEach { menu ->
             CreditTextMenu(onTextClick = onTextClick, menu = menu)
@@ -96,13 +95,13 @@ fun CreditTextMenuList(
 private fun CreditTextMenu(
     onTextClick: (TextMenu) -> Unit,
     menu: TextMenu,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Text(
         modifier = modifier.clickable { onTextClick(menu) },
         text = stringResource(id = menu.textRes),
         fontSize = 12.sp,
         color = Color.Blue,
-        textDecoration = TextDecoration.Underline
+        textDecoration = TextDecoration.Underline,
     )
 }
