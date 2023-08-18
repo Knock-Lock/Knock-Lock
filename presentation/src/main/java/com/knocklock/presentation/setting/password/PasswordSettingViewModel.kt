@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.knocklock.domain.usecase.setting.GetUserUseCase
 import com.knocklock.domain.usecase.setting.UpdatePasswordUseCase
+import com.knocklock.presentation.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -22,7 +23,11 @@ class PasswordInputViewModel @Inject constructor(
     getUserUseCase: GetUserUseCase,
 ) : ViewModel() {
     var passwordInputState by mutableStateOf<PasswordInputState>(
-        PasswordInputState.PasswordNoneState("")
+        PasswordInputState.PasswordNoneState(
+            titleRes = R.string.title_password_setting,
+            contentRes = R.string.content_password_setting,
+            inputPassword = ""
+        )
     )
 
     private val userPassword = getUserUseCase()
@@ -41,6 +46,8 @@ class PasswordInputViewModel @Inject constructor(
             userPassword.collect { password ->
                 if (password.isNotBlank()) {
                     passwordInputState = PasswordInputState.PasswordVerifyState(
+                        titleRes = R.string.title_password_change,
+                        contentRes = R.string.content_password_change,
                         inputPassword = "",
                         savedPassword = password
                     )
@@ -124,6 +131,8 @@ class PasswordInputViewModel @Inject constructor(
 
     private fun checkPasswordNoneState(state: PasswordInputState.PasswordNoneState) {
         passwordInputState = PasswordInputState.PasswordConfirmState(
+            titleRes = state.titleRes,
+            contentRes = R.string.content_password_check,
             inputPassword = "",
             savedPassword = state.inputPassword
         )
@@ -131,7 +140,11 @@ class PasswordInputViewModel @Inject constructor(
 
     private fun checkPasswordVerifyState(state: PasswordInputState.PasswordVerifyState) {
         passwordInputState = if (state.inputPassword == state.savedPassword) {
-            PasswordInputState.PasswordNoneState("")
+            PasswordInputState.PasswordNoneState(
+                titleRes = state.titleRes,
+                contentRes = R.string.content_password_change,
+                inputPassword = ""
+            )
         } else {
             state.copy(
                 inputPassword = "",
@@ -167,7 +180,8 @@ class PasswordInputViewModel @Inject constructor(
             is PasswordInputState.PasswordVerifyState -> {
                 state.copy(isWigglePassword = false)
             }
-            else ->  {
+
+            else -> {
                 state
             }
         }
@@ -175,13 +189,19 @@ class PasswordInputViewModel @Inject constructor(
 }
 
 sealed interface PasswordInputState {
+    val titleRes: Int
+    val contentRes: Int
     val inputPassword: String
 
     data class PasswordNoneState(
+        override val titleRes: Int,
+        override val contentRes: Int,
         override val inputPassword: String
     ) : PasswordInputState
 
     data class PasswordConfirmState(
+        override val titleRes: Int,
+        override val contentRes: Int,
         override val inputPassword: String,
         val savedPassword: String,
         val isWigglePassword: Boolean = false,
@@ -189,6 +209,8 @@ sealed interface PasswordInputState {
     ) : PasswordInputState
 
     data class PasswordVerifyState(
+        override val titleRes: Int,
+        override val contentRes: Int,
         override val inputPassword: String,
         val savedPassword: String,
         val isWigglePassword: Boolean = false,
