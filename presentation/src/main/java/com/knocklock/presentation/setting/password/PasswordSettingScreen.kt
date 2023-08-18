@@ -1,8 +1,10 @@
 package com.knocklock.presentation.setting.password
 
-import androidx.compose.animation.AnimatedVisibility
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -12,13 +14,19 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.knocklock.presentation.R
 import com.knocklock.presentation.extenstions.wiggle
-import com.knocklock.presentation.ui.component.KnockLockTopAppbar
 import com.knocklock.presentation.ui.theme.KnockLockTheme
+import com.knocklock.presentation.ui.theme.knockLockFontFamily
+import com.knocklock.presentation.ui.theme.labelPrimary
 
 @Composable
 fun PasswordSettingScreen(
@@ -29,53 +37,61 @@ fun PasswordSettingScreen(
     onWiggleAnimationEnd: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier) {
-        KnockLockTopAppbar(
-            modifier = Modifier.fillMaxWidth(),
-            title = stringResource(R.string.title_password_setting),
-            onBackButtonClick = onBackButtonClick
-        )
-        PasswordSettingContent(
-            modifier = modifier,
-            state = state,
-            onTextButtonClick = onTextButtonClick,
-            onActionClick = onActionClick,
-            onWiggleAnimationEnd = onWiggleAnimationEnd
-        )
-    }
+    BackHandler(onBack = onBackButtonClick)
+
+    PasswordSettingContent(
+        modifier = modifier,
+        state = state,
+        onWiggleAnimationEnd = onWiggleAnimationEnd,
+        onTextButtonClick = onTextButtonClick,
+        onActionClick = onActionClick
+    )
 }
 
 @Composable
 fun PasswordSettingContent(
     state: PasswordInputState,
+    onWiggleAnimationEnd: () -> Unit,
     onTextButtonClick: (String) -> Unit,
     onActionClick: (KeyboardAction) -> Unit,
-    onWiggleAnimationEnd: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
+        PasswordSettingTitle(
+            modifier = Modifier.fillMaxWidth(),
+            state = state
+        )
         Column(
+            modifier = Modifier.fillMaxWidth().weight(1f),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.Center
         ) {
-            PasswordSettingTitle(state = state)
+            Text(
+                text = stringResource(state.contentRes),
+                style = TextStyle(
+                    fontSize = 17.sp,
+                    lineHeight = 22.sp,
+                    fontFamily = knockLockFontFamily,
+                    fontWeight = FontWeight(400),
+                    color = labelPrimary
+                )
+            )
             PasswordSettingFieldLayout(
                 modifier = Modifier
                     .wiggle(
                         isWiggle = state.getWigglePassword(),
                         onWiggleAnimationEnded = onWiggleAnimationEnd
                     )
-                    .padding(top = 32.dp),
+                    .padding(top = 43.dp),
                 password = state.inputPassword,
             )
         }
+
         NumberKeyboard(
-            modifier = Modifier
-                .padding(bottom = 24.dp)
-                .padding(horizontal = 24.dp),
+            modifier = Modifier.fillMaxWidth(),
             onTextButtonClick = onTextButtonClick,
             onActionClick = onActionClick
         )
@@ -85,147 +101,95 @@ fun PasswordSettingContent(
 @Composable
 fun PasswordSettingTitle(
     state: PasswordInputState,
-) {
-    when (state) {
-        is PasswordInputState.PasswordNoneState -> {
-            PasswordSettingNoneTitle(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 60.dp)
-            )
-        }
-
-        is PasswordInputState.PasswordConfirmState -> {
-            PasswordSettingConfirmTitle(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 60.dp),
-                state = state
-            )
-        }
-
-        is PasswordInputState.PasswordVerifyState -> {
-            PasswordSettingVerifyTitle(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 60.dp),
-            )
-        }
-    }
-}
-
-@Composable
-fun PasswordSettingNoneTitle(
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
+    Box(
+        modifier = modifier.padding(vertical = 27.dp, horizontal = 16.dp),
     ) {
         Text(
-            style = MaterialTheme.typography.titleMedium,
-            text = stringResource(R.string.desc_password_setting)
-        )
-    }
-}
-
-@Composable
-fun PasswordSettingVerifyTitle(
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            style = MaterialTheme.typography.titleMedium,
-            text = stringResource(R.string.desc_password_verify)
-        )
-    }
-}
-
-@Composable
-fun PasswordSettingConfirmTitle(
-    state: PasswordInputState.PasswordConfirmState,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            style = MaterialTheme.typography.titleMedium,
-            text = stringResource(R.string.desc_password_setting_confirm)
-        )
-        AnimatedVisibility(visible = state.isWigglePassword) {
-            Text(
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(top = 16.dp),
-                text = stringResource(R.string.desc_forget_password)
+            modifier = Modifier.align(Alignment.Center),
+            text = stringResource(state.titleRes),
+            style = TextStyle(
+                fontSize = 17.sp,
+                lineHeight = 22.sp,
+                fontFamily = knockLockFontFamily,
+                fontWeight = FontWeight(600),
+                color = labelPrimary
             )
-        }
+        )
+
+        Text(
+            modifier = Modifier.align(Alignment.CenterEnd),
+            text = "취소",
+            style = TextStyle(
+                fontSize = 17.sp,
+                lineHeight = 22.sp,
+                fontFamily = knockLockFontFamily,
+                fontWeight = FontWeight(400),
+                color = Color(0xFF007BFE),
+            )
+        )
     }
 }
 
 
 @Preview("비밀번호 입력 화면")
-
 @Composable
 private fun PasswordSettingScreenPrev() {
     KnockLockTheme {
-        Surface(color = MaterialTheme.colorScheme.primary) {
-            PasswordSettingScreen(
-                modifier = Modifier.fillMaxSize(),
-                state = PasswordInputState.PasswordNoneState(""),
-                onTextButtonClick = {},
-                onActionClick = {},
-                onBackButtonClick = {},
-                onWiggleAnimationEnd = {}
-            )
-        }
+        PasswordSettingScreen(
+            modifier = Modifier.fillMaxSize(),
+            state = PasswordInputState.PasswordNoneState(
+                inputPassword = "",
+                titleRes = R.string.title_password_setting,
+                contentRes = R.string.content_password_setting
+            ),
+            onTextButtonClick = {},
+            onActionClick = {},
+            onBackButtonClick = {},
+            onWiggleAnimationEnd = {}
+        )
     }
 }
 
 @Preview("비밀번호 확인 화면")
-
 @Composable
 private fun PasswordSettingConfirmScreenPrev() {
     KnockLockTheme {
-        Surface(color = MaterialTheme.colorScheme.primary) {
-            PasswordSettingScreen(
-                modifier = Modifier.fillMaxSize(),
-                state = PasswordInputState.PasswordConfirmState(
-                    inputPassword = "",
-                    savedPassword = "",
-                    isWigglePassword = false
-                ),
-                onTextButtonClick = {},
-                onActionClick = {},
-                onBackButtonClick = {},
-                onWiggleAnimationEnd = {}
-            )
-        }
+        PasswordSettingScreen(
+            modifier = Modifier.fillMaxSize(),
+            state = PasswordInputState.PasswordConfirmState(
+                inputPassword = "",
+                savedPassword = "",
+                isWigglePassword = false,
+                titleRes = R.string.title_password_setting,
+                contentRes = R.string.content_password_setting
+            ),
+            onTextButtonClick = {},
+            onActionClick = {},
+            onBackButtonClick = {},
+            onWiggleAnimationEnd = {}
+        )
     }
 }
 
 @Preview("비밀번호 확인 화면 - 실패")
-
 @Composable
 private fun PasswordSettingConfirmFailedScreenPrev() {
     KnockLockTheme {
-        Surface(color = MaterialTheme.colorScheme.primary) {
-            PasswordSettingScreen(
-                modifier = Modifier.fillMaxSize(),
-                state = PasswordInputState.PasswordConfirmState(
-                    inputPassword = "",
-                    savedPassword = "",
-                    isWigglePassword = true
-                ),
-                onTextButtonClick = {},
-                onActionClick = {},
-                onBackButtonClick = {},
-                onWiggleAnimationEnd = {}
-            )
-        }
+        PasswordSettingScreen(
+            modifier = Modifier.fillMaxSize(),
+            state = PasswordInputState.PasswordConfirmState(
+                inputPassword = "",
+                savedPassword = "",
+                isWigglePassword = true,
+                titleRes = R.string.title_password_setting,
+                contentRes = R.string.content_password_setting
+            ),
+            onTextButtonClick = {},
+            onActionClick = {},
+            onBackButtonClick = {},
+            onWiggleAnimationEnd = {}
+        )
     }
 }

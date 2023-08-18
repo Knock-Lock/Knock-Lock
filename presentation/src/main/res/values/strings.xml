@@ -25,10 +25,11 @@
 
     <string name="activate_knocklock">KnockLock 활성화</string>
     <!-- PasswordInput -->
-    <string name="title_password_setting">비밀번호 설정</string>
-    <string name="desc_password_setting">잠금 설정을 위한 비밀번호를 입력하세요.</string>
-    <string name="desc_password_setting_confirm">비밀번호 확인을 위해 다시 입력해주세요.</string>
-    <string name="desc_forget_password">비밀번호를 잊어버리셨다면 뒤로 돌아가주세요.</string>
+    <string name="title_password_setting">암호 설정</string>
+    <string name="title_password_change">암호 변경</string>
+    <string name="content_password_setting">암호 입력</string>
+    <string name="content_password_change">기존 암호 입력</string>
+    <string name="content_password_check">새로운 암호 확인</string>
     <string name="copy_success_msg">후원계좌가 클립보드에 복사되었습니다.\n감사합니다:)</string>
     <string name="copy_failed_msg">계좌복사에 싪패했습니다.</string>
     <string name="desc_password_verify">기존에 설정된 비밀번호를 입력하세요.</string>
