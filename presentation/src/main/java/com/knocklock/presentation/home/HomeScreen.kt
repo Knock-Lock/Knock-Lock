@@ -90,7 +90,7 @@ fun HomeSampleNotifications(
     ) {
         (0..4).forEach { _ ->
             LockNotiItem(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().height(56.dp)
                     .background(
                         color = Color.White.copy(alpha = 0.7f),
                         shape = RoundedCornerShape(10.dp),

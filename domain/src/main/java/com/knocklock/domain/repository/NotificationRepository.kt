@@ -19,4 +19,6 @@ interface NotificationRepository {
     suspend fun removeNotifications(vararg notification: Notification)
 
     suspend fun removeNotificationsWithGroupKey(key: String)
+
+    suspend fun removeAllNotifications()
 }

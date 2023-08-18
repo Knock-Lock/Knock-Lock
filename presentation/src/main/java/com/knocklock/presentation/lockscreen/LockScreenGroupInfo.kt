@@ -1,11 +1,17 @@
 package com.knocklock.presentation.lockscreen
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -46,29 +52,38 @@ fun LockScreenGroupInfo(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
-            modifier = Modifier.fillMaxWidth(0.7f),
+            modifier = Modifier.fillMaxWidth(0.5f),
             text = groupTitle,
             color = Color.White,
-            fontSize = 25.sp,
+            fontSize = 21.sp,
             overflow = TextOverflow.Ellipsis,
             maxLines = 1,
         )
-        ExpandButton(
-            modifier = Modifier.size(30.dp).clickable {
-                onDisableExpand()
-            },
-        )
-        RemoveButton(
-            modifier = Modifier.size(30.dp).clickable {
-                onRemoveNotification(
-                    RemovedGroupNotification(
-                        key = updatedNotifications[0].groupKey,
-                        type = removeType,
-                        removedNotifications = updatedNotifications,
-                    ),
-                )
-            },
-        )
+        Row(
+            modifier = Modifier.fillMaxHeight(),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            ExpandButton(
+                modifier = Modifier.padding(4.dp).height(28.dp).width(100.dp).clickable {
+                    onDisableExpand()
+                }.background(
+                    color = Color.LightGray.copy(alpha = 0.4f),
+                    shape = RoundedCornerShape(50.dp),
+                ),
+            )
+            RemoveButton(
+                modifier = Modifier.size(30.dp).clickable {
+                    onRemoveNotification(
+                        RemovedGroupNotification(
+                            key = updatedNotifications[0].groupKey,
+                            type = removeType,
+                            removedNotifications = updatedNotifications,
+                        ),
+                    )
+                },
+            )
+        }
     }
 }
 
@@ -76,26 +91,33 @@ fun LockScreenGroupInfo(
 fun ExpandButton(
     modifier: Modifier = Modifier,
 ) {
-    Canvas(
+    Row(
         modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
     ) {
-        drawCircle(
-            color = Color.LightGray.copy(alpha = 0.4f),
-        )
-
-        drawLine(
-            color = Color.Gray,
-            strokeWidth = 5.dp.toPx(),
-            start = Offset(x = size.width / 5 * 4, y = size.height / 5 * 3),
-            end = Offset(x = size.width / 2, y = size.height / 3),
-            cap = StrokeCap.Round,
-        )
-        drawLine(
-            color = Color.Gray,
-            strokeWidth = 5.dp.toPx(),
-            start = Offset(x = size.width / 5 * 1, y = size.height / 5 * 3),
-            end = Offset(x = size.width / 2, y = size.height / 3),
-            cap = StrokeCap.Round,
+        Canvas(
+            modifier = Modifier.size(24.dp),
+        ) {
+            drawLine(
+                color = Color(0x99292D32),
+                strokeWidth = 3.dp.toPx(),
+                start = Offset(x = size.width / 24 * 18, y = size.height / 5 * 3),
+                end = Offset(x = size.width / 2, y = size.height / 24 * 9),
+                cap = StrokeCap.Round,
+            )
+            drawLine(
+                color = Color(0x99292D32),
+                strokeWidth = 3.dp.toPx(),
+                start = Offset(x = size.width / 24 * 6, y = size.height / 5 * 3),
+                end = Offset(x = size.width / 2, y = size.height / 24 * 9),
+                cap = StrokeCap.Round,
+            )
+        }
+        Text(
+            text = "간략히 보기",
+            fontSize = 12.sp,
+            color = Color(0x99292D32),
         )
     }
 }
@@ -111,17 +133,17 @@ fun RemoveButton(
             color = Color.LightGray.copy(alpha = 0.4f),
         )
         drawLine(
-            color = Color.Gray,
-            strokeWidth = 5.dp.toPx(),
-            start = Offset(x = size.width / 4, y = size.height / 4),
-            end = Offset(x = size.width - size.width / 4, y = size.height - size.height / 4),
+            color = Color(0xFF292D32).copy(0.6f),
+            strokeWidth = 3.dp.toPx(),
+            start = Offset(x = size.width / 3, y = size.height / 3),
+            end = Offset(x = size.width - size.width / 3, y = size.height - size.height / 3),
             cap = StrokeCap.Round,
         )
         drawLine(
-            color = Color.Gray,
-            strokeWidth = 5.dp.toPx(),
-            start = Offset(x = size.width / 4, y = size.height - size.height / 4),
-            end = Offset(x = size.width - size.width / 4, y = size.height / 4),
+            color = Color(0xFF292D32).copy(0.6f),
+            strokeWidth = 3.dp.toPx(),
+            start = Offset(x = size.width / 3, y = size.height - size.height / 3),
+            end = Offset(x = size.width - size.width / 3, y = size.height / 3),
             cap = StrokeCap.Round,
         )
     }
@@ -142,7 +164,7 @@ private fun PreviewRemoveButton() {
 private fun PreviewExpandButton() {
     KnockLockTheme {
         ExpandButton(
-            modifier = Modifier.size(50.dp),
+            modifier = Modifier.size(93.dp),
         )
     }
 }

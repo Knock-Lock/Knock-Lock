@@ -24,4 +24,14 @@ interface NotificationDao {
         "DELETE FROM notification WHERE groupKey = :groupKey",
     )
     suspend fun deleteNotificationsWithGroupKey(groupKey: String)
+
+    @Query(
+        "DELETE FROM NOTIFICATION",
+    )
+    suspend fun deleteAllNotification()
+
+    @Query(
+        "DELETE FROM TABLEGROUP",
+    )
+    suspend fun deleteAllGroup()
 }

@@ -75,4 +75,11 @@ class NotificationRepositoryImpl @Inject constructor(
             notificationDao.deleteNotificationsWithGroupKey(key)
         }
     }
+
+    override suspend fun removeAllNotifications() {
+        runCatching {
+            notificationDao.deleteAllNotification()
+            notificationDao.deleteAllGroup()
+        }
+    }
 }
