@@ -11,24 +11,18 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.knocklock.domain.model.TimeFormat
 import java.util.*
 
-
 @Composable
 fun ClockWidget(
     timeFormat: TimeFormat,
     modifier: Modifier = Modifier,
+    topTextClockSize: Float = 80F,
+    bottomTextClockSize: Float = 21F,
+
 ) {
     Column(
-        modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        AndroidView(factory = { context ->
-            TextClock(context).apply {
-                format12Hour = timeFormat.timeFormat
-                textSize = 36F
-                setTextColor(Color.WHITE)
-            }
-        }, update = { textClock ->
-            textClock.format12Hour = timeFormat.timeFormat
-        })
         AndroidView(factory = { context ->
             TextClock(context).apply {
                 format12Hour =
@@ -37,7 +31,7 @@ fun ClockWidget(
                     } else {
                         TimeFormat.DATE_FORMAT_ENG
                     }
-                textSize = 12F
+                textSize = bottomTextClockSize
                 setTextColor(Color.WHITE)
             }
         }, update = { textClock ->
@@ -47,6 +41,15 @@ fun ClockWidget(
                 } else {
                     TimeFormat.DATE_FORMAT_ENG
                 }
+        })
+        AndroidView(factory = { context ->
+            TextClock(context).apply {
+                format12Hour = timeFormat.timeFormat
+                textSize = topTextClockSize
+                setTextColor(Color.WHITE)
+            }
+        }, update = { textClock ->
+            textClock.format12Hour = timeFormat.timeFormat
         })
     }
 }
@@ -67,4 +70,10 @@ private fun PreviewClockTwo() {
 @Composable
 private fun PreviewClockThird() {
     ClockWidget(timeFormat = TimeFormat.TimeVerticalFormat)
+}
+
+@Preview
+@Composable
+private fun PreviewClockFourth() {
+    ClockWidget(timeFormat = TimeFormat.TimeWithMeridiem)
 }

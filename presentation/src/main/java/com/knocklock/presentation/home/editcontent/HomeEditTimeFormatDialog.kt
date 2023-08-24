@@ -15,31 +15,31 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.holix.android.bottomsheetdialog.compose.BottomSheetDialog
+import com.knocklock.domain.model.TimeFormat
 import com.knocklock.presentation.extenstions.noRippleClickable
 import com.knocklock.presentation.widget.BottomSheetHeaderBar
 import com.knocklock.presentation.widget.ClockWidget
-import com.knocklock.domain.model.TimeFormat
 
 @Composable
 fun HomeEditTimeFormatDialog(
     modifier: Modifier = Modifier,
     selectedTimeFormat: TimeFormat? = null,
     onClick: (format: TimeFormat) -> Unit = {},
-    onDismiss: () -> Unit = {}
+    onDismiss: () -> Unit = {},
 ) {
     BottomSheetDialog(onDismissRequest = onDismiss) {
         Column(
             modifier = modifier
                 .background(color = Color.DarkGray)
-                .padding(8.dp)
+                .padding(8.dp),
         ) {
             BottomSheetHeaderBar(
-                modifier = Modifier.align(Alignment.CenterHorizontally)
+                modifier = Modifier.align(Alignment.CenterHorizontally),
             )
 
             Column(
                 modifier = Modifier.fillMaxWidth().padding(vertical = 20.dp, horizontal = 24.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 TimeFormat.values().forEach { timeFormat ->
                     key(timeFormat) {
@@ -50,7 +50,7 @@ fun HomeEditTimeFormatDialog(
                             onClick = { timeFormat ->
                                 onClick(timeFormat)
                                 onDismiss()
-                            }
+                            },
                         )
                     }
                 }
@@ -70,19 +70,21 @@ private fun TimeFormatItem(
         modifier = modifier
             .run {
                 border(
-                    width =  if (isSelected) 4.dp else 1.dp,
+                    width = if (isSelected) 4.dp else 1.dp,
                     color = if (isSelected) Color.White else Color.LightGray.copy(alpha = 0.3f),
-                    shape = RoundedCornerShape(10.dp)
+                    shape = RoundedCornerShape(10.dp),
                 )
             }
             .padding(16.dp)
             .noRippleClickable {
                 onClick(format)
-            }
+            },
     ) {
         ClockWidget(
             modifier = Modifier.fillMaxWidth().align(Alignment.Center),
-            timeFormat = format
+            timeFormat = format,
+            topTextClockSize = 36F,
+            bottomTextClockSize = 12F,
         )
     }
 }
