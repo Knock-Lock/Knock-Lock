@@ -1,8 +1,8 @@
 package com.knocklock.domain.model
 
 enum class TimeFormat(val timeFormat: String) {
-    TimeWithNoSecondFormat("h:m"),
-    TimeWithSecondFormat("h:m:s"),
+    TimeWithNoSecondFormat("hh:mm"),
+    TimeWithSecondFormat("hh:mm:ss"),
     TimeVerticalFormat("hh\nmm"),
     TimeWithMeridiem("a HH:mm")
     ;

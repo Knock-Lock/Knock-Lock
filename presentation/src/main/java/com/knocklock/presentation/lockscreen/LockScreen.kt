@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
@@ -231,6 +232,7 @@ fun LockScreenNotificationListColumn(
     ) {
         item {
             ClockWidget(
+                modifier = Modifier.scale(0.75f),
                 timeFormat = timeFormat,
             )
         }
